@@ -205,13 +205,14 @@
                     <code>fa-brands fa-youtube</code>, <code>fa-solid fa-envelope</code>…</p>
                 <div class="row-list" id="social-list"></div>
                 <button class="btn-mini" id="add-social" style="justify-self:start"><i class="fa-solid fa-plus"></i>Thêm liên kết</button>
-                <label class="check"><input type="checkbox" id="social-donate" checked>Hiện nút Donate (mở hộp thoại QR ở phần 4)</label>
+                <label class="check"><input type="checkbox" id="social-donate" checked>Hiện nút Donate — tắt là mất nút, không hiện QR (thông tin QR ở phần 4 cũng bị bỏ qua)</label>
             </div>
         </details>
 
         <details>
             <summary><span class="num">4</span>Donate (QR ngân hàng)</summary>
             <div class="sec-body">
+                <p class="hint">💡 Muốn ẩn hẳn khu Donate? Tắt checkbox <b>Hiện nút Donate</b> ở phần 3 — không cần xoá thông tin QR.</p>
                 <label><b>File ảnh QR</b>(đặt cùng thư mục gốc)<input type="text" id="donate-qrImage"></label>
                 <div class="grid2">
                     <label><b>Tên ngân hàng</b>(trống = ẩn)<input type="text" id="donate-bankName"></label>
@@ -239,13 +240,16 @@
         <details>
             <summary><span class="num">6</span>Nhạc nền</summary>
             <div class="sec-body">
-                <div class="grid2">
-                    <label class="check" style="align-self:end"><input type="checkbox" id="music-autoplay">Tự phát khi khách bấm vào trang</label>
-                    <label><b>Âm lượng mặc định</b>(0 → 1)<input type="number" id="music-volume" min="0" max="1" step="0.05"></label>
+                <label class="check"><input type="checkbox" id="music-enabled" checked>Bật nhạc nền — tắt là mất widget điều khiển nhạc ở góc màn hình</label>
+                <div id="music-fields">
+                    <div class="grid2">
+                        <label class="check" style="align-self:end"><input type="checkbox" id="music-autoplay">Tự phát khi khách bấm vào trang</label>
+                        <label><b>Âm lượng mặc định</b>(0 → 1)<input type="number" id="music-volume" min="0" max="1" step="0.05"></label>
+                    </div>
+                    <div class="row-list" id="track-list"></div>
+                    <button class="btn-mini" id="add-track" style="justify-self:start"><i class="fa-solid fa-plus"></i>Thêm bài hát</button>
+                    <p class="hint">File mp3 đặt cùng thư mục gốc với <code>index.html</code>. Không muốn nhạc → tắt công tắc trên (không cần xoá bài).</p>
                 </div>
-                <div class="row-list" id="track-list"></div>
-                <button class="btn-mini" id="add-track" style="justify-self:start"><i class="fa-solid fa-plus"></i>Thêm bài hát</button>
-                <p class="hint">File mp3 đặt cùng thư mục gốc với <code>index.html</code>. Không muốn nhạc → xoá hết bài.</p>
             </div>
         </details>
 

@@ -755,6 +755,13 @@ function initDonate() {
     const modal = document.getElementById('donate-modal');
     if (!modal) return;
 
+    // Tắt khu Donate từ config (donate.enabled: false): ẩn nút khỏi danh sách social
+    if (CONFIG.donate && CONFIG.donate.enabled === false) {
+        const donateBtn = document.querySelector('.social-pill.highlight');
+        if (donateBtn) donateBtn.style.display = 'none';
+        return;
+    }
+
     const backdrop = document.getElementById('donate-backdrop');
     const closeBtn = document.getElementById('donate-close');
     const info = document.getElementById('donate-info');
@@ -1523,7 +1530,7 @@ function initClickToEnter() {
         playBeepSound(440, 0.12);
 
         // Start Audio Playback if enabled
-        if (CONFIG.music && CONFIG.music.autoplayOnEnter) {
+        if (CONFIG.music && CONFIG.music.enabled !== false && CONFIG.music.autoplayOnEnter) {
             const audio = document.getElementById('bg-audio');
             if (audio) {
                 ensureAudioSource();
@@ -1567,6 +1574,14 @@ function initAudioController() {
     const artistName = document.getElementById('audio-artist-name');
 
     if (!audio || !CONFIG.music) return;
+    // Tắt nhạc nền từ config (music.enabled: false): ẩn widget điều khiển,
+    // không tải bài nào — autoplay ở màn chào cũng tự bỏ qua vì playlist rỗng
+    if (CONFIG.music.enabled === false) {
+        const widget = document.getElementById('audio-widget');
+        if (widget) widget.style.display = 'none';
+        playlist = [];
+        return;
+    }
 
     // Load playlist from config or fallback
     if (Array.isArray(CONFIG.music.playlist) && CONFIG.music.playlist.length > 0) {

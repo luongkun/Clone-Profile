@@ -77,6 +77,7 @@
 
 | # | Nội dung | Giá trị của bạn | Tên biến |
 |---|----------|-----------------|----------|
+| 🟡 4.0 | Bật khu Donate? (`false` = ẩn nút Donate khỏi social) | `→ ...........` | `donate.enabled` |
 | 🟡 4.1 | File ảnh QR chuyển khoản (đặt cùng thư mục gốc) | `→ ...........` | `donate.qrImage` |
 | 🟡 4.2 | Tên ngân hàng (để trống `""` = ẩn dòng) | `→ ...........` | `donate.bankName` |
 | 🟡 4.3 | Tên chủ tài khoản | `→ ...........` | `donate.accountName` |
@@ -104,6 +105,7 @@
 
 | # | Nội dung | Giá trị của bạn | Tên biến |
 |---|----------|-----------------|----------|
+| 🟡 6.0 | Bật nhạc nền? (`false` = mất widget nhạc ở góc màn) | `→ ...........` | `music.enabled` |
 | 🟡 6.1 | Tự phát nhạc khi khách bấm vào? (`true`/`false`) | `→ ...........` | `music.autoplayOnEnter` |
 | 🟡 6.2 | Âm lượng mặc định (0 → 1, vd `0.5`) | `→ ...........` | `music.volume` |
 | 🟡 6.3 | Bài 1: tên / ca sĩ / file mp3 | `→ ....... / ....... / .......` | `music.playlist[0]` |

@@ -116,6 +116,8 @@ function fillForm(cfg) {
     fillRows('social-list', (cfg.socials || []).filter(s => s.action !== 'donate'), addSocial, ['name', 'icon', 'url', 'copy']);
 
     const donate = cfg.donate || {};
+    // Nút Donate trong socials là nguồn sự thật: enabled lấy theo có nút hay không
+    $('social-donate').checked = (cfg.socials || []).some(s => s.action === 'donate') && donate.enabled !== false;
     $('donate-qrImage').value = donate.qrImage || '';
     $('donate-bankName').value = donate.bankName || '';
     $('donate-accountName').value = donate.accountName || '';
@@ -125,6 +127,7 @@ function fillForm(cfg) {
     fillRows('server-list', cfg.servers || [], addServer, ['name', 'inviteUrl', 'role', 'description', 'tag']);
 
     const music = cfg.music || {};
+    $('music-enabled').checked = music.enabled !== false;
     $('music-autoplay').checked = !!music.autoplayOnEnter;
     $('music-volume').value = music.volume ?? 1;
     fillRows('track-list', music.playlist || [], addTrack, ['title', 'artist', 'url']);
@@ -230,6 +233,7 @@ function buildConfig() {
         } : null),
         socials,
         donate: {
+            enabled: $('social-donate').checked,
             qrImage: val('donate-qrImage') || 'qr-bank.png',
             bankName: val('donate-bankName'),
             accountName: val('donate-accountName'),
@@ -248,6 +252,7 @@ function buildConfig() {
             quotes: lines('love-quotes'),
         },
         music: {
+            enabled: $('music-enabled').checked,
             autoplayOnEnter: $('music-autoplay').checked,
             volume: num('music-volume', 1),
             playlist: collectRows('track-list', null, d => d.url ? { title: d.title, artist: d.artist, url: d.url } : null),
@@ -390,9 +395,11 @@ document.addEventListener('keydown', (e) => {
 function syncToggleFields() {
     $('discord-fields').style.display = $('discord-enabled').checked ? '' : 'none';
     $('setlove-fields').style.display = $('setlove-enabled').checked ? '' : 'none';
+    $('music-fields').style.display = $('music-enabled').checked ? '' : 'none';
 }
 $('discord-enabled').addEventListener('change', syncToggleFields);
 $('setlove-enabled').addEventListener('change', syncToggleFields);
+$('music-enabled').addEventListener('change', syncToggleFields);
 
 /* ---------------- sự kiện ---------------- */
 $('add-badge').onclick = addBadge;

@@ -40,6 +40,8 @@ Các mục **tuỳ chọn**:
 | `techStack` | 6 pill sở thích |
 | `discordEnabled` | `false` = tắt Discord realtime: ẩn vùng presence, dot trạng thái, nhãn DISCORD LIVE, nút Copy Discord — trang thành bio thường |
 | `setlove.enabled` | `false` = tắt panel cặp đôi: mất luôn nút trái tim góc màn |
+| `music.enabled` | `false` = tắt nhạc nền: ẩn widget điều khiển nhạc, không tự phát |
+| `donate.enabled` | `false` = ẩn nút Donate khỏi danh sách social |
 
 **Điều kiện để presence realtime hoạt động**: tài khoản Discord của bạn (và của
 người ấy trong `setlove`) phải tham gia server [discord.gg/lanyard](https://discord.gg/lanyard).

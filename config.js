@@ -108,7 +108,9 @@ const CONFIG = {
     ],
 
     // 4.2 ỦNG HỘ (DONATE) — bấm nút Donate sẽ hiện ảnh QR ngân hàng giữa màn hình
+    //     enabled: false -> ẩn nút Donate khỏi danh sách social (không hiện QR)
     donate: {
+        enabled: true,
         // Tên file ảnh QR, đặt cùng thư mục với index.html.
         // Khi chưa có file, hộp thoại hiện khung hướng dẫn thay vì ảnh vỡ.
         // Chỉ cần đặt ảnh vào repo với đúng tên này là QR tự hiện, không phải sửa code.
@@ -160,7 +162,9 @@ const CONFIG = {
     },
 
     // 5. NHẠC NỀN & PLAYLIST (AUDIO PLAYLIST):
+    //     enabled: false -> tắt hẳn nhạc nền: ẩn widget điều khiển nhạc, không tự phát
     music: {
+        enabled: true,
         autoplayOnEnter: true,
         // 1 = mở trang là thanh âm lượng đã kéo sẵn tối đa (0.5 = một nửa...)
         volume: 1,
