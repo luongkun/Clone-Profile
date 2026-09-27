@@ -30,6 +30,7 @@
 |---|----------|-----------------|----------|
 | 🔴 1.1 | Tên chạy ở tiêu đề tab (vd `@TenBan`) | `→ ...........` | `siteName` |
 | 🔴 1.2 | Discord User ID của bạn (Developer Mode → chuột phải avatar → Copy User ID) | `→ ...........` | `discordId` |
+| 🟡 1.3 | Bật kết nối Discord realtime? (`false` = bio thường, ẩn vùng presence + nút Copy Discord) | `→ ...........` | `discordEnabled` |
 
 > ⚠️ Để presence realtime chạy được: tài khoản Discord ở 1.2 phải tham gia server <https://discord.gg/lanyard>
 
@@ -115,6 +116,7 @@
 
 | # | Nội dung | Giá trị của bạn | Tên biến |
 |---|----------|-----------------|----------|
+| 🟡 7.0 | Bật panel Setlove? (`false` = mất nút trái tim + panel) | `→ ...........` | `setlove.enabled` |
 | 🟡 7.1 | Tên của bạn | `→ ...........` | `setlove.myName` |
 | 🟡 7.2 | Tên người ấy | `→ ...........` | `setlove.partnerName` |
 | 🟡 7.3 | Discord ID của bạn | `→ ...........` | `setlove.myDiscordId` |

@@ -97,6 +97,8 @@ function fillForm(cfg) {
     $('site-footerBrand').value = site.footerBrand || '';
 
     $('discordId').value = cfg.discordId || '';
+    // Công tắc Discord: mặc định BẬT trừ khi config ghi rõ discordEnabled: false
+    $('discord-enabled').checked = cfg.discordEnabled !== false;
 
     const p = cfg.profile || {};
     $('profile-name').value = p.name || '';
@@ -128,6 +130,7 @@ function fillForm(cfg) {
     fillRows('track-list', music.playlist || [], addTrack, ['title', 'artist', 'url']);
 
     const love = cfg.setlove || {};
+    $('setlove-enabled').checked = love.enabled !== false;
     $('love-myName').value = love.myName || '';
     $('love-partnerName').value = love.partnerName || '';
     $('love-myId').value = love.myDiscordId || '';
@@ -205,6 +208,7 @@ function buildConfig() {
             monogram: val('site-monogram'),
         },
         siteName: val('siteName'),
+        discordEnabled: $('discord-enabled').checked,
         discordId: val('discordId'),
         profile: {
             name: val('profile-name'),
@@ -233,6 +237,7 @@ function buildConfig() {
             note: val('donate-note'),
         },
         setlove: {
+            enabled: $('setlove-enabled').checked,
             myName: val('love-myName'),
             partnerName: val('love-partnerName'),
             myDiscordId: myId,
@@ -378,6 +383,17 @@ document.addEventListener('keydown', (e) => {
     if (e.key === 'Escape' && !$('preview-overlay').hidden) closePreview();
 });
 
+/* ---------------- bật/tắt nhóm field theo công tắc ----------------
+ * Discord tắt -> ẩn luôn các field ID/username (không cần điền nữa);
+ * Setlove tắt -> ẩn cả phần điền tên/ngày yêu.
+ */
+function syncToggleFields() {
+    $('discord-fields').style.display = $('discord-enabled').checked ? '' : 'none';
+    $('setlove-fields').style.display = $('setlove-enabled').checked ? '' : 'none';
+}
+$('discord-enabled').addEventListener('change', syncToggleFields);
+$('setlove-enabled').addEventListener('change', syncToggleFields);
+
 /* ---------------- sự kiện ---------------- */
 $('add-badge').onclick = addBadge;
 $('add-social').onclick = addSocial;
@@ -435,6 +451,7 @@ $('btn-reload').onclick = async () => {
 // Tự nạp khi mở qua http server (mở file:// thì fetch bị chặn — điền tay)
 (async () => {
     const status = $('load-status');
+    syncToggleFields();
     if (location.protocol === 'file:') {
         status.textContent = 'Mở qua python3 -m http.server 8000 để tự nạp config';
         status.className = 'warn';

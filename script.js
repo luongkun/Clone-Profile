@@ -97,6 +97,14 @@ function initSetlove() {
     const arrow = document.getElementById('love-arrow');
     if (!panel || !arrow) return;
 
+    // Tắt toàn bộ phần Setlove từ config (setlove.enabled: false):
+    // mất luôn nút trái tim góc màn + panel trượt
+    if (CONFIG.setlove && CONFIG.setlove.enabled === false) {
+        arrow.remove();
+        panel.remove();
+        return;
+    }
+
     // Nút trái tim phải nằm NGOÀI .main-viewport (tổ tiên có perspective/transform)
     // thì `position: fixed` mới neo vào MÀN HÌNH thật — nhờ đó mới đặt được nút
     // ra NGOÀI mép phải card. Panel thì vẫn ở TRONG card (không dời đi đâu).
@@ -2281,12 +2289,29 @@ function initParticleCanvas() {
 let spotifyProgressInterval = null;
 
 function initLanyardRealtime() {
-    if (!CONFIG.discordId) {
-        setMockDiscordState();
+    // Tắt Discord realtime từ config (discordEnabled: false) hoặc chưa điền ID
+    if (CONFIG.discordEnabled === false || !CONFIG.discordId) {
+        disableDiscordUI();
         return;
     }
 
     connectLanyardWebSocket();
+}
+
+// Tắt sạch UI phụ thuộc Discord khi discordEnabled: false — trang vẫn là một bio
+// hoàn chỉnh (avatar/banner/tên lấy từ CONFIG, không kết nối Lanyard)
+function disableDiscordUI() {
+    // Vùng presence (status, Spotify, game đang chơi)
+    const presenceSection = document.getElementById('presence-section');
+    if (presenceSection) presenceSection.style.display = 'none';
+    // Dot trạng thái trên avatar + nhãn DISCORD LIVE trên banner
+    const statusIndicator = document.getElementById('status-indicator');
+    if (statusIndicator) statusIndicator.style.display = 'none';
+    const liveBadge = document.querySelector('.banner-badge-top');
+    if (liveBadge) liveBadge.style.display = 'none';
+    // Nút Copy Discord (không còn ID nào để copy)
+    const copyBtn = document.getElementById('copy-tag-btn');
+    if (copyBtn) copyBtn.style.display = 'none';
 }
 
 function connectLanyardWebSocket() {

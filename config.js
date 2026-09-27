@@ -35,6 +35,9 @@ const CONFIG = {
     siteName: "@Luong Kun",
 
     // 1. DISCORD USER ID (bật Developer Mode trong Discord -> chuột phải avatar -> Copy User ID):
+    // discordEnabled: false -> tắt hẳn kết nối Discord (ẩn vùng presence, dot trạng thái,
+    // nhãn DISCORD LIVE và nút Copy Discord) — trang vẫn chạy như một bio bình thường.
+    discordEnabled: true,
     discordId: "1222143238056574990",
 
     // 2. THÔNG TIN PROFILE:
@@ -118,8 +121,10 @@ const CONFIG = {
     },
 
     // 4.1 MÀN "SETLOVE" (trượt từ phải sang):
+    //     enabled: false -> ẩn hẳn nút trái tim góc màn + panel (không dùng tính năng này).
     //     tên tạm + ngày tạm — nhớ sửa lại cho đúng nhé!
     setlove: {
+        enabled: true,
         myName: "Lương",
         partnerName: "Tuyết Anh",
         // Avatar + khung đồng bộ từ Discord qua Lanyard (chỉ avatar & khung, tên giữ nguyên theo config)

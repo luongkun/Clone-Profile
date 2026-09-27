@@ -38,6 +38,8 @@ Các mục **tuỳ chọn**:
 | `setlove` | Panel cặp đôi: tên 2 người, 2 Discord ID, ngày bắt đầu yêu, câu nói |
 | `effects` | Bật/tắt từng hiệu ứng (tilt, spotlight, cursor, particle, sao băng) |
 | `techStack` | 6 pill sở thích |
+| `discordEnabled` | `false` = tắt Discord realtime: ẩn vùng presence, dot trạng thái, nhãn DISCORD LIVE, nút Copy Discord — trang thành bio thường |
+| `setlove.enabled` | `false` = tắt panel cặp đôi: mất luôn nút trái tim góc màn |
 
 **Điều kiện để presence realtime hoạt động**: tài khoản Discord của bạn (và của
 người ấy trong `setlove`) phải tham gia server [discord.gg/lanyard](https://discord.gg/lanyard).

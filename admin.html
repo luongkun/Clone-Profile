@@ -158,11 +158,15 @@
         <details open>
             <summary><span class="num">1</span>Discord của bạn</summary>
             <div class="sec-body">
-                <div class="grid2">
-                    <label><b>Discord User ID <span class="req">*</span></b>(Developer Mode → chuột phải avatar → Copy ID)<input type="text" id="discordId"></label>
-                    <label><b>Username Discord</b>(dòng @username trên card)<input type="text" id="profile-username"></label>
+                <label class="check"><input type="checkbox" id="discord-enabled" checked>Kết nối Discord realtime (trạng thái, Spotify, game đang chơi)</label>
+                <div id="discord-fields">
+                    <div class="grid2">
+                        <label><b>Discord User ID <span class="req">*</span></b>(Developer Mode → chuột phải avatar → Copy ID)<input type="text" id="discordId"></label>
+                        <label><b>Username Discord</b>(dòng @username trên card)<input type="text" id="profile-username"></label>
+                    </div>
+                    <p class="hint">⚠️ Phải tham gia server <code>discord.gg/lanyard</code> thì trạng thái realtime mới chạy.<br>
+                    Tắt kết nối Discord thì trang vẫn chạy — avatar/tên lấy từ form, vùng trạng thái realtime và nút Copy Discord bị ẩn đi.</p>
                 </div>
-                <p class="hint">⚠️ Phải tham gia server <code>discord.gg/lanyard</code> thì trạng thái realtime mới chạy.</p>
             </div>
         </details>
 
@@ -248,23 +252,26 @@
         <details>
             <summary><span class="num">7</span>Panel Setlove (cặp đôi)</summary>
             <div class="sec-body">
-                <div class="grid2">
-                    <label><b>Tên của bạn</b><input type="text" id="love-myName"></label>
-                    <label><b>Tên người ấy</b><input type="text" id="love-partnerName"></label>
+                <label class="check"><input type="checkbox" id="setlove-enabled" checked>Bật panel Setlove — tắt là mất luôn nút trái tim góc màn</label>
+                <div id="setlove-fields">
+                    <div class="grid2">
+                        <label><b>Tên của bạn</b><input type="text" id="love-myName"></label>
+                        <label><b>Tên người ấy</b><input type="text" id="love-partnerName"></label>
+                    </div>
+                    <div class="grid2">
+                        <label><b>Discord ID của bạn</b><input type="text" id="love-myId"></label>
+                        <label><b>Discord ID người ấy</b><input type="text" id="love-partnerId"></label>
+                    </div>
+                    <label><b>Ngày bắt đầu yêu</b><input type="date" id="love-startDate"></label>
+                    <p class="hint">Avatar + khung tự đồng bộ qua Lanyard. Ảnh dự phòng local (tuỳ chọn, file trong repo):</p>
+                    <div class="grid3">
+                        <label><b>Avatar bạn</b><input type="text" id="love-myAvatarLocal"></label>
+                        <label><b>Khung bạn</b><input type="text" id="love-myDecoLocal"></label>
+                        <label><b>Avatar người ấy</b><input type="text" id="love-partnerAvatarLocal"></label>
+                    </div>
+                    <label><b>Các câu yêu thương</b>(mỗi dòng một câu — bấm vào câu trên panel để đổi)<textarea id="love-quotes"></textarea></label>
+                    <label><b>Ảnh kỷ niệm</b>(mỗi dòng: <code>đường-dẫn-ảnh | chú thích</code> — bỏ trống để ẩn)<textarea id="love-photos" placeholder="images/1.jpg | Chuyến đi Đà Lạt"></textarea></label>
                 </div>
-                <div class="grid2">
-                    <label><b>Discord ID của bạn</b><input type="text" id="love-myId"></label>
-                    <label><b>Discord ID người ấy</b><input type="text" id="love-partnerId"></label>
-                </div>
-                <label><b>Ngày bắt đầu yêu</b><input type="date" id="love-startDate"></label>
-                <p class="hint">Avatar + khung tự đồng bộ qua Lanyard. Ảnh dự phòng local (tuỳ chọn, file trong repo):</p>
-                <div class="grid3">
-                    <label><b>Avatar bạn</b><input type="text" id="love-myAvatarLocal"></label>
-                    <label><b>Khung bạn</b><input type="text" id="love-myDecoLocal"></label>
-                    <label><b>Avatar người ấy</b><input type="text" id="love-partnerAvatarLocal"></label>
-                </div>
-                <label><b>Các câu yêu thương</b>(mỗi dòng một câu — bấm vào câu trên panel để đổi)<textarea id="love-quotes"></textarea></label>
-                <label><b>Ảnh kỷ niệm</b>(mỗi dòng: <code>đường-dẫn-ảnh | chú thích</code> — bỏ trống để ẩn)<textarea id="love-photos" placeholder="images/1.jpg | Chuyến đi Đà Lạt"></textarea></label>
             </div>
         </details>
 
