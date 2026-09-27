@@ -1230,13 +1230,16 @@ function initProfileUI() {
     if (taglineEl) taglineEl.textContent = CONFIG.profile.title;
     if (bioEl) bioEl.textContent = CONFIG.profile.bio;
     if (locationEl && CONFIG.profile.location) locationEl.textContent = CONFIG.profile.location;
-    if (avatarEl && CONFIG.profile.avatar) avatarEl.src = CONFIG.profile.avatar;
+    // Avatar: khi tắt Discord realtime, ưu tiên ảnh tải lên (avatarData) rồi mới
+    // tới URL dự phòng (avatar) — cả hai cùng hiện ở màn chào lẫn card chính
+    const avatarSource = CONFIG.profile.avatarData || CONFIG.profile.avatar;
+    if (avatarEl && avatarSource) avatarEl.src = avatarSource;
     if (bannerEl && CONFIG.profile.banner) bannerEl.style.backgroundImage = `url('${CONFIG.profile.banner}')`;
 
     // Synchronize Cute Welcome Overlay
     const enterAvatarEl = document.querySelector('.cute-avatar-img, .enter-avatar-img');
     const enterNameEl = document.querySelector('.cute-name, .enter-name');
-    if (enterAvatarEl && CONFIG.profile.avatar) enterAvatarEl.src = CONFIG.profile.avatar;
+    if (enterAvatarEl && avatarSource) enterAvatarEl.src = avatarSource;
     if (enterNameEl && CONFIG.profile.name) enterNameEl.textContent = CONFIG.profile.name;
 
     // Hydrate các chữ còn lại từ CONFIG.site (trước đây là giá trị cứng trong HTML).
@@ -1247,7 +1250,7 @@ function initProfileUI() {
     const enterLabelEl = document.querySelector('.cute-pill-label');
     if (enterLabelEl && site.enterLabel) enterLabelEl.textContent = site.enterLabel;
     const brandEl = document.querySelector('.mono-logo');
-    if (brandEl && site.footerBrand) brandEl.textContent = site.footerBrand;
+    if (brandEl) brandEl.textContent = site.footerBrand || site.artistName || brandEl.textContent;
     const brandSubEl = document.querySelector('.insignia-sub');
     if (brandSubEl && site.footerSuffix) brandSubEl.textContent = site.footerSuffix;
 
@@ -1597,9 +1600,11 @@ function initAudioController() {
     if (playlist.length === 0) return;
 
     // Hiện bài đầu tiên trong playlist ngay từ lúc tải trang
-    // (trước đây là chữ cứng trong index.html)
+    // (trước đây là chữ cứng trong index.html). Bài không điền ca sĩ riêng
+    // thì dùng tên nghệ sĩ chung trong CONFIG.site.artistName
+    const artistFallback = (CONFIG.site && CONFIG.site.artistName) || '';
     if (trackTitle && playlist[0]) trackTitle.textContent = playlist[0].title;
-    if (artistName && playlist[0]) artistName.textContent = playlist[0].artist;
+    if (artistName && playlist[0]) artistName.textContent = playlist[0].artist || artistFallback;
 
     // Cập nhật dòng gợi ý ở màn hình chào theo số bài thật trong playlist
     const hintEl = document.querySelector('.cute-audio-hint span');
@@ -1637,7 +1642,7 @@ function initAudioController() {
         }
         if (artistName) {
             const countTag = playlist.length > 1 ? `${currentTrackIndex + 1}/${playlist.length} • ` : '';
-            artistName.textContent = `${countTag}${track.artist}`;
+            artistName.textContent = `${countTag}${track.artist || artistFallback}`;
         }
 
         if (autoPlay) {
@@ -2306,6 +2311,15 @@ let spotifyProgressInterval = null;
 function initLanyardRealtime() {
     // Tắt Discord realtime từ config (discordEnabled: false) hoặc chưa điền ID
     if (CONFIG.discordEnabled === false || !CONFIG.discordId) {
+        // Dùng ảnh tải lên (nếu có) làm avatar + khung dự phòng bị ẩn đi
+        if (CONFIG.profile && CONFIG.profile.avatarData) {
+            const avatarEl = document.getElementById('profile-avatar');
+            const enterAvatarEl = document.querySelector('.cute-avatar-img, .enter-avatar-img');
+            if (avatarEl) avatarEl.src = CONFIG.profile.avatarData;
+            if (enterAvatarEl) enterAvatarEl.src = CONFIG.profile.avatarData;
+        }
+        const decoEl = document.getElementById('profile-avatar-decoration');
+        if (decoEl) decoEl.style.display = 'none';
         disableDiscordUI();
         return;
     }

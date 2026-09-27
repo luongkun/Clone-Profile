@@ -19,6 +19,9 @@ const num = (id, fallback = 0) => {
 };
 const lines = (id) => val(id).split('\n').map(s => s.trim()).filter(Boolean);
 const esc = (s) => String(s).replace(/\\/g, '\\\\').replace(/"/g, '\\"').replace(/\r?\n/g, '\\n');
+// Giới hạn dung lượng ảnh nhúng vào config.js: lớn hơn thì cảnh báo (file config
+// phình to làm trang chậm đi khi tải lần đầu)
+const AVATAR_MAX_BYTES = 300 * 1024;
 const q = (s) => `"${esc(s)}"`;
 const toastEl = $('toast');
 
@@ -88,13 +91,13 @@ function fillForm(cfg) {
     const site = cfg.site || {};
     $('site-fullName').value = site.fullName || '';
     $('site-domain').value = site.domain || '';
+    $('site-artistName').value = site.artistName || '';
     $('siteName').value = cfg.siteName || '';
     $('site-monogram').value = site.monogram || '';
     $('site-description').value = site.description || '';
     $('site-welcomeText').value = site.welcomeText || '';
     $('site-enterLabel').value = site.enterLabel || '';
     $('site-footerSuffix').value = site.footerSuffix || '';
-    $('site-footerBrand').value = site.footerBrand || '';
 
     $('discordId').value = cfg.discordId || '';
     // Công tắc Discord: mặc định BẬT trừ khi config ghi rõ discordEnabled: false
@@ -109,6 +112,8 @@ function fillForm(cfg) {
     $('profile-location').value = p.location || '';
     $('profile-banner').value = p.banner || '';
     $('profile-avatar').value = p.avatar || '';
+    $('profile-avatarData').value = p.avatarData || '';
+    updateAvatarUploadUI();
     $('profile-avatarLocal').value = p.avatarLocal || '';
     $('profile-quotes').value = (p.quotes || []).join('\n');
     fillRows('badge-list', p.badges || [], addBadge, ['icon', 'label', 'color']);
@@ -203,10 +208,12 @@ function buildConfig() {
         site: {
             fullName: val('site-fullName'),
             domain: val('site-domain'),
+            artistName: val('site-artistName'),
             description: val('site-description'),
             welcomeText: val('site-welcomeText'),
             enterLabel: val('site-enterLabel'),
-            footerBrand: val('site-footerBrand'),
+            // Chữ logo footer = Tên nghệ sĩ (đổi một chỗ, đổi cả hai)
+            footerBrand: val('site-artistName'),
             footerSuffix: val('site-footerSuffix'),
             monogram: val('site-monogram'),
         },
@@ -219,6 +226,7 @@ function buildConfig() {
             username: val('profile-username'),
             title: val('profile-title'),
             avatar: val('profile-avatar'),
+            avatarData: val('profile-avatarData'),
             avatarLocal: val('profile-avatarLocal'),
             banner: val('profile-banner'),
             bio: val('profile-bio'),
@@ -400,6 +408,57 @@ function syncToggleFields() {
 $('discord-enabled').addEventListener('change', syncToggleFields);
 $('setlove-enabled').addEventListener('change', syncToggleFields);
 $('music-enabled').addEventListener('change', syncToggleFields);
+
+/* ---------------- tải ảnh đại diện lên (khi tắt Discord) ----------------
+ * Ảnh được đọc thành base64 data-URL và nhúng thẳng vào config.js — người mua
+ * không cần thêm file nào vào repo. Ưu tiên hiển thị: avatarData > avatar (URL).
+ */
+function updateAvatarUploadUI() {
+    const data = val('profile-avatarData');
+    const preview = $('avatar-upload-preview');
+    const clearBtn = $('avatar-upload-clear');
+    const status = $('avatar-upload-status');
+    if (data) {
+        preview.innerHTML = `<img src="${data}" alt="">`;
+        clearBtn.hidden = false;
+        status.textContent = '✓ Đã có ảnh — sẽ nhúng vào config.js';
+        status.className = 'ok';
+    } else {
+        preview.innerHTML = '<i class="fa-solid fa-image"></i>';
+        clearBtn.hidden = true;
+        status.textContent = '';
+        status.className = '';
+    }
+}
+
+$('avatar-upload-btn').addEventListener('click', () => $('avatar-upload-file').click());
+$('avatar-upload-clear').addEventListener('click', () => {
+    $('profile-avatarData').value = '';
+    updateAvatarUploadUI();
+});
+$('avatar-upload-file').addEventListener('change', () => {
+    const file = $('avatar-upload-file').files[0];
+    if (!file) return;
+    if (!file.type.startsWith('image/')) {
+        const status = $('avatar-upload-status');
+        status.textContent = '✗ Chỉ nhận file ảnh (png/jpg/webp)';
+        status.className = 'err';
+        return;
+    }
+    if (file.size > AVATAR_MAX_BYTES) {
+        const status = $('avatar-upload-status');
+        status.textContent = `✗ Ảnh ${Math.round(file.size / 1024)}KB — vượt mức khuyên dùng 300KB, hãy nén nhỏ lại`;
+        status.className = 'err';
+        return;
+    }
+    const reader = new FileReader();
+    reader.onload = () => {
+        $('profile-avatarData').value = reader.result;
+        updateAvatarUploadUI();
+        toast('✓ Đã sẵn sàng nhúng ảnh vào config.js');
+    };
+    reader.readAsDataURL(file);
+});
 
 /* ---------------- sự kiện ---------------- */
 $('add-badge').onclick = addBadge;

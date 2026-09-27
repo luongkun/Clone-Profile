@@ -14,6 +14,9 @@ const CONFIG = {
     site: {
         // Tên đầy đủ (hiện ở footer và thẻ chia sẻ Facebook/Discord)
         fullName: "Nguyễn Lương",
+        // Tên nghệ sĩ / ca sĩ: dùng làm ca sĩ cho các bài hát (khi bài không điền
+        // riêng) và là chữ logo ở footer — đổi MỘT chỗ là đổi cả hai
+        artistName: "Nguyễn Lương",
         // Domain thật của trang sau khi deploy — KHÔNG có https:// và không có / cuối.
         // Dùng miễn phí: để nguyên subdomain *.pages.dev của bạn (vd "ten-ban.pages.dev").
         domain: "luongkun.pages.dev",

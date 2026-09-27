@@ -38,10 +38,12 @@ Các mục **tuỳ chọn**:
 | `setlove` | Panel cặp đôi: tên 2 người, 2 Discord ID, ngày bắt đầu yêu, câu nói |
 | `effects` | Bật/tắt từng hiệu ứng (tilt, spotlight, cursor, particle, sao băng) |
 | `techStack` | 6 pill sở thích |
+| `site.artistName` | Tên ca sĩ/nghệ sĩ: dùng cho các bài hát không điền ca sĩ riêng và là chữ logo ở footer — đổi một chỗ là đổi cả hai |
 | `discordEnabled` | `false` = tắt Discord realtime: ẩn vùng presence, dot trạng thái, nhãn DISCORD LIVE, nút Copy Discord — trang thành bio thường |
 | `setlove.enabled` | `false` = tắt panel cặp đôi: mất luôn nút trái tim góc màn |
 | `music.enabled` | `false` = tắt nhạc nền: ẩn widget điều khiển nhạc, không tự phát |
 | `donate.enabled` | `false` = ẩn nút Donate khỏi danh sách social |
+| `profile.avatarData` | Ảnh đại diện nhúng base64 (tải lên trong admin.html khi tắt Discord) — ưu tiên cao hơn `profile.avatar` |
 
 **Điều kiện để presence realtime hoạt động**: tài khoản Discord của bạn (và của
 người ấy trong `setlove`) phải tham gia server [discord.gg/lanyard](https://discord.gg/lanyard).

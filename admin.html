@@ -73,6 +73,23 @@
         textarea { resize: vertical; min-height: 64px; }
         .check { display: flex; align-items: center; gap: 8px; font-size: .82rem; color: var(--text); }
         .check input { width: 16px; height: 16px; accent-color: var(--pink); }
+        .upload-box {
+            display: flex; gap: 12px; align-items: center; padding: 12px;
+            background: var(--card2); border: 1px dashed var(--border); border-radius: 11px;
+        }
+        .upload-preview {
+            width: 64px; height: 64px; border-radius: 50%; flex: none; overflow: hidden;
+            background: var(--bg); border: 1px solid var(--border);
+            display: flex; align-items: center; justify-content: center; color: var(--muted);
+        }
+        .upload-preview img { width: 100%; height: 100%; object-fit: cover; }
+        .upload-info { display: grid; gap: 5px; }
+        .upload-info b { font-size: .82rem; }
+        .upload-info small { font-size: .72rem; color: var(--muted); line-height: 1.5; }
+        .upload-actions { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+        #avatar-upload-status { font-size: .72rem; color: var(--muted); }
+        #avatar-upload-status.ok { color: var(--green); }
+        #avatar-upload-status.err { color: var(--red); }
         .row-list { display: grid; gap: 10px; }
         .row {
             background: var(--card2); border: 1px solid var(--border); border-radius: 11px;
@@ -136,6 +153,7 @@
                     <label><b>Tên đầy đủ <span class="req">*</span></b>(footer + thẻ chia sẻ)<input type="text" id="site-fullName"></label>
                     <label><b>Domain <span class="req">*</span></b>(không có https://, vd tenban.pages.dev)<input type="text" id="site-domain"></label>
                 </div>
+                <label><b>Tên nghệ sĩ / ca sĩ</b>(ca sĩ các bài hát không điền riêng + chữ logo footer — đổi một chỗ là đổi cả hai)<input type="text" id="site-artistName"></label>
                 <div class="grid2">
                     <label><b>Tiêu đề tab</b>(vd @TenBan)<input type="text" id="siteName"></label>
                     <label><b>Monogram favicon</b>(1–2 chữ cái, vd NL)<input type="text" id="site-monogram" maxlength="3"></label>
@@ -146,7 +164,6 @@
                     <label><b>Chữ nút vào trang</b><input type="text" id="site-enterLabel"></label>
                     <label><b>Chữ nhỏ cạnh footer</b><input type="text" id="site-footerSuffix"></label>
                 </div>
-                <label><b>Chữ logo footer</b><input type="text" id="site-footerBrand"></label>
                 <label class="check"><input type="checkbox" id="effects-tilt">Hiệu ứng card nghiêng theo chuột (tilt)</label>
                 <label class="check"><input type="checkbox" id="effects-spotlight">Đốm sáng theo chuột (spotlight)</label>
                 <label class="check"><input type="checkbox" id="effects-cursor">Con trỏ tuỳ chỉnh</label>
@@ -166,7 +183,19 @@
                     </div>
                     <p class="hint">⚠️ Phải tham gia server <code>discord.gg/lanyard</code> thì trạng thái realtime mới chạy.<br>
                     Tắt kết nối Discord thì trang vẫn chạy — avatar/tên lấy từ form, vùng trạng thái realtime và nút Copy Discord bị ẩn đi.</p>
-                </div>
+                    <div class="upload-box" id="avatar-upload-box">
+                        <div class="upload-preview" id="avatar-upload-preview"><i class="fa-solid fa-image"></i></div>
+                        <div class="upload-info">
+                            <b>Ảnh đại diện khi không dùng Discord</b>
+                            <small>Chọn ảnh từ máy — được nhúng thẳng vào config.js (không cần thêm file nào). Nên dùng ảnh vuông, dưới ~300KB để config.js gọn.</small>
+                            <div class="upload-actions">
+                                <button type="button" class="btn-mini" id="avatar-upload-btn"><i class="fa-solid fa-upload"></i>Chọn ảnh</button>
+                                <button type="button" class="btn-mini" id="avatar-upload-clear" hidden><i class="fa-solid fa-trash"></i>Xoá ảnh</button>
+                                <span id="avatar-upload-status"></span>
+                            </div>
+                        </div>
+                        <input type="file" id="avatar-upload-file" accept="image/*" hidden>
+                    </div>
             </div>
         </details>
 
@@ -183,8 +212,8 @@
                     <label><b>Vị trí</b><input type="text" id="profile-location"></label>
                     <label><b>Banner card</b>(file trong repo)<input type="text" id="profile-banner"></label>
                 </div>
-                <label><b>4 câu quote ngắn</b>(mỗi dòng một câu, xoay vòng)<textarea id="profile-quotes"></textarea></label>
-                <label><b>Avatar dự phòng (URL)</b><input type="text" id="profile-avatar"></label>
+                <label><b>4 câu quote ngắn</b>(mỗi dòng một câu, xoay vòng)<textarea id="profile-quotes"></textarea></label>                    <label><b>Avatar dự phòng (URL)</b>(khi CDN Discord bị chặn — không dùng khi đã tải ảnh lên)<input type="text" id="profile-avatar"></label>
+                    <input type="hidden" id="profile-avatarData">
                 <div class="grid2">
                     <label><b>Avatar dự phòng local</b><input type="text" id="profile-avatarLocal"></label>
                     <label><b>Khung avatar dự phòng (deco) local</b><input type="text" id="profile-decoLocal"></label>

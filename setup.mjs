@@ -159,7 +159,7 @@ setInner('love-name-2', (CONFIG.setlove || {}).partnerName);
 setInner('love-fallback', ((CONFIG.setlove || {}).myName || '').trim().charAt(0).toUpperCase());
 setInner('love-fallback-2', ((CONFIG.setlove || {}).partnerName || '').trim().charAt(0).toUpperCase());
 setInner('love-quote', ((CONFIG.setlove || {}).quotes || [])[0] ? `"${CONFIG.setlove.quotes[0]}"` : undefined);
-setInner('footer-brand', site.footerBrand);
+setInner('footer-brand', site.footerBrand || site.artistName || fullName);
 setInner('footer-suffix', site.footerSuffix);
 
 // Bio nằm trên dòng riêng — chuẩn lại thụt dòng cho gọn

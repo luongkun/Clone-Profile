@@ -16,6 +16,7 @@
 | # | Nội dung | Giá trị của bạn | Tên biến trong config |
 |---|----------|-----------------|----------------------|
 | 🔴 0.1 | Tên đầy đủ của bạn (footer + thẻ chia sẻ FB/Discord) | `→ ...........` | `site.fullName` |
+| 🟡 0.1b | Tên nghệ sĩ / ca sĩ — ca sĩ các bài hát + chữ logo footer (đổi 1 chỗ là đổi cả hai) | `→ ...........` | `site.artistName` |
 | 🔴 0.2 | Domain sau khi deploy (không có https://) — vd `tenban.pages.dev` | `→ ...........` | `site.domain` |
 | 🟡 0.3 | Mô tả trang khi dán link lên Facebook/Messenger/Discord | `→ ...........` | `site.description` |
 | 🟡 0.4 | Câu nhỏ dưới tên ở màn hình chào | `→ ...........` | `site.welcomeText` |
@@ -31,6 +32,7 @@
 | 🔴 1.1 | Tên chạy ở tiêu đề tab (vd `@TenBan`) | `→ ...........` | `siteName` |
 | 🔴 1.2 | Discord User ID của bạn (Developer Mode → chuột phải avatar → Copy User ID) | `→ ...........` | `discordId` |
 | 🟡 1.3 | Bật kết nối Discord realtime? (`false` = bio thường, ẩn vùng presence + nút Copy Discord) | `→ ...........` | `discordEnabled` |
+| 🟡 1.4 | Ảnh đại diện tải lên khi tắt Discord (admin.html có nút Chọn ảnh — nhúng vào config) | `→ ...........` | `profile.avatarData` |
 
 > ⚠️ Để presence realtime chạy được: tài khoản Discord ở 1.2 phải tham gia server <https://discord.gg/lanyard>
 
@@ -108,7 +110,7 @@
 | 🟡 6.0 | Bật nhạc nền? (`false` = mất widget nhạc ở góc màn) | `→ ...........` | `music.enabled` |
 | 🟡 6.1 | Tự phát nhạc khi khách bấm vào? (`true`/`false`) | `→ ...........` | `music.autoplayOnEnter` |
 | 🟡 6.2 | Âm lượng mặc định (0 → 1, vd `0.5`) | `→ ...........` | `music.volume` |
-| 🟡 6.3 | Bài 1: tên / ca sĩ / file mp3 | `→ ....... / ....... / .......` | `music.playlist[0]` |
+| 🟡 6.3 | Bài 1: tên / ca sĩ (bỏ trống = dùng Tên nghệ sĩ) / file mp3 | `→ ....... / ....... / .......` | `music.playlist[0]` |
 | 🟡 6.4 | Bài 2: tên / ca sĩ / file mp3 | `→ ....... / ....... / .......` | `music.playlist[1]` |
 | 🟡 6.5 | Bài 3: tên / ca sĩ / file mp3 | `→ ....... / ....... / .......` | `music.playlist[2]` |
 
