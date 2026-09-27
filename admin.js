@@ -300,6 +300,84 @@ const CONFIG = ${printJS(cfg)};
     return header;
 }
 
+/* ---------------- xem trước trang thật ----------------
+ * Fetch index.html, thay thẻ <script src="config.js"> bằng CONFIG sinh từ form,
+ * rồi chạy bản HTML đó trong iframe qua thuộc tính `srcdoc` (và tab riêng qua
+ * document.write) — preview dùng ĐÚNG thông tin đang điền dở, không cần lưu file.
+ * <base href> giữ cho style/script/icon/ảnh tải đúng từ thư mục gốc.
+ * Cần chạy qua http server (file:// không fetch được index.html; bản deploy
+ * Cloudflare có CSP chặn script nội tuyến nên cũng không dùng được).
+ */
+async function buildPreviewDoc() {
+    if (location.protocol === 'file:') {
+        throw new Error('Xem trước cần mở admin.html qua http server: python3 -m http.server 8000');
+    }
+    const res = await fetch('index.html', { cache: 'no-store' });
+    if (!res.ok) throw new Error(`Không đọc được index.html (HTTP ${res.status})`);
+    const csp = (res.headers.get('content-security-policy') || '');
+    if (csp.includes('script-src') && !csp.includes('unsafe-inline')) {
+        throw new Error('Trang đang chạy với CSP chặn script nội tuyến (bản deploy Cloudflare) — xem trước chỉ dùng được khi chạy cục bộ: python3 -m http.server 8000');
+    }
+    let html = await res.text();
+
+    const cfgTag = /<script src="config\.js[^"]*"><\/script>/;
+    if (!cfgTag.test(html)) throw new Error('index.html không có thẻ config.js');
+
+    // JSON.stringify đủ an toàn làm source JS; escape '<' để chuỗi chứa "</script>"
+    // (nếu người dùng gõ vào bio) không đóng sớm thẻ script
+    const cfgJson = JSON.stringify(buildConfig()).replace(/</g, '\\u003c');
+    html = html.replace(cfgTag, `<script>const CONFIG = ${cfgJson};</script>`);
+
+    // <base> để style/script/icon của trang thật vẫn tải đúng từ thư mục gốc
+    html = html.replace(/<head([^>]*)>/i, `<head$1>\n    <base href="${location.href}">`);
+    return html;
+}
+
+async function openPreview() {
+    let html;
+    try {
+        html = await buildPreviewDoc();
+    } catch (e) {
+        toast(e.message);
+        return;
+    }
+    $('preview-frame').srcdoc = html;
+    $('preview-overlay').hidden = false;
+    document.body.style.overflow = 'hidden';
+    toast('✓ Đang xem trước với thông tin trong form');
+}
+
+function closePreview() {
+    $('preview-overlay').hidden = true;
+    $('preview-frame').srcdoc = '';   // dừng cả nhạc đang phát trong preview
+    document.body.style.overflow = '';
+}
+
+$('btn-preview').onclick = openPreview;
+$('btn-preview-back').onclick = closePreview;
+$('btn-preview-open').onclick = async () => {
+    let html;
+    try {
+        html = await buildPreviewDoc();
+    } catch (e) {
+        toast(e.message);
+        return;
+    }
+    const w = window.open('', '_blank');
+    if (!w) {
+        toast('Trình duyệt chặn popup — dùng nút Xem trước (overlay) nhé');
+        return;
+    }
+    w.document.open();
+    w.document.write(html);
+    w.document.close();
+};
+
+// ESC để quay lại form — nhanh hơn bấm nút
+document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && !$('preview-overlay').hidden) closePreview();
+});
+
 /* ---------------- sự kiện ---------------- */
 $('add-badge').onclick = addBadge;
 $('add-social').onclick = addSocial;
