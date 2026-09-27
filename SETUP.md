@@ -14,6 +14,10 @@ sẽ được **tự động ghi lại** bằng 1 lệnh.
 
 ## Bước 1 — Sửa `config.js`
 
+> 💡 **Không thích sửa code tay?** Mở `admin.html` (qua `python3 -m http.server 8000`):
+> form nhập trực quan chia đúng 9 phần của config, tự nạp thông tin hiện có,
+> bấm **Tải config.js** là có file hoàn chỉnh thay vào thư mục trang.
+
 Mở `config.js`, đi theo thứ tự các mục đã được đánh số. Các mục **bắt buộc**:
 
 | Mục trong config | Ý nghĩa |

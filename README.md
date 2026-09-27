@@ -14,6 +14,8 @@ Giao diện gồm: màn hình chào, thẻ profile (tên / tên ID / avatar / kh
 | `config.js` | **Nơi cần sửa**: thông tin website, Discord ID, profile, máy chủ, social, playlist nhạc |
 | `setup.mjs` | **Chạy sau khi sửa config** (`node setup.mjs`): ghi lại thẻ chia sẻ, manifest, sitemap, robots, service worker từ config |
 | `SETUP.md` | Hướng dẫn từng bước đưa trang thành của bạn |
+| `THONG-TIN.md` | Phiếu điền thông tin in được — đối chiếu khi sửa config |
+| `admin.html` + `admin.js` | Form nhập trực quan sinh `config.js` (mở qua http server) |
 | `index.html` | Khung trang, markup tĩnh (giá trị dự phòng được setup.mjs ghi lại, JS đổ dữ liệu thật vào) |
 | `style.css` | Toàn bộ giao diện, responsive, hiệu ứng |
 | `script.js` | Lanyard realtime, render máy chủ, audio, cursor, particle, typewriter |
