@@ -1,5 +1,8 @@
 # HƯỚNG DẪN CÀI ĐẶT CHO NGƯỜI MUA
 
+> 📝 **Muốn xem nhanh cần điền những gì?** Mở [THONG-TIN.md](THONG-TIN.md) —
+> phiếu điền thông tin đầy đủ theo từng mục, in ra hoặc điền trực tiếp vào đó.
+
 Trang này được thiết kế để **chỉ cần sửa 1 file duy nhất là thành của bạn**: `config.js`.
 Mọi nơi khác (thẻ chia sẻ, manifest, sitemap, robots, service worker, script sinh icon)
 sẽ được **tự động ghi lại** bằng 1 lệnh.
