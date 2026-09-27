@@ -83,6 +83,7 @@
             display: flex; align-items: center; justify-content: center; color: var(--muted);
         }
         .upload-preview img { width: 100%; height: 100%; object-fit: cover; }
+        .upload-preview.banner { width: 120px; height: 64px; border-radius: 9px; }
         .upload-info { display: grid; gap: 5px; }
         .upload-info b { font-size: .82rem; }
         .upload-info small { font-size: .72rem; color: var(--muted); line-height: 1.5; }
@@ -210,10 +211,24 @@
                 <label><b>Bio dài</b><textarea id="profile-bio"></textarea></label>
                 <div class="grid2">
                     <label><b>Vị trí</b><input type="text" id="profile-location"></label>
-                    <label><b>Banner card</b>(file trong repo)<input type="text" id="profile-banner"></label>
+                    <label><b>Banner card</b>(file trong repo — hoặc tải ảnh lên bên dưới)<input type="text" id="profile-banner"></label>
+                </div>
+                <div class="upload-box" id="banner-upload-box">
+                    <div class="upload-preview banner" id="banner-upload-preview"><i class="fa-solid fa-image"></i></div>
+                    <div class="upload-info">
+                        <b>Ảnh banner card</b>
+                        <small>Tải lên từ máy — nhúng thẳng vào config.js. Nên dùng ảnh ngang tỉ lệ ~4:1, dưới 500KB.</small>
+                        <div class="upload-actions">
+                            <button type="button" class="btn-mini" id="banner-upload-btn"><i class="fa-solid fa-upload"></i>Chọn ảnh</button>
+                            <button type="button" class="btn-mini" id="banner-upload-clear" hidden><i class="fa-solid fa-trash"></i>Xoá ảnh</button>
+                            <span id="banner-upload-status"></span>
+                        </div>
+                    </div>
+                    <input type="file" id="banner-upload-file" accept="image/*" hidden>
                 </div>
                 <label><b>4 câu quote ngắn</b>(mỗi dòng một câu, xoay vòng)<textarea id="profile-quotes"></textarea></label>                    <label><b>Avatar dự phòng (URL)</b>(khi CDN Discord bị chặn — không dùng khi đã tải ảnh lên)<input type="text" id="profile-avatar"></label>
                     <input type="hidden" id="profile-avatarData">
+                    <input type="hidden" id="profile-bannerData">
                 <div class="grid2">
                     <label><b>Avatar dự phòng local</b><input type="text" id="profile-avatarLocal"></label>
                     <label><b>Khung avatar dự phòng (deco) local</b><input type="text" id="profile-decoLocal"></label>
@@ -301,6 +316,20 @@
                         <label><b>Avatar bạn</b><input type="text" id="love-myAvatarLocal"></label>
                         <label><b>Khung bạn</b><input type="text" id="love-myDecoLocal"></label>
                         <label><b>Avatar người ấy</b><input type="text" id="love-partnerAvatarLocal"></label>
+                    </div>
+                    <div class="upload-box" id="love-upload-box">
+                        <div class="upload-preview" id="love-upload-preview"><i class="fa-solid fa-heart"></i></div>
+                        <div class="upload-info">
+                            <b>Avatar người ấy (khi không dùng Discord)</b>
+                            <small>Tải lên từ máy — nhúng vào config.js. Ảnh vuông, dưới 300KB.</small>
+                            <div class="upload-actions">
+                                <button type="button" class="btn-mini" id="love-upload-btn"><i class="fa-solid fa-upload"></i>Chọn ảnh</button>
+                                <button type="button" class="btn-mini" id="love-upload-clear" hidden><i class="fa-solid fa-trash"></i>Xoá ảnh</button>
+                                <span id="love-upload-status"></span>
+                            </div>
+                        </div>
+                        <input type="file" id="love-upload-file" accept="image/*" hidden>
+                        <input type="hidden" id="love-partnerAvatarData">
                     </div>
                     <label><b>Các câu yêu thương</b>(mỗi dòng một câu — bấm vào câu trên panel để đổi)<textarea id="love-quotes"></textarea></label>
                     <label><b>Ảnh kỷ niệm</b>(mỗi dòng: <code>đường-dẫn-ảnh | chú thích</code> — bỏ trống để ẩn)<textarea id="love-photos" placeholder="images/1.jpg | Chuyến đi Đà Lạt"></textarea></label>

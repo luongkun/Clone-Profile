@@ -250,8 +250,21 @@ function initSetlove() {
     });
 
     loadDiscordVisuals(myIds, cfg.myDiscordId);
-    // Người yêu: retry mỗi 60s đến khi Lanyard nhận được dữ liệu
-    loadDiscordVisuals(partnerIds, cfg.partnerDiscordId, 60000);
+
+    // Người ấy: nếu có ảnh tải lên (partnerAvatarData) thì dùng luôn và KHÔNG gọi
+    // Lanyard nữa (tránh ảnh Discord ghi đè mất ảnh đã chọn) — ngược lại retry 60s
+    if (cfg.partnerAvatarData) {
+        const partnerAvatarImg = document.getElementById('setlove-partner-avatar');
+        const partnerFallback = document.getElementById('setlove-partner-fallback');
+        if (partnerAvatarImg) {
+            partnerAvatarImg.src = cfg.partnerAvatarData;
+            partnerAvatarImg.hidden = false;
+        }
+        if (partnerFallback) partnerFallback.hidden = true;
+    } else {
+        // Người yêu: retry mỗi 60s đến khi Lanyard nhận được dữ liệu
+        loadDiscordVisuals(partnerIds, cfg.partnerDiscordId, 60000);
+    }
 
     // Hook kiểm thử (chỉ chạy khi URL có ?debug): mô phỏng Lanyard chết —
     // khôi phục đúng đường cache như lúc mở trang thật
@@ -1234,7 +1247,9 @@ function initProfileUI() {
     // tới URL dự phòng (avatar) — cả hai cùng hiện ở màn chào lẫn card chính
     const avatarSource = CONFIG.profile.avatarData || CONFIG.profile.avatar;
     if (avatarEl && avatarSource) avatarEl.src = avatarSource;
-    if (bannerEl && CONFIG.profile.banner) bannerEl.style.backgroundImage = `url('${CONFIG.profile.banner}')`;
+    // Banner: ưu tiên ảnh tải lên (bannerData) rồi mới tới file trong repo (banner)
+    const bannerSource = CONFIG.profile.bannerData || CONFIG.profile.banner;
+    if (bannerEl && bannerSource) bannerEl.style.backgroundImage = `url('${bannerSource}')`;
 
     // Synchronize Cute Welcome Overlay
     const enterAvatarEl = document.querySelector('.cute-avatar-img, .enter-avatar-img');

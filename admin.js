@@ -111,6 +111,7 @@ function fillForm(cfg) {
     $('profile-bio').value = p.bio || '';
     $('profile-location').value = p.location || '';
     $('profile-banner').value = p.banner || '';
+    $('profile-bannerData').value = p.bannerData || '';
     $('profile-avatar').value = p.avatar || '';
     $('profile-avatarData').value = p.avatarData || '';
     updateAvatarUploadUI();
@@ -153,6 +154,7 @@ function fillForm(cfg) {
         $('love-myDecoLocal').value = visuals[0][1].deco || '';
     }
     if (visuals.length >= 2 && visuals[1][1]) $('love-partnerAvatarLocal').value = visuals[1][1].avatar || '';
+    $('love-partnerAvatarData').value = love.partnerAvatarData || '';
 
     fillRows('tech-list', cfg.techStack || [], addTech, ['name', 'domain', 'icon']);
 
@@ -197,6 +199,7 @@ function buildConfig() {
     const partnerId = val('love-partnerId');
     if (myId) visuals[myId] = { avatar: val('love-myAvatarLocal') || null, deco: val('love-myDecoLocal') || null };
     if (partnerId) visuals[partnerId] = { avatar: val('love-partnerAvatarLocal') || null, deco: null };
+    // Ảnh người ấy tải lên (base64) — ưu tiên cao hơn localVisuals
 
     const photos = lines('love-photos').map(line => {
         const [src, ...rest] = line.split('|');
@@ -229,6 +232,7 @@ function buildConfig() {
             avatarData: val('profile-avatarData'),
             avatarLocal: val('profile-avatarLocal'),
             banner: val('profile-banner'),
+            bannerData: val('profile-bannerData'),
             bio: val('profile-bio'),
             location: val('profile-location'),
             quotes: lines('profile-quotes'),
@@ -254,6 +258,7 @@ function buildConfig() {
             partnerName: val('love-partnerName'),
             myDiscordId: myId,
             partnerDiscordId: partnerId,
+            partnerAvatarData: val('love-partnerAvatarData'),
             localVisuals: visuals,
             startDate: val('love-startDate'),
             photos,
@@ -409,55 +414,74 @@ $('discord-enabled').addEventListener('change', syncToggleFields);
 $('setlove-enabled').addEventListener('change', syncToggleFields);
 $('music-enabled').addEventListener('change', syncToggleFields);
 
-/* ---------------- tải ảnh đại diện lên (khi tắt Discord) ----------------
- * Ảnh được đọc thành base64 data-URL và nhúng thẳng vào config.js — người mua
- * không cần thêm file nào vào repo. Ưu tiên hiển thị: avatarData > avatar (URL).
+/* ---------------- tải ảnh lên (avatar chính / banner / avatar người ấy) ----------------
+ * Một hàm dùng chung cho cả 3 khung upload: đọc ảnh thành base64 data-URL và
+ * nhúng thẳng vào config.js — người mua không cần thêm file nào vào repo.
+ * config.js đọc các trường avatarData / bannerData / setlove.partnerAvatarData.
  */
-function updateAvatarUploadUI() {
-    const data = val('profile-avatarData');
-    const preview = $('avatar-upload-preview');
-    const clearBtn = $('avatar-upload-clear');
-    const status = $('avatar-upload-status');
-    if (data) {
-        preview.innerHTML = `<img src="${data}" alt="">`;
-        clearBtn.hidden = false;
-        status.textContent = '✓ Đã có ảnh — sẽ nhúng vào config.js';
-        status.className = 'ok';
-    } else {
-        preview.innerHTML = '<i class="fa-solid fa-image"></i>';
-        clearBtn.hidden = true;
-        status.textContent = '';
-        status.className = '';
-    }
+function setupUploadBox({ btn, clear, file, status, preview, hiddenInput, maxBytes, icon, label }) {
+    const refresh = () => {
+        const data = val(hiddenInput);
+        if (data) {
+            preview.innerHTML = `<img src="${data}" alt="">`;
+            $(clear).hidden = false;
+            $(status).textContent = `✓ Đã có ảnh — sẽ nhúng vào config.js`;
+            $(status).className = 'ok';
+        } else {
+            preview.innerHTML = `<i class="${icon}"></i>`;
+            $(clear).hidden = true;
+            $(status).textContent = '';
+            $(status).className = '';
+        }
+    };
+    $(btn).addEventListener('click', () => $(file).click());
+    $(clear).addEventListener('click', () => { $(hiddenInput).value = ''; refresh(); });
+    $(file).addEventListener('change', () => {
+        const f = $(file).files[0];
+        if (!f) return;
+        const st = $(status);
+        if (!f.type.startsWith('image/')) {
+            st.textContent = '✗ Chỉ nhận file ảnh (png/jpg/webp)';
+            st.className = 'err';
+            return;
+        }
+        if (f.size > maxBytes) {
+            st.textContent = `✗ Ảnh ${Math.round(f.size / 1024)}KB — vượt mức khuyên dùng ${Math.round(maxBytes / 1024)}KB, hãy nén nhỏ lại`;
+            st.className = 'err';
+            return;
+        }
+        const reader = new FileReader();
+        reader.onload = () => {
+            $(hiddenInput).value = reader.result;
+            refresh();
+            toast(`✓ ${label} đã sẵn sàng nhúng vào config.js`);
+        };
+        reader.readAsDataURL(f);
+    });
+    refresh();
+    return refresh;
 }
 
-$('avatar-upload-btn').addEventListener('click', () => $('avatar-upload-file').click());
-$('avatar-upload-clear').addEventListener('click', () => {
-    $('profile-avatarData').value = '';
-    updateAvatarUploadUI();
+// Avatar chính (khi tắt Discord) — hiển thị trong khung tròn 64px
+const updateAvatarUploadUI = setupUploadBox({
+    btn: 'avatar-upload-btn', clear: 'avatar-upload-clear', file: 'avatar-upload-file',
+    status: 'avatar-upload-status', preview: $('avatar-upload-preview'),
+    hiddenInput: 'profile-avatarData', maxBytes: AVATAR_MAX_BYTES,
+    icon: 'fa-solid fa-image', label: 'Ảnh đại diện'
 });
-$('avatar-upload-file').addEventListener('change', () => {
-    const file = $('avatar-upload-file').files[0];
-    if (!file) return;
-    if (!file.type.startsWith('image/')) {
-        const status = $('avatar-upload-status');
-        status.textContent = '✗ Chỉ nhận file ảnh (png/jpg/webp)';
-        status.className = 'err';
-        return;
-    }
-    if (file.size > AVATAR_MAX_BYTES) {
-        const status = $('avatar-upload-status');
-        status.textContent = `✗ Ảnh ${Math.round(file.size / 1024)}KB — vượt mức khuyên dùng 300KB, hãy nén nhỏ lại`;
-        status.className = 'err';
-        return;
-    }
-    const reader = new FileReader();
-    reader.onload = () => {
-        $('profile-avatarData').value = reader.result;
-        updateAvatarUploadUI();
-        toast('✓ Đã sẵn sàng nhúng ảnh vào config.js');
-    };
-    reader.readAsDataURL(file);
+// Banner card — khung chữ nhật 120×64, cho phép nặng hơn
+const updateBannerUploadUI = setupUploadBox({
+    btn: 'banner-upload-btn', clear: 'banner-upload-clear', file: 'banner-upload-file',
+    status: 'banner-upload-status', preview: $('banner-upload-preview'),
+    hiddenInput: 'profile-bannerData', maxBytes: 500 * 1024,
+    icon: 'fa-solid fa-image', label: 'Ảnh banner'
+});
+// Avatar người ấy trong Setlove (khi không dùng Discord cho người ấy)
+const updateLoveUploadUI = setupUploadBox({
+    btn: 'love-upload-btn', clear: 'love-upload-clear', file: 'love-upload-file',
+    status: 'love-upload-status', preview: $('love-upload-preview'),
+    hiddenInput: 'love-partnerAvatarData', maxBytes: AVATAR_MAX_BYTES,
+    icon: 'fa-solid fa-heart', label: 'Avatar người ấy'
 });
 
 /* ---------------- sự kiện ---------------- */
