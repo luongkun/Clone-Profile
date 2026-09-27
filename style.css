@@ -1,0 +1,3175 @@
+/* ====================================================================
+   LUONGKUN BIO - LUXURY MONOCHROME STYLESHEET (zyo.lol style)
+   Grand Centered Bento Viewport - Bold & Ultra Legible
+   ==================================================================== */
+
+:root {
+    --bg-black: #050505;
+    --bg-darker: #09090b;
+    --bg-card: rgba(14, 14, 17, 0.86);
+    --bg-card-hover: rgba(20, 20, 25, 0.94);
+    --bg-subtle: rgba(255, 255, 255, 0.035);
+    --bg-subtle-hover: rgba(255, 255, 255, 0.08);
+
+    --border-dim: rgba(255, 255, 255, 0.08);
+    --border-mid: rgba(255, 255, 255, 0.18);
+    --border-glow: rgba(255, 255, 255, 0.4);
+
+    --text-white: #ffffff;
+    --text-primary: #f4f4f5;
+    --text-secondary: #a1a1aa;
+    --text-muted: #71717a;
+    --text-dim: #52525b;
+
+    --status-online: #22c55e;
+    --status-idle: #eab308;
+    --status-dnd: #ef4444;
+    --status-offline: #71717a;
+
+    --font-main: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+    --font-heading: 'Space Grotesk', sans-serif;
+    --font-mono: 'JetBrains Mono', monospace;
+
+    --card-radius: 24px;
+    --inner-radius: 14px;
+    --pill-radius: 9999px;
+    
+    --transition-smooth: all 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+    --transition-bounce: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+/* Base Reset */
+*, *::before, *::after {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+html, body {
+    width: 100vw;
+    height: 100vh;
+    overflow: hidden; /* Căn giữa không cần cuộn trang */
+    font-size: 15px;
+}
+
+body {
+    background-color: var(--bg-black);
+    color: var(--text-primary);
+    font-family: var(--font-main);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+    cursor: default;
+    user-select: none;
+}
+
+/* Background Particle Canvas */
+#bg-canvas {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    z-index: 0;
+    pointer-events: none;
+    opacity: 0.9;
+}
+
+/* Hide default OS cursor seamlessly on precision pointer devices */
+@media (hover: hover) and (pointer: fine) {
+    html, body, a, button, input, select, textarea, [role="button"] {
+        cursor: none !important;
+    }
+}
+
+/* Ambient Mouse Spotlight */
+/* Gradient được vẽ MỘT lần ở giữa lớp, rồi cả lớp DỊCH bằng transform.
+   Trước đây đổi --mouse-x/--mouse-y khiến trình duyệt phải VẼ LẠI gradient phủ
+   toàn màn hình ở mỗi lần rê chuột (kèm việc mọi lớp backdrop-filter phía trên
+   phải làm mờ lại). Nay chỉ còn thao tác compositor — hình ảnh y hệt.
+   Lớp rộng hơn màn hình 1000px (500px mỗi bên): gradient mờ hụt hẳn ở 65% của
+   750px = 487.5px, nên dịch tới mép màn hình vẫn không hở cạnh. */
+#mouse-spotlight {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    width: calc(100vw + 1000px);
+    height: calc(100vh + 1000px);
+    transform: translate3d(-50%, -50%, 0);
+    pointer-events: none;
+    z-index: 1;
+    background: radial-gradient(750px circle at 50% 50%, rgba(255, 255, 255, 0.045), transparent 65%);
+    will-change: transform;
+}
+
+/* ====================================================================
+   LUXURY CYBER RETICLE & DUAL-TIER CURSOR SYSTEM
+   ==================================================================== */
+
+/* 1. Precision Laser Center Dot (0ms Zero-Latency Instant Direct Pin) */
+.cursor-dot {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 5px;
+    height: 5px;
+    background: #ffffff;
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: 100001;
+    box-shadow: 0 0 10px #ffffff, 0 0 20px rgba(255, 255, 255, 0.85);
+    transform: translate(-50%, -50%);
+    will-change: transform, opacity;
+    opacity: 1;
+    transition: width 0.22s cubic-bezier(0.16, 1, 0.3, 1),
+                height 0.22s cubic-bezier(0.16, 1, 0.3, 1),
+                opacity 0.25s ease;
+}
+
+/* 2. Cyber Reticle Follower (Sleek Aero HUD & Spring Physics) */
+.cyber-cursor {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 32px;
+    height: 32px;
+    pointer-events: none;
+    z-index: 100000;
+    will-change: transform, width, height, opacity;
+    opacity: 1;
+    transform-origin: center center;
+    transition: width 0.32s cubic-bezier(0.16, 1, 0.3, 1), 
+                height 0.32s cubic-bezier(0.16, 1, 0.3, 1),
+                opacity 0.25s ease;
+}
+
+/* Inner Halo Ring */
+.cursor-ring-halo {
+    position: absolute;
+    inset: 4px;
+    border-radius: 50%;
+    border: 1px dashed rgba(255, 255, 255, 0.2);
+    opacity: 0.6;
+    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    animation: haloBreathe 4s infinite ease-in-out;
+}
+
+@keyframes haloBreathe {
+    0%, 100% { transform: rotate(0deg) scale(1); opacity: 0.45; }
+    50% { transform: rotate(180deg) scale(1.06); opacity: 0.75; }
+}
+
+/* Micro Diamond Center Core inside Reticle */
+.cursor-diamond {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 4px;
+    height: 4px;
+    background: rgba(255, 255, 255, 0.75);
+    transform: translate(-50%, -50%) rotate(45deg);
+    transition: transform 0.28s cubic-bezier(0.16, 1, 0.3, 1), 
+                background 0.2s ease, 
+                opacity 0.2s ease;
+}
+
+/* Precision Crosshair Lines */
+.cursor-crosshair {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+}
+.cursor-crosshair::before,
+.cursor-crosshair::after {
+    content: '';
+    position: absolute;
+    background: rgba(255, 255, 255, 0.25);
+    transition: background 0.25s ease;
+}
+.cursor-crosshair::before {
+    top: 50%;
+    left: 5px;
+    right: 5px;
+    height: 1px;
+    transform: translateY(-50%);
+}
+.cursor-crosshair::after {
+    left: 50%;
+    top: 5px;
+    bottom: 5px;
+    width: 1px;
+    transform: translateX(-50%);
+}
+
+/* 4 Razor-Sharp Corner Brackets ⌜ ⌝ ⌞ ⌟ */
+.cursor-brackets {
+    position: absolute;
+    inset: 0;
+}
+.cursor-brackets .corner {
+    position: absolute;
+    width: 7px;
+    height: 7px;
+    border-color: rgba(255, 255, 255, 0.75);
+    border-style: solid;
+    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.cursor-brackets .c-tl { top: 0; left: 0; border-width: 1.5px 0 0 1.5px; }
+.cursor-brackets .c-tr { top: 0; right: 0; border-width: 1.5px 1.5px 0 0; }
+.cursor-brackets .c-br { bottom: 0; right: 0; border-width: 0 1.5px 1.5px 0; }
+.cursor-brackets .c-bl { bottom: 0; left: 0; border-width: 0 0 1.5px 1.5px; }
+
+/* Interactive Hover State (Target Lock & Luxury Glow) */
+body.cursor-hover .cursor-dot {
+    width: 7px;
+    height: 7px;
+    background: #ffffff;
+    box-shadow: 0 0 14px #ffffff, 0 0 28px rgba(255, 255, 255, 1);
+}
+body.cursor-hover .cyber-cursor {
+    width: 52px;
+    height: 52px;
+}
+body.cursor-hover .cursor-ring-halo {
+    inset: 2px;
+    border: 1px solid rgba(255, 255, 255, 0.45);
+    box-shadow: 0 0 15px rgba(255, 255, 255, 0.25), inset 0 0 12px rgba(255, 255, 255, 0.08);
+    opacity: 1;
+}
+body.cursor-hover .cursor-brackets .corner {
+    border-color: #ffffff;
+    box-shadow: 0 0 10px rgba(255, 255, 255, 0.95);
+    width: 11px;
+    height: 11px;
+}
+body.cursor-hover .cursor-diamond {
+    transform: translate(-50%, -50%) rotate(225deg) scale(1.5);
+    background: #ffffff;
+    box-shadow: 0 0 12px #ffffff;
+}
+body.cursor-hover .cursor-crosshair::before,
+body.cursor-hover .cursor-crosshair::after {
+    background: rgba(255, 255, 255, 0.5);
+}
+
+/* Tactile Click/Press State */
+body.cursor-clicking .cursor-dot {
+    transform: translate(-50%, -50%) scale(0.65);
+    box-shadow: 0 0 16px #ffffff;
+}
+body.cursor-clicking .cyber-cursor {
+    width: 24px !important;
+    height: 24px !important;
+    transition: width 0.08s ease, height 0.08s ease;
+}
+body.cursor-clicking .cursor-brackets .corner {
+    width: 5px;
+    height: 5px;
+    border-color: #ffffff;
+    box-shadow: 0 0 14px #ffffff;
+}
+
+/* When cursor leaves window */
+body.cursor-hidden .cursor-dot,
+body.cursor-hidden .cyber-cursor {
+    opacity: 0;
+    pointer-events: none;
+}
+
+/* Click Shockwave Ripple */
+.cursor-ripple {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 12px;
+    height: 12px;
+    border: 1.5px solid rgba(255, 255, 255, 0.9);
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: 99999;
+    transform: translate(-50%, -50%) scale(1);
+    box-shadow: 0 0 16px rgba(255, 255, 255, 0.85), inset 0 0 8px rgba(255, 255, 255, 0.4);
+    animation: cursorRippleExpand 0.45s cubic-bezier(0.12, 0.8, 0.32, 1) forwards;
+}
+
+@keyframes cursorRippleExpand {
+    0% {
+        transform: translate(-50%, -50%) scale(0.6);
+        opacity: 1;
+    }
+    100% {
+        transform: translate(-50%, -50%) scale(5.8);
+        opacity: 0;
+    }
+}
+
+/* ====================================================================
+   CUTE & AESTHETIC WELCOME SCREEN (Soft, Cozy & Charming)
+   ==================================================================== */
+.enter-overlay {
+    position: fixed;
+    inset: 0;
+    width: 100vw;
+    height: 100vh;
+    background: radial-gradient(circle at center, rgba(168, 85, 247, 0.08) 0%, rgba(12, 12, 16, 0.78) 50%, rgba(4, 4, 6, 0.92) 100%);
+    backdrop-filter: blur(24px) saturate(140%);
+    -webkit-backdrop-filter: blur(24px) saturate(140%);
+    z-index: 10000;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    transition: opacity 0.7s cubic-bezier(0.16, 1, 0.3, 1), 
+                transform 0.7s cubic-bezier(0.16, 1, 0.3, 1), 
+                filter 0.7s ease,
+                visibility 0.7s;
+}
+
+.enter-overlay.entered {
+    opacity: 0;
+    visibility: hidden;
+    transform: scale(1.08);
+    filter: blur(20px);
+    pointer-events: none;
+}
+
+/* Floating Soft Decor (Cloud, Hearts, Stars) */
+.cute-floating-decor {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    overflow: hidden;
+}
+
+.decor-sparkle {
+    position: absolute;
+    font-size: 1.2rem;
+    opacity: 0.45;
+    animation: floatSparkle 6s ease-in-out infinite alternate;
+    user-select: none;
+}
+.d-1 { top: 22%; left: 28%; animation-duration: 5s; font-size: 1.4rem; }
+.d-2 { top: 28%; right: 26%; animation-duration: 6.5s; font-size: 1.6rem; opacity: 0.35; }
+.d-3 { bottom: 30%; left: 25%; animation-duration: 5.5s; font-size: 1.1rem; color: #c084fc; }
+.d-4 { bottom: 26%; right: 28%; animation-duration: 7s; font-size: 1.3rem; opacity: 0.5; }
+.d-5 { top: 48%; right: 18%; animation-duration: 4.5s; font-size: 1.2rem; opacity: 0.4; }
+
+@keyframes floatSparkle {
+    0% { transform: translateY(0) rotate(0deg); }
+    50% { transform: translateY(-14px) rotate(6deg); }
+    100% { transform: translateY(8px) rotate(-6deg); }
+}
+
+/* Cute Frosted Card */
+.cute-enter-card {
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    box-shadow: 0 24px 60px rgba(0, 0, 0, 0.65), 
+                0 0 35px rgba(168, 85, 247, 0.12),
+                inset 0 1px 0 rgba(255, 255, 255, 0.2);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border-radius: 36px;
+    padding: 38px 46px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+    position: relative;
+    max-width: 380px;
+    width: 90vw;
+    animation: cardFloat 5s ease-in-out infinite;
+    transition: var(--transition-smooth);
+}
+
+.enter-overlay:hover .cute-enter-card {
+    transform: translateY(-4px);
+    border-color: rgba(255, 255, 255, 0.28);
+    box-shadow: 0 30px 70px rgba(0, 0, 0, 0.75), 
+                0 0 45px rgba(168, 85, 247, 0.22);
+}
+
+@keyframes cardFloat {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-8px); }
+}
+
+/* Cute Avatar Wrap */
+.cute-avatar-wrap {
+    position: relative;
+    width: 96px;
+    height: 96px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.cute-avatar-halo {
+    position: absolute;
+    inset: -6px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(168, 85, 247, 0.4), rgba(255, 255, 255, 0.2), transparent 70%);
+    animation: haloBreathe 3s ease-in-out infinite;
+    pointer-events: none;
+}
+
+@keyframes haloBreathe {
+    0%, 100% { transform: scale(0.95); opacity: 0.6; }
+    50% { transform: scale(1.1); opacity: 1; }
+}
+
+.cute-avatar-img {
+    width: 90px;
+    height: 90px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 3px solid rgba(255, 255, 255, 0.85);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.6);
+    position: relative;
+    z-index: 2;
+    transition: var(--transition-bounce);
+}
+
+.enter-overlay:hover .cute-avatar-img {
+    transform: scale(1.05) rotate(2deg);
+}
+
+.cute-greet-bubble {
+    position: absolute;
+    top: -8px;
+    right: -24px;
+    background: rgba(18, 18, 24, 0.85);
+    border: 1px solid rgba(255, 255, 255, 0.22);
+    color: #ffffff;
+    font-size: 0.75rem;
+    font-weight: 600;
+    padding: 3px 10px;
+    border-radius: 999px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+    z-index: 3;
+    white-space: nowrap;
+    animation: bubbleWiggle 4s ease-in-out infinite;
+}
+
+@keyframes bubbleWiggle {
+    0%, 100% { transform: translateY(0) rotate(0deg); }
+    50% { transform: translateY(-3px) rotate(4deg); }
+}
+
+/* Cute Identity */
+.cute-identity {
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+}
+
+.cute-name-box {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.cute-name {
+    font-family: var(--font-heading);
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #ffffff;
+    letter-spacing: -0.2px;
+}
+
+.cute-sparkle-icon {
+    color: #c084fc;
+    font-size: 1.1rem;
+    animation: spinSparkle 8s linear infinite;
+    display: inline-block;
+}
+
+@keyframes spinSparkle {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+.cute-subtext {
+    font-size: 0.86rem;
+    color: var(--text-secondary);
+    font-weight: 400;
+}
+
+/* Soft Glowing Pill Button (NO "CLICK TO ENTER" text!) */
+.cute-pill-btn {
+    margin-top: 6px;
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.25);
+    padding: 10px 24px;
+    border-radius: 999px;
+    display: inline-flex;
+    align-items: center;
+    gap: 9px;
+    color: #ffffff;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.35);
+    transition: var(--transition-bounce);
+    cursor: pointer;
+}
+
+.cute-pill-icon {
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    background: #ffffff;
+    color: #0d0d10;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.62rem;
+    padding-left: 2px;
+    transition: var(--transition-bounce);
+}
+
+.cute-pill-label {
+    font-family: var(--font-main);
+    font-size: 0.92rem;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    color: #f4f4f5;
+}
+
+.cute-pill-star {
+    font-size: 0.85rem;
+    color: #c084fc;
+    transition: transform 0.3s ease;
+}
+
+.enter-overlay:hover .cute-pill-btn {
+    background: rgba(255, 255, 255, 0.16);
+    border-color: rgba(255, 255, 255, 0.5);
+    transform: scale(1.05);
+    box-shadow: 0 10px 28px rgba(168, 85, 247, 0.25), 0 0 18px rgba(255, 255, 255, 0.2);
+}
+
+.enter-overlay:hover .cute-pill-icon {
+    transform: scale(1.15);
+    background: #c084fc;
+    color: #ffffff;
+}
+
+.enter-overlay:hover .cute-pill-star {
+    transform: rotate(20deg) scale(1.2);
+}
+
+/* Audio Hint Note */
+.cute-audio-hint {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.74rem;
+    color: var(--text-muted);
+    letter-spacing: 0.3px;
+    margin-top: 2px;
+}
+
+.cute-audio-hint i {
+    font-size: 0.78rem;
+    color: #c084fc;
+}
+
+/* ====================================================================
+   FLOATING AUDIO WIDGET
+   ==================================================================== */
+.audio-widget {
+    position: fixed;
+    bottom: 20px;
+    right: 24px;
+    z-index: 100;
+    background: rgba(18, 18, 22, 0.88);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid var(--border-mid);
+    padding: 9px 16px;
+    border-radius: var(--pill-radius);
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.7), 0 0 15px rgba(255, 255, 255, 0.03);
+    transition: var(--transition-smooth);
+}
+
+.audio-widget:hover {
+    border-color: var(--border-glow);
+    box-shadow: 0 12px 35px rgba(0, 0, 0, 0.85), 0 0 20px rgba(255, 255, 255, 0.08);
+}
+
+.audio-disc {
+    font-size: 1.35rem;
+    color: var(--text-white);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    animation: rotateDisc 4s linear infinite;
+    animation-play-state: paused;
+}
+
+.audio-disc.playing {
+    animation-play-state: running;
+}
+
+@keyframes rotateDisc {
+    100% { transform: rotate(360deg); }
+}
+
+.audio-info {
+    display: flex;
+    flex-direction: column;
+    max-width: 140px;
+    overflow: hidden;
+}
+
+.audio-track {
+    font-size: 0.84rem;
+    font-weight: 600;
+    color: var(--text-white);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.audio-artist {
+    font-size: 0.72rem;
+    color: var(--text-muted);
+}
+
+.audio-controls {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+}
+
+.ctrl-btn {
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid var(--border-dim);
+    color: var(--text-white);
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.72rem;
+    cursor: pointer;
+    transition: var(--transition-smooth);
+    outline: none;
+}
+
+.ctrl-btn.play-btn-main {
+    width: 32px;
+    height: 32px;
+    font-size: 0.82rem;
+    background: rgba(255, 255, 255, 0.16);
+    border-color: rgba(255, 255, 255, 0.35);
+    box-shadow: 0 0 10px rgba(255, 255, 255, 0.08);
+}
+
+.ctrl-btn:hover {
+    background: var(--text-white);
+    color: var(--bg-black);
+    transform: scale(1.1);
+    box-shadow: 0 0 14px rgba(255, 255, 255, 0.35);
+}
+
+.ctrl-btn:active {
+    transform: scale(0.92);
+}
+
+.equalizer {
+    display: flex;
+    align-items: flex-end;
+    gap: 3px;
+    height: 16px;
+}
+
+.equalizer .bar {
+    width: 3px;
+    background: var(--text-secondary);
+    border-radius: 2px;
+    height: 4px;
+    transition: height 0.2s ease;
+}
+
+.equalizer.active .bar-1 { animation: eqJump 0.8s infinite ease-in-out alternate; }
+.equalizer.active .bar-2 { animation: eqJump 0.6s infinite 0.2s ease-in-out alternate; }
+.equalizer.active .bar-3 { animation: eqJump 0.9s infinite 0.4s ease-in-out alternate; }
+.equalizer.active .bar-4 { animation: eqJump 0.7s infinite 0.1s ease-in-out alternate; }
+
+@keyframes eqJump {
+    0% { height: 4px; background: var(--text-muted); }
+    100% { height: 16px; background: var(--text-white); box-shadow: 0 0 6px rgba(255, 255, 255, 0.7); }
+}
+
+.volume-slider-wrap {
+    display: flex;
+    align-items: center;
+}
+
+#volume-slider {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 65px;
+    height: 4px;
+    background: rgba(255, 255, 255, 0.15);
+    border-radius: 2px;
+    outline: none;
+    cursor: pointer;
+}
+
+#volume-slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: var(--text-white);
+    cursor: pointer;
+    box-shadow: 0 0 8px rgba(255, 255, 255, 0.8);
+}
+
+/* ====================================================================
+   MAIN VIEWPORT (Centered Grand Bento Layout, No Scroll)
+   ==================================================================== */
+.main-viewport {
+    position: relative;
+    z-index: 2;
+    width: 100%;
+    max-width: 1180px;
+    height: 100vh;
+    max-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+    perspective: 1200px;
+}
+
+.card-tilt-container {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transform-style: preserve-3d;
+    transition: transform 0.15s ease-out;
+}
+
+.bio-card {
+    position: relative;
+    width: 100%;
+    max-height: min(92vh, 810px);
+    background: var(--bg-card);
+    backdrop-filter: blur(30px) saturate(180%);
+    -webkit-backdrop-filter: blur(30px) saturate(180%);
+    border: 1px solid var(--border-mid);
+    border-radius: var(--card-radius);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 35px 85px rgba(0, 0, 0, 0.9), 
+                0 0 0 1px rgba(255, 255, 255, 0.06),
+                inset 0 1px 0 rgba(255, 255, 255, 0.15);
+    transition: box-shadow 0.4s ease, border-color 0.4s ease;
+}
+
+.bio-card:hover {
+    border-color: var(--border-glow);
+    box-shadow: 0 40px 95px rgba(0, 0, 0, 0.98), 
+                0 0 50px rgba(255, 255, 255, 0.08),
+                inset 0 1px 0 rgba(255, 255, 255, 0.25);
+}
+
+/* Dynamic Glare */
+.card-glare {
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(circle 450px at var(--glare-x, 50%) var(--glare-y, 50%), rgba(255, 255, 255, 0.08), transparent 80%);
+    pointer-events: none;
+    z-index: 20;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.bio-card:hover .card-glare {
+    opacity: 1;
+}
+
+/* Top Banner (Executive Sculptural Studio Minimalist) */
+.card-banner {
+    width: 100%;
+    height: 110px;
+    background-size: cover;
+    background-position: center 48%;
+    position: relative;
+    overflow: hidden;
+    flex-shrink: 0;
+    transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.card-banner::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(circle at 50% 30%, rgba(255, 255, 255, 0.04), transparent 60%);
+    pointer-events: none;
+    z-index: 1;
+}
+
+/* Visualizer nhạc — nằm TRÊN ảnh nền banner nhưng DƯỚI .banner-gradient (z-index 1)
+   nên nửa dưới tự mờ dần vào thân card như một vệt phản chiếu. */
+.banner-visualizer {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 0;
+    pointer-events: none;
+    display: block;
+}
+
+.card-banner::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 1px;
+    background: linear-gradient(90deg, transparent 0%, rgba(255, 255, 255, 0.12) 20%, rgba(255, 255, 255, 0.35) 50%, rgba(255, 255, 255, 0.12) 80%, transparent 100%);
+    box-shadow: 0 1px 12px rgba(255, 255, 255, 0.08);
+    z-index: 3;
+}
+
+.banner-gradient {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(180deg, rgba(0, 0, 0, 0.02) 0%, rgba(10, 10, 12, 0.25) 50%, rgba(14, 14, 17, 0.90) 85%, var(--bg-card) 100%);
+    z-index: 1;
+}
+
+.banner-badge-top {
+    position: absolute;
+    top: 14px;
+    right: 22px;
+    background: rgba(14, 14, 18, 0.76);
+    backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    padding: 5px 14px;
+    border-radius: var(--pill-radius);
+    font-family: var(--font-mono);
+    font-size: 0.66rem;
+    font-weight: 600;
+    letter-spacing: 1.8px;
+    color: #e4e4e7;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.14);
+    z-index: 2;
+    transition: var(--transition-smooth);
+}
+
+.banner-badge-top:hover {
+    border-color: rgba(255, 255, 255, 0.35);
+    color: #ffffff;
+    box-shadow: 0 8px 28px rgba(0, 0, 0, 0.8), inset 0 1px 0 rgba(255, 255, 255, 0.25);
+    transform: translateY(-1px);
+}
+
+.live-dot-ping {
+    width: 7px;
+    height: 7px;
+    background: #10b981;
+    border-radius: 50%;
+    display: inline-block;
+    box-shadow: 0 0 10px #10b981;
+    animation: pingDot 2.2s infinite ease-in-out;
+}
+
+@keyframes pingDot {
+    0%, 100% { transform: scale(1); opacity: 1; }
+    50% { transform: scale(1.3); opacity: 0.5; }
+}
+
+/* ====================================================================
+   FULL-WIDTH PROFILE HEADER BAR (Never Clipped, 100% Visible)
+   ==================================================================== */
+.card-profile-bar {
+    position: relative;
+    z-index: 10;
+    padding: 0 26px 6px 26px;
+    margin-top: -38px; /* Avatar nhô lên banner tự nhiên */
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    flex-wrap: wrap;
+    gap: 14px;
+    flex-shrink: 0;
+}
+
+.profile-main-info {
+    display: flex;
+    align-items: flex-end;
+    gap: 18px;
+}
+
+.avatar-wrapper {
+    position: relative;
+    width: 98px;
+    height: 98px;
+    flex-shrink: 0;
+}
+
+/* Luxury Dual-Bevel Platinum & Carbon Frame */
+.avatar-wrapper::before {
+    content: '';
+    position: absolute;
+    inset: -3px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.45), rgba(255, 255, 255, 0.08) 50%, rgba(255, 255, 255, 0.35));
+    z-index: 0;
+    opacity: 0.9;
+    transition: var(--transition-smooth);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.8), 0 0 14px rgba(255, 255, 255, 0.08);
+}
+
+.avatar-wrapper:hover::before {
+    opacity: 1;
+    background: linear-gradient(135deg, #ffffff, rgba(255, 255, 255, 0.25) 50%, #ffffff);
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.95), 0 0 25px rgba(255, 255, 255, 0.2);
+    transform: scale(1.02);
+}
+
+.profile-avatar {
+    position: relative;
+    z-index: 1;
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 3.5px solid #0d0d10;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.95);
+    background-color: #121214;
+    transition: var(--transition-smooth);
+}
+
+.avatar-wrapper:hover .profile-avatar {
+    transform: scale(1.02);
+}
+
+/* Discord-style Avatar Decoration Overlay */
+.avatar-decoration {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 132%;
+    height: 132%;
+    transform: translate(-50%, -50%);
+    z-index: 3;
+    pointer-events: none;
+    object-fit: contain;
+    filter: drop-shadow(0 4px 10px rgba(0, 0, 0, 0.55));
+    animation: decorationFloat 4s ease-in-out infinite;
+}
+
+.avatar-wrapper:hover .avatar-decoration {
+    filter: drop-shadow(0 6px 16px rgba(0, 0, 0, 0.7));
+}
+
+@keyframes decorationFloat {
+    0%, 100% { transform: translate(-50%, -50%) translateY(0) rotate(0deg); }
+    50% { transform: translate(-50%, -50%) translateY(-2px) rotate(-1deg); }
+}
+
+.status-indicator {
+    position: absolute;
+    bottom: 3px;
+    right: 3px;
+    width: 22px;
+    height: 22px;
+    background: #0d0d10;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 2.5px solid #0d0d10;
+    z-index: 2;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.85);
+}
+
+.status-dot {
+    width: 13px;
+    height: 13px;
+    border-radius: 50%;
+    background-color: var(--status-offline);
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+    transition: background-color 0.4s ease, box-shadow 0.4s ease;
+}
+
+.status-dot.online { background-color: var(--status-online); box-shadow: 0 0 12px var(--status-online); }
+.status-dot.idle { background-color: var(--status-idle); box-shadow: 0 0 12px var(--status-idle); }
+.status-dot.dnd { background-color: var(--status-dnd); box-shadow: 0 0 12px var(--status-dnd); }
+.status-dot.offline { background-color: var(--status-offline); }
+
+.user-meta {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    padding-bottom: 2px;
+}
+
+.name-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+/* Pure Diamond White Executive Typography */
+.user-display-name {
+    font-family: var(--font-heading);
+    font-size: 2.15rem;
+    font-weight: 800;
+    color: #ffffff;
+    letter-spacing: -0.6px;
+    line-height: 1.15;
+    text-shadow: 0 2px 14px rgba(0, 0, 0, 0.5);
+    transition: var(--transition-smooth);
+}
+
+.user-display-name:hover {
+    color: #f4f4f5;
+    text-shadow: 0 0 20px rgba(255, 255, 255, 0.35);
+}
+
+/* Crisp White Verified Badge with Diamond Sheen */
+.verified-badge {
+    color: #ffffff;
+    font-size: 1.22rem;
+    filter: drop-shadow(0 0 8px rgba(255, 255, 255, 0.7));
+    transition: var(--transition-bounce);
+}
+
+.verified-badge:hover {
+    transform: scale(1.12);
+    filter: drop-shadow(0 0 14px rgba(255, 255, 255, 0.95));
+}
+
+.handle-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+/* Executive Monospace Handle Tag */
+.user-handle {
+    font-family: var(--font-mono);
+    font-size: 0.88rem;
+    color: #cbd5e1;
+    font-weight: 600;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    padding: 2px 8px;
+    border-radius: 6px;
+    display: inline-flex;
+    align-items: center;
+    transition: var(--transition-smooth);
+}
+
+.user-handle:hover {
+    background: rgba(255, 255, 255, 0.08);
+    border-color: rgba(255, 255, 255, 0.22);
+    color: #ffffff;
+    box-shadow: 0 0 10px rgba(255, 255, 255, 0.08);
+}
+
+.copy-tag-btn {
+    background: rgba(255, 255, 255, 0.035);
+    border: 1px solid rgba(255, 255, 255, 0.09);
+    color: var(--text-muted);
+    font-size: 0.82rem;
+    cursor: pointer;
+    position: relative;
+    padding: 3px 7px;
+    border-radius: 6px;
+    transition: var(--transition-smooth);
+}
+
+.copy-tag-btn:hover {
+    color: var(--text-white);
+    background: rgba(255, 255, 255, 0.1);
+    border-color: rgba(255, 255, 255, 0.24);
+    box-shadow: 0 0 8px rgba(255, 255, 255, 0.1);
+}
+
+.tooltip {
+    position: absolute;
+    bottom: 125%;
+    left: 50%;
+    transform: translateX(-50%) translateY(4px);
+    background: #18181b;
+    border: 1px solid var(--border-mid);
+    color: var(--text-white);
+    font-size: 0.72rem;
+    font-family: var(--font-main);
+    padding: 4px 8px;
+    border-radius: 6px;
+    white-space: nowrap;
+    opacity: 0;
+    pointer-events: none;
+    transition: var(--transition-smooth);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+}
+
+.copy-tag-btn:hover .tooltip {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+}
+
+.meta-dot-sep {
+    color: var(--text-dim);
+    font-size: 0.8rem;
+}
+
+.user-tagline {
+    font-size: 0.84rem;
+    color: #94a3b8;
+    font-weight: 500;
+    letter-spacing: 0.1px;
+}
+
+.location-row {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    margin-top: 5px;
+    font-size: 0.78rem;
+    color: #94a3b8;
+    font-weight: 500;
+}
+
+.location-row i {
+    color: #64748b;
+    font-size: 0.72rem;
+}
+
+/* Badges Bar (Matte Obsidian Executive Glass Pills) */
+.badges-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    align-self: flex-end;
+    padding-bottom: 4px;
+}
+
+.badge-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    background: rgba(255, 255, 255, 0.035);
+    border: 1px solid rgba(255, 255, 255, 0.09);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08), 0 4px 12px rgba(0, 0, 0, 0.35);
+    padding: 5px 12px;
+    border-radius: var(--pill-radius);
+    font-size: 0.76rem;
+    font-weight: 600;
+    color: #cbd5e1;
+    transition: var(--transition-smooth);
+}
+
+.badge-pill:hover {
+    background: rgba(255, 255, 255, 0.08);
+    border-color: rgba(255, 255, 255, 0.25);
+    color: #ffffff;
+    transform: translateY(-2px);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.18), 0 6px 20px rgba(0, 0, 0, 0.6), 0 0 10px rgba(255, 255, 255, 0.08);
+}
+
+.badge-pill i {
+    font-size: 0.80rem;
+    color: #f1f5f9;
+    filter: drop-shadow(0 0 4px rgba(255, 255, 255, 0.35));
+}
+
+/* ====================================================================
+   BENTO BODY GRID (ZERO-SCROLL BALANCED VIEW)
+   ==================================================================== */
+.card-bento-body {
+    display: grid;
+    grid-template-columns: 1.12fr 1fr;
+    gap: 20px;
+    padding: 6px 26px 12px 26px;
+    overflow: hidden; /* ZERO SCROLL: Cố định hoàn toàn trên màn hình Desktop */
+}
+
+.bento-col {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+/* Quote & Bio */
+.quote-box {
+    background: rgba(0, 0, 0, 0.4);
+    border: 1px solid var(--border-dim);
+    border-radius: var(--inner-radius);
+    padding: 0 14px;
+    height: 34px;
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+    white-space: nowrap;
+    overflow: hidden;
+    box-sizing: border-box;
+}
+
+.quote-icon {
+    color: var(--text-muted);
+    font-size: 0.80rem;
+    flex-shrink: 0;
+}
+
+.quote-text {
+    flex: 0 1 auto;
+    min-width: 0;
+    color: var(--text-primary);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    line-height: 1;
+}
+
+.typewriter-cursor {
+    flex-shrink: 0;
+    animation: blinkCursor 0.8s infinite;
+    color: var(--text-white);
+    font-weight: 700;
+}
+
+@keyframes blinkCursor {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0; }
+}
+
+.user-bio {
+    font-size: 0.82rem;
+    line-height: 1.45;
+    color: var(--text-secondary);
+}
+
+/* Section Title Headers */
+.section-title {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    font-family: var(--font-mono);
+    font-size: 0.68rem;
+    letter-spacing: 1.6px;
+    color: var(--text-muted);
+    font-weight: 700;
+    margin-bottom: 4px;
+    text-transform: uppercase;
+}
+
+.section-title i {
+    font-size: 0.78rem;
+    color: var(--text-secondary);
+}
+
+/* Presence Section */
+.presence-section {
+    display: flex;
+    flex-direction: column;
+}
+
+.lanyard-ping {
+    margin-left: auto;
+    position: relative;
+    width: 8px;
+    height: 8px;
+}
+
+.ping-core {
+    position: absolute;
+    inset: 0;
+    background: var(--status-online);
+    border-radius: 50%;
+}
+
+.ping-wave {
+    position: absolute;
+    inset: -3px;
+    border: 1.5px solid var(--status-online);
+    border-radius: 50%;
+    animation: pingRipple 1.8s cubic-bezier(0, 0.2, 0.8, 1) infinite;
+}
+
+@keyframes pingRipple {
+    0% { transform: scale(0.8); opacity: 1; }
+    100% { transform: scale(2.2); opacity: 0; }
+}
+
+.custom-status-card {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid var(--border-dim);
+    border-radius: var(--inner-radius);
+    padding: 7px 12px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 6px;
+    transition: var(--transition-smooth);
+}
+
+.custom-status-card:hover {
+    background: rgba(255, 255, 255, 0.05);
+    border-color: var(--border-mid);
+}
+
+.status-emoji {
+    font-size: 1.25rem;
+    flex-shrink: 0;
+    line-height: 1;
+}
+
+.status-content {
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+}
+
+.status-label {
+    font-family: var(--font-mono);
+    font-size: 0.62rem;
+    letter-spacing: 0.8px;
+    color: var(--text-muted);
+}
+
+.status-message {
+    font-size: 0.84rem;
+    color: var(--text-primary);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* Spotify & Activity Card */
+.activity-card {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid var(--border-dim);
+    border-radius: var(--inner-radius);
+    padding: 8px 12px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 5px;
+    transition: var(--transition-smooth);
+}
+
+.activity-card:hover {
+    background: rgba(255, 255, 255, 0.055);
+    border-color: var(--border-mid);
+}
+
+.spotify-art-wrap, .game-art-wrap {
+    position: relative;
+    width: 46px;
+    height: 46px;
+    flex-shrink: 0;
+    border-radius: 10px;
+    overflow: hidden;
+    border: 1px solid var(--border-mid);
+}
+
+.spotify-art, .game-art {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.spotify-details, .game-details {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.activity-badge {
+    font-family: var(--font-mono);
+    font-size: 0.64rem;
+    letter-spacing: 0.8px;
+    font-weight: 700;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.spotify-badge { color: #1db954; }
+.game-badge { color: var(--text-white); }
+
+.track-title, .game-name {
+    font-size: 0.88rem;
+    font-weight: 700;
+    color: var(--text-white);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.track-artist, .game-state {
+    font-size: 0.76rem;
+    color: var(--text-secondary);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.game-details-text {
+    font-size: 0.72rem;
+    color: var(--text-muted);
+}
+
+.spotify-progress-box {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    margin-top: 3px;
+}
+
+.time-stamp {
+    font-family: var(--font-mono);
+    font-size: 0.68rem;
+    color: var(--text-muted);
+}
+
+.progress-track {
+    flex: 1;
+    height: 3px;
+    background: rgba(255, 255, 255, 0.12);
+    border-radius: 2px;
+    overflow: hidden;
+}
+
+.progress-fill {
+    height: 100%;
+    background: var(--text-white);
+    box-shadow: 0 0 8px rgba(255, 255, 255, 0.8);
+    width: 0%;
+    border-radius: 2px;
+    transition: width 0.5s linear;
+}
+
+/* ====================================================================
+   CORE ARSENAL (Symmetrical 6-Pill Luxury Grid - Seamless Flow)
+   ==================================================================== */
+.arsenal-section {
+    display: flex;
+    flex-direction: column;
+    margin-top: 2px; /* Gắn kết tự nhiên liền mạch, xóa bỏ hoàn toàn khoảng trống ở giữa */
+}
+
+.arsenal-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+}
+
+.arsenal-pill {
+    background: rgba(255, 255, 255, 0.035);
+    border: 1px solid var(--border-dim);
+    border-radius: var(--inner-radius);
+    padding: 7px 11px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    transition: var(--transition-smooth);
+    cursor: default;
+    min-height: 44px;
+}
+
+.arsenal-pill:hover {
+    background: rgba(255, 255, 255, 0.08);
+    border-color: var(--border-glow);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.45), 0 0 12px rgba(255, 255, 255, 0.06);
+}
+
+.arsenal-icon-wrap {
+    width: 28px;
+    height: 28px;
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    transition: var(--transition-smooth);
+}
+
+.arsenal-icon-wrap i {
+    font-size: 0.84rem;
+    color: var(--text-white);
+    transition: var(--transition-bounce);
+}
+
+.arsenal-pill:hover .arsenal-icon-wrap {
+    background: rgba(255, 255, 255, 0.16);
+    border-color: var(--text-white);
+    box-shadow: 0 0 10px rgba(255, 255, 255, 0.3);
+}
+
+.arsenal-pill:hover .arsenal-icon-wrap i {
+    transform: scale(1.15);
+}
+
+.arsenal-info {
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+    min-width: 0;
+}
+
+.arsenal-name {
+    font-family: var(--font-heading);
+    font-size: 0.80rem;
+    font-weight: 700;
+    color: var(--text-white);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    line-height: 1.2;
+}
+
+.arsenal-sub {
+    font-family: var(--font-mono);
+    font-size: 0.60rem;
+    color: var(--text-muted);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* ====================================================================
+   RIGHT COLUMN: 2 DISCORD SERVERS & SOCIALS
+   ==================================================================== */
+.servers-section {
+    display: flex;
+    flex-direction: column;
+}
+
+.servers-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 9px;
+}
+
+.server-card {
+    position: relative;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid var(--border-dim);
+    border-radius: var(--inner-radius);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    transition: var(--transition-smooth);
+}
+
+.server-card:hover {
+    background: rgba(255, 255, 255, 0.055);
+    border-color: var(--border-glow);
+    transform: translateY(-2px);
+    box-shadow: 0 12px 28px rgba(0, 0, 0, 0.65), 0 0 18px rgba(255, 255, 255, 0.05);
+}
+
+.server-banner-img {
+    width: 100%;
+    height: 68px;
+    object-fit: cover;
+    opacity: 0.88;
+    background-color: #121216;
+    transition: var(--transition-smooth);
+}
+
+.server-card:hover .server-banner-img {
+    opacity: 1;
+    transform: scale(1.03);
+}
+
+.server-body {
+    padding: 7px 14px 11px 14px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    position: relative;
+    margin-top: -24px;
+    z-index: 2;
+}
+
+.server-icon-wrap {
+    position: relative;
+    width: 46px;
+    height: 46px;
+    flex-shrink: 0;
+    /* Dịch icon lên để trồi qua mép banner; dùng transform nên không đẩy layout */
+    transform: translateY(-26px);
+}
+
+.server-icon {
+    width: 100%;
+    height: 100%;
+    border-radius: 12px;
+    object-fit: cover;
+    background-color: #121216;
+    border: 2px solid #141416;
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.7);
+}
+
+.server-content {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    /* .server-body kéo lên -24px để icon trồi lên banner; đẩy riêng phần chữ
+       xuống dưới mép banner để tên server không đè lên ảnh nền */
+    padding-top: 20px;
+}
+
+.server-top-line {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+}
+
+.server-name {
+    font-family: var(--font-heading);
+    font-size: 1.02rem;
+    font-weight: 700;
+    color: var(--text-white);
+    letter-spacing: -0.2px;
+}
+
+.server-tag {
+    font-family: var(--font-mono);
+    font-size: 0.62rem;
+    background: rgba(255, 255, 255, 0.12);
+    border: 1px solid var(--border-mid);
+    color: var(--text-white);
+    padding: 1px 6px;
+    border-radius: 4px;
+    font-weight: 700;
+}
+
+.server-role {
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+    font-weight: 500;
+}
+
+.server-desc {
+    font-size: 0.76rem;
+    color: var(--text-muted);
+    line-height: 1.35;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.server-join-btn {
+    align-self: center;
+    flex-shrink: 0;
+    background: var(--text-white);
+    color: var(--bg-black);
+    text-decoration: none;
+    font-family: var(--font-heading);
+    font-size: 0.80rem;
+    font-weight: 700;
+    padding: 7px 15px;
+    border-radius: var(--pill-radius);
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    box-shadow: 0 4px 15px rgba(255, 255, 255, 0.25);
+    transition: var(--transition-bounce);
+    position: relative;
+    overflow: hidden;
+}
+
+.server-join-btn::after {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: linear-gradient(60deg, transparent, rgba(255, 255, 255, 0.6), transparent);
+    transform: rotate(25deg) translateY(-100%);
+    transition: transform 0.6s ease;
+}
+
+.server-join-btn:hover::after {
+    transform: rotate(25deg) translateY(100%);
+}
+
+.server-join-btn:hover {
+    transform: translateY(-2px) scale(1.05);
+    box-shadow: 0 8px 25px rgba(255, 255, 255, 0.45);
+}
+
+/* Social Links */
+.socials-section {
+    display: flex;
+    flex-direction: column;
+    margin-top: 2px;
+}
+
+.socials-list {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+}
+
+.social-pill {
+    background: rgba(255, 255, 255, 0.035);
+    border: 1px solid var(--border-dim);
+    border-radius: var(--inner-radius);
+    padding: 7px 11px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    color: var(--text-secondary);
+    text-decoration: none;
+    font-size: 0.82rem;
+    font-weight: 600;
+    transition: var(--transition-smooth);
+    min-height: 44px;
+}
+
+/* Nút Donate: chiếm trọn một hàng và có ánh hồng để nổi bật hơn các link còn lại */
+.social-pill.highlight {
+    grid-column: 1 / -1;
+    background: linear-gradient(120deg, rgba(255, 107, 157, 0.16), rgba(255, 107, 157, 0.05));
+    border-color: rgba(255, 107, 157, 0.38);
+    color: #ffd1e3;
+}
+
+.social-pill.highlight i {
+    color: #ff8fb8;
+}
+
+.social-pill.highlight:hover {
+    background: linear-gradient(120deg, rgba(255, 107, 157, 0.28), rgba(255, 107, 157, 0.1));
+    border-color: rgba(255, 107, 157, 0.7);
+    color: #ffffff;
+    box-shadow: 0 8px 24px rgba(255, 107, 157, 0.28);
+}
+
+.social-pill:hover {
+    background: rgba(255, 255, 255, 0.08);
+    border-color: var(--border-glow);
+    color: var(--text-white);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.4);
+}
+
+.social-pill i {
+    font-size: 0.90rem;
+    color: var(--text-white);
+}
+
+/* ====================================================================
+   CARD FOOTER (Executive Precision Glass Bar)
+   ==================================================================== */
+.card-footer {
+    margin-top: auto;
+    padding: 7px 24px;
+    height: 42px;
+    background: rgba(10, 10, 13, 0.85);
+    backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06), 0 -8px 25px rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    color: var(--text-muted);
+    flex-shrink: 0;
+    position: relative;
+    z-index: 5;
+}
+
+/* Precision Glass Capsule Chips */
+.footer-capsule {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(255, 255, 255, 0.035);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
+    padding: 4px 12px;
+    border-radius: var(--pill-radius);
+    transition: var(--transition-smooth);
+    color: #cbd5e1;
+    font-size: 0.70rem;
+    font-weight: 500;
+}
+
+.footer-capsule:hover {
+    background: rgba(255, 255, 255, 0.07);
+    border-color: rgba(255, 255, 255, 0.2);
+    color: #ffffff;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.1), 0 4px 12px rgba(0, 0, 0, 0.4);
+}
+
+/* Nhóm bên phải footer: [lượt xem · thích] + [telemetry] nằm cạnh nhau.
+   Bọc trong một div để footer vẫn đúng 3 cột như trước (giờ, thương hiệu, nhóm phải). */
+.footer-right-group {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+/* LƯU Ý: thuộc tính `hidden` của trình duyệt chỉ là `[hidden] { display: none }`
+   trong stylesheet mặc định, nên CHỈ CẦN một khai báo `display` của mình là nó bị
+   vô hiệu — capsule "0 lượt xem" từng hiện ra dù có `hidden`. Phải chặn rõ ràng. */
+.stats-capsule[hidden] {
+    display: none;
+}
+
+/* Số lượt xem giữ im lặng, chỉ nút trái tim là bấm được */
+#stat-views {
+    font-family: var(--font-mono);
+    font-weight: 600;
+    color: #e2e8f0;
+}
+
+.stats-like {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    padding: 0;
+    margin: 0;
+    background: none;
+    border: 0;
+    font: inherit;
+    color: inherit;
+    cursor: pointer;
+    transition: var(--transition-smooth);
+}
+
+.stats-like i {
+    font-size: 0.74rem;
+    transition: var(--transition-smooth);
+}
+
+.stats-like:hover,
+.stats-like:hover i {
+    color: #ff6f9d;
+}
+
+.stats-like:active {
+    transform: scale(0.92);
+}
+
+.stats-like.liked,
+.stats-like.liked i {
+    color: #ff5c98;
+}
+
+@keyframes stats-like-pop {
+    0% { transform: scale(1); }
+    45% { transform: scale(1.4); }
+    100% { transform: scale(1); }
+}
+
+.stats-like.pop i {
+    animation: stats-like-pop 0.42s ease-out;
+}
+
+.footer-icon {
+    font-size: 0.74rem;
+    color: #94a3b8;
+    transition: var(--transition-smooth);
+}
+
+.footer-capsule:hover .footer-icon {
+    color: #ffffff;
+}
+
+#local-time {
+    font-family: var(--font-mono);
+    font-weight: 600;
+    color: #e2e8f0;
+    letter-spacing: 0.4px;
+}
+
+.footer-sep {
+    color: rgba(255, 255, 255, 0.18);
+    font-weight: 300;
+}
+
+/* Center Brand Insignia */
+.brand-insignia {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-family: var(--font-mono);
+    font-size: 0.70rem;
+    letter-spacing: 1.8px;
+    transition: var(--transition-smooth);
+    cursor: default;
+}
+
+.insignia-crest {
+    color: #ffffff;
+    font-size: 0.65rem;
+    filter: drop-shadow(0 0 6px rgba(255, 255, 255, 0.6));
+    animation: crestGaze 3s infinite ease-in-out;
+}
+
+@keyframes crestGaze {
+    0%, 100% { opacity: 0.8; transform: scale(1); }
+    50% { opacity: 1; transform: scale(1.2); filter: drop-shadow(0 0 10px rgba(255, 255, 255, 0.9)); }
+}
+
+.mono-logo {
+    letter-spacing: 2px;
+    font-weight: 700;
+    color: #ffffff;
+    transition: var(--transition-smooth);
+}
+
+.insignia-sep {
+    color: rgba(255, 255, 255, 0.25);
+}
+
+.insignia-sub {
+    font-weight: 500;
+    color: #71717a;
+    letter-spacing: 1.8px;
+    transition: var(--transition-smooth);
+}
+
+.brand-insignia:hover .mono-logo {
+    color: #ffffff;
+    text-shadow: 0 0 12px rgba(255, 255, 255, 0.4);
+}
+
+.brand-insignia:hover .insignia-sub {
+    color: #a1a1aa;
+}
+
+/* Right Telemetry Chip */
+.telemetry-live-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: #10b981;
+    box-shadow: 0 0 8px #10b981;
+    animation: pingDot 2s infinite ease-in-out;
+}
+
+.telemetry-icon {
+    font-size: 0.70rem;
+    color: #10b981;
+}
+
+#ping-indicator {
+    font-family: var(--font-mono);
+    font-weight: 600;
+    color: #e2e8f0;
+    letter-spacing: 0.4px;
+}
+
+/* ====================================================================
+   TOAST NOTIFICATION
+   ==================================================================== */
+.toast-container {
+    position: fixed;
+    top: 24px;
+    right: 24px;
+    z-index: 10001;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    pointer-events: none;
+}
+
+.toast {
+    background: rgba(20, 20, 25, 0.96);
+    backdrop-filter: blur(20px);
+    border: 1px solid var(--border-glow);
+    color: var(--text-white);
+    padding: 10px 18px;
+    border-radius: var(--pill-radius);
+    font-size: 0.82rem;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.85), 0 0 15px rgba(255, 255, 255, 0.1);
+    animation: toastIn 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.toast.toast-out {
+    animation: toastOut 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes toastIn {
+    from { opacity: 0; transform: translateY(-16px) scale(0.9); }
+    to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+@keyframes toastOut {
+    from { opacity: 1; transform: translateY(0) scale(1); }
+    to { opacity: 0; transform: translateY(-16px) scale(0.9); }
+}
+
+/* ====================================================================
+   SETLOVE SLIDE PANEL + ARROW
+   ==================================================================== */
+
+/* Nút mũi tên/trái tim — giữa bên phải màn hình, nằm NGOÀI card
+   (không đè lên nội dung bên trong) */
+.love-arrow {
+    position: fixed;
+    top: 50%;
+    right: 10px;
+    transform: translateY(-50%);
+    z-index: 120;
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    background: rgba(20, 20, 24, 0.75);
+    backdrop-filter: blur(10px);
+    color: #ff6b9d;
+    font-size: 1.05rem;
+    cursor: pointer;
+    display: grid;
+    place-items: center;
+    transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1),
+                right 0.55s cubic-bezier(0.22, 1, 0.36, 1),
+                background 0.3s ease, box-shadow 0.3s ease, color 0.3s ease;
+    box-shadow: 0 8px 22px rgba(0, 0, 0, 0.45);
+}
+
+.love-arrow:hover {
+    transform: translateY(-50%) scale(1.12);
+    background: rgba(255, 107, 157, 0.18);
+    box-shadow: 0 10px 30px rgba(255, 107, 157, 0.35);
+}
+
+.love-arrow i {
+    transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Vị trí nút lúc mở do JS tính (panel nằm trong card nên mốc toạ độ khác CSS),
+   ở đây chỉ đổi màu/hiệu ứng cho khớp trạng thái mở */
+body.love-open .love-arrow {
+    color: #ff8fb8;
+    background: rgba(255, 107, 157, 0.14);
+}
+
+body.love-open .love-arrow i {
+    transform: scaleX(-1);
+}
+
+/* Panel trượt — neo vào mép phải card, bị card bo góc cắt.
+   height 100% => nội dung được căn giữa TRONG vùng nhìn thấy của card
+   (thay vì giữa 100vh như trước làm nội dung trông bị tụt xuống dưới). */
+.setlove-panel {
+    position: absolute;
+    top: 0;
+    right: 0;
+    height: 100%;
+    width: min(880px, 96vw);
+    z-index: 110;
+    transform: translateX(102%);
+    transition: transform 0.55s cubic-bezier(0.22, 1, 0.36, 1);
+    background:
+        radial-gradient(ellipse at 30% 20%, rgba(255, 107, 157, 0.16), transparent 55%),
+        radial-gradient(ellipse at 80% 80%, rgba(255, 107, 157, 0.10), transparent 55%),
+        linear-gradient(160deg, #100d12 0%, #0c0a0f 100%);
+    border-left: 1px solid rgba(255, 107, 157, 0.22);
+    box-shadow: -30px 0 80px rgba(0, 0, 0, 0.6);
+    display: grid;
+    place-items: center;
+    overflow: hidden;
+}
+
+/* Canvas trái tim bay — nền động phía sau nội dung */
+.love-canvas {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 1;
+    pointer-events: none;
+}
+
+body.love-open .setlove-panel {
+    transform: translateX(0);
+}
+
+/* Nền bio cũng trượt nhẹ sang trái theo — tạo cảm giác đồng bộ */
+.main-viewport,
+#bg-canvas,
+#mouse-spotlight {
+    transition: transform 0.55s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+body.love-open .main-viewport {
+    transform: translateX(-140px);
+}
+
+.setlove-inner {
+    position: relative;
+    z-index: 3;
+    text-align: center;
+    padding: 40px 48px;
+    max-width: 560px;
+    /* Khung kính: panel từ "một tấm nền" thành "một tấm thiệp" */
+    border: 1px solid rgba(255, 107, 157, 0.18);
+    border-radius: 28px;
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.045), rgba(255, 255, 255, 0.012));
+    backdrop-filter: blur(14px) saturate(1.15);
+    -webkit-backdrop-filter: blur(14px) saturate(1.15);
+    box-shadow:
+        0 30px 70px rgba(0, 0, 0, 0.45),
+        inset 0 1px 0 rgba(255, 255, 255, 0.14);
+}
+
+.setlove-decor {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    z-index: 1;
+}
+
+.setlove-decor span {
+    position: absolute;
+    font-size: 1.2rem;
+    opacity: 0.35;
+    animation: loveFloat 9s ease-in-out infinite;
+}
+
+.setlove-decor span:nth-child(1) { top: 12%; left: 12%; animation-delay: 0s; }
+.setlove-decor span:nth-child(2) { top: 22%; right: 14%; animation-delay: -2s; font-size: 1.5rem; }
+.setlove-decor span:nth-child(3) { bottom: 18%; left: 18%; animation-delay: -4s; font-size: 1.1rem; }
+.setlove-decor span:nth-child(4) { bottom: 26%; right: 10%; animation-delay: -6s; }
+.setlove-decor span:nth-child(5) { top: 45%; left: 6%;  animation-delay: -8s; font-size: 0.9rem; }
+
+@keyframes loveFloat {
+    0%, 100% { transform: translateY(0) rotate(0deg); opacity: 0.28; }
+    50% { transform: translateY(-22px) rotate(8deg); opacity: 0.55; }
+}
+
+.setlove-names {
+    position: relative;      /* neo sợi chỉ đỏ */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 26px;
+    flex-wrap: wrap;
+}
+
+.setlove-person {
+    position: relative;
+    z-index: 1;              /* nằm TRÊN sợi chỉ đỏ */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+}
+
+.setlove-avatar-wrap {
+    position: relative;
+    width: 112px;
+    height: 112px;
+    transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* Hai ảnh so le như polaroid dán cạnh nhau */
+.setlove-person-a .setlove-avatar-wrap { transform: rotate(-5deg); }
+.setlove-person-b .setlove-avatar-wrap { transform: rotate(5deg); }
+
+.setlove-avatar {
+    position: absolute;
+    inset: 0;
+    z-index: 1;              /* đè lên giữa vòng sáng quay */
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 3px solid rgba(255, 107, 157, 0.5);
+    box-shadow: 0 8px 24px rgba(255, 107, 157, 0.35);
+    background: #16131a;
+}
+
+.setlove-avatar-fallback {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    display: grid;
+    place-items: center;
+    border-radius: 50%;
+    font-family: var(--font-heading);
+    font-size: 2.1rem;
+    font-weight: 700;
+    color: #ffd1e3;
+    /* nền đục bên dưới để vòng sáng không lộ qua khi chưa có avatar */
+    background: linear-gradient(150deg, rgba(255, 107, 157, 0.3), rgba(255, 107, 157, 0.08)) #14101a;
+    border: 3px solid rgba(255, 107, 157, 0.5);
+    box-shadow: 0 8px 24px rgba(255, 107, 157, 0.3);
+}
+
+.setlove-avatar-decoration {
+    position: absolute;
+    /* Khung Discord to hơn avatar ~15% và căn giữa — đúng tỉ lệ Discord hiển thị */
+    width: 130%;
+    height: 130%;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    pointer-events: none;
+    z-index: 2;
+    filter: drop-shadow(0 6px 14px rgba(0, 0, 0, 0.5));
+}
+
+/* Dòng nhỏ "cập nhật X trước" — chỉ hiện khi dữ liệu từ cache đã cũ (≥5 phút) */
+.visual-age {
+    display: block;
+    font-size: 0.7rem;
+    font-weight: 500;
+    color: rgba(255, 209, 227, 0.55);
+    letter-spacing: 0.3px;
+    margin-top: 4px;
+    font-style: italic;
+}
+
+.setlove-name {
+    font-family: var(--font-heading);
+    font-size: clamp(1.5rem, 4vw, 2.3rem);
+    font-weight: 700;
+    color: var(--text-white);
+    letter-spacing: -0.5px;
+    background: linear-gradient(135deg, #fff 0%, #ffd1e3 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.setlove-heart-wrap {
+    display: inline-grid;
+    place-items: center;
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(255, 107, 157, 0.24), transparent 70%);
+}
+
+.setlove-heart {
+    font-size: 2rem;
+    color: #ff6b9d;
+    filter: drop-shadow(0 0 14px rgba(255, 107, 157, 0.7));
+    animation: heartBeat 1.3s ease-in-out infinite;
+}
+
+@keyframes heartBeat {
+    0%, 100% { transform: scale(1); }
+    14% { transform: scale(1.22); }
+    28% { transform: scale(1); }
+    42% { transform: scale(1.22); }
+    70% { transform: scale(1); }
+}
+
+.setlove-caption {
+    margin-top: 14px;
+    font-family: var(--font-mono);
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    letter-spacing: 1.5px;
+}
+
+.setlove-counter {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+    margin-top: 34px;
+}
+
+.love-cell {
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 107, 157, 0.2);
+    border-radius: var(--inner-radius);
+    padding: 18px 8px;
+    backdrop-filter: blur(8px);
+    transition: border-color 0.3s ease, transform 0.3s ease;
+}
+
+.love-cell:hover {
+    border-color: rgba(255, 107, 157, 0.45);
+    transform: translateY(-3px);
+}
+
+.love-num {
+    font-family: var(--font-mono);
+    font-size: clamp(1.4rem, 3.5vw, 2rem);
+    font-weight: 700;
+    color: #ff9ec4;
+    font-variant-numeric: tabular-nums;
+    text-shadow: 0 0 18px rgba(255, 107, 157, 0.4);
+}
+
+.love-label {
+    margin-top: 4px;
+    font-size: 0.72rem;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 1.2px;
+}
+
+/* ---- Cột mốc kỷ niệm (tự tính từ startDate) ---- */
+.setlove-milestone {
+    position: relative;   /* mốc neo cho tim bay khi đúng ngày kỷ niệm */
+    margin-top: 20px;
+}
+
+.milestone-line {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 9px;
+    font-size: 0.82rem;
+    letter-spacing: 0.2px;
+    color: #ffb3cd;
+    transition: color 0.4s ease;
+}
+
+.milestone-icon {
+    color: #ff6b9d;
+    font-size: 0.86rem;
+}
+
+.milestone-track {
+    position: relative;
+    width: min(280px, 68%);
+    height: 3px;
+    margin: 10px auto 0;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.09);
+    overflow: hidden;
+}
+
+.milestone-fill {
+    height: 100%;
+    width: 0;
+    border-radius: 999px;
+    background: linear-gradient(90deg, rgba(255, 107, 157, 0.55), #ff6b9d);
+    transition: width 0.8s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* Đúng ngày kỷ niệm: chữ sáng lên và thanh chạy đầy */
+.setlove-milestone.is-today .milestone-line {
+    color: #ffffff;
+    text-shadow: 0 0 16px rgba(255, 107, 157, 0.85);
+    animation: milestoneGlow 2.6s ease-in-out infinite;
+}
+
+.setlove-milestone.is-today .milestone-fill {
+    background: linear-gradient(90deg, #ff8fb8, #ffffff);
+    box-shadow: 0 0 12px rgba(255, 143, 184, 0.9);
+}
+
+@keyframes milestoneGlow {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.72; }
+}
+
+/* Tim bay khi đúng ngày kỷ niệm — chỉ bay một đợt, không chạy vòng lặp */
+.milestone-heart-burst {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    pointer-events: none;
+    color: #ff6b9d;
+    font-size: 14px;
+    opacity: 0;
+    will-change: transform, opacity;
+    animation: burstRise 1.9s ease-out forwards;
+}
+
+@keyframes burstRise {
+    0% { opacity: 0; transform: translate(-50%, 0) scale(0.5); }
+    18% { opacity: 1; }
+    100% { opacity: 0; transform: translate(calc(-50% + var(--drift, 0px)), -150px) scale(1.25); }
+}
+
+/* ---- Dải ảnh kỷ niệm ---- */
+.setlove-photos {
+    margin-top: 24px;
+    overflow: hidden;
+    -webkit-mask-image: linear-gradient(90deg, transparent, #000 7%, #000 93%, transparent);
+    mask-image: linear-gradient(90deg, transparent, #000 7%, #000 93%, transparent);
+}
+
+.photos-track {
+    display: flex;
+    gap: 10px;
+    width: max-content;
+    animation: photosDrift 48s linear infinite;
+    will-change: transform;
+}
+
+/* Rê chuột vào thì dải dừng lại cho dễ nhìn */
+.setlove-photos:hover .photos-track {
+    animation-play-state: paused;
+}
+
+@keyframes photosDrift {
+    from { transform: translate3d(0, 0, 0); }
+    to { transform: translate3d(-50%, 0, 0); }
+}
+
+.photo-item {
+    flex: 0 0 auto;
+    width: 76px;
+    height: 76px;
+    padding: 0;
+    border: 1px solid rgba(255, 107, 157, 0.28);
+    border-radius: 16px;
+    overflow: hidden;
+    background: rgba(255, 255, 255, 0.04);
+    cursor: pointer;
+    transition: transform 0.3s ease, border-color 0.3s ease;
+}
+
+.photo-item:hover {
+    transform: translateY(-3px) scale(1.04);
+    border-color: rgba(255, 143, 184, 0.7);
+}
+
+.photo-item img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+/* ---- Xem ảnh lớn ---- */
+.photo-lightbox {
+    position: fixed;
+    inset: 0;
+    z-index: 9998;
+    display: grid;
+    place-items: center;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.28s ease, visibility 0.28s ease;
+}
+
+body.photo-open .photo-lightbox {
+    opacity: 1;
+    visibility: visible;
+}
+
+.photo-lightbox-backdrop {
+    position: absolute;
+    inset: 0;
+    background: rgba(5, 5, 8, 0.82);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+}
+
+.photo-lightbox-card {
+    position: relative;
+    z-index: 1;
+    margin: 0;
+    padding: 14px 14px 10px;
+    max-width: min(880px, 88vw);
+    border: 1px solid rgba(255, 107, 157, 0.28);
+    border-radius: 22px;
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.06), rgba(255, 255, 255, 0.02));
+    box-shadow: 0 30px 80px rgba(0, 0, 0, 0.6);
+    transform: scale(0.94);
+    transition: transform 0.28s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+body.photo-open .photo-lightbox-card {
+    transform: scale(1);
+}
+
+.photo-lightbox-card img {
+    display: block;
+    max-width: 100%;
+    max-height: 72vh;
+    border-radius: 14px;
+}
+
+.photo-lightbox-card figcaption {
+    margin-top: 10px;
+    text-align: center;
+    font-size: 0.86rem;
+    color: var(--text-secondary);
+}
+
+.photo-lightbox-card figcaption:empty {
+    display: none;
+}
+
+.photo-lightbox-close {
+    position: absolute;
+    top: -14px;
+    right: -14px;
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    border: 1px solid rgba(255, 255, 255, 0.16);
+    background: rgba(18, 18, 22, 0.9);
+    color: #e8e8ee;
+    cursor: pointer;
+    transition: var(--transition-smooth);
+}
+
+.photo-lightbox-close:hover {
+    background: rgba(255, 107, 157, 0.22);
+    color: #ffffff;
+}
+
+.setlove-quote {
+    margin-top: 30px;
+    font-size: 0.95rem;
+    color: var(--text-secondary);
+    font-style: italic;
+    line-height: 1.7;
+    min-height: 3.2em;
+    display: grid;
+    place-items: center;
+    transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+/* Khi đổi câu: câu cũ mờ đi + trượt lên nhẹ, câu mới trượt lên hiện rõ */
+.setlove-quote.swap {
+    opacity: 0;
+    transform: translateY(-6px);
+}
+
+/* ====================================================================
+   SETLOVE — CHIỀU SÂU NỀN & KHỐI HAI AVATAR
+   ==================================================================== */
+
+/* 3 khối sáng mờ trôi lệch pha -> nền "thở" thay vì 2 vệt radial đứng yên */
+.love-mesh {
+    position: absolute;
+    inset: -20%;
+    z-index: 0;
+    pointer-events: none;
+    filter: blur(70px);
+    opacity: 0.8;
+}
+
+.mesh-blob {
+    position: absolute;
+    display: block;
+    border-radius: 50%;
+    will-change: transform;
+}
+
+.mesh-blob.mb-1 {
+    top: 0;
+    left: 4%;
+    width: 46%;
+    height: 58%;
+    background: radial-gradient(circle, rgba(255, 107, 157, 0.55), transparent 65%);
+    animation: meshDriftA 19s ease-in-out infinite;
+}
+
+.mesh-blob.mb-2 {
+    top: 16%;
+    right: 0;
+    width: 52%;
+    height: 62%;
+    background: radial-gradient(circle, rgba(168, 85, 247, 0.38), transparent 65%);
+    animation: meshDriftB 23s ease-in-out infinite;
+}
+
+.mesh-blob.mb-3 {
+    bottom: -4%;
+    left: 20%;
+    width: 60%;
+    height: 52%;
+    background: radial-gradient(circle, rgba(255, 143, 184, 0.34), transparent 65%);
+    animation: meshDriftC 27s ease-in-out infinite;
+}
+
+@keyframes meshDriftA {
+    0%, 100% { transform: translate3d(0, 0, 0) scale(1); }
+    50%      { transform: translate3d(9%, 7%, 0) scale(1.14); }
+}
+
+@keyframes meshDriftB {
+    0%, 100% { transform: translate3d(0, 0, 0) scale(1.05); }
+    50%      { transform: translate3d(-8%, 9%, 0) scale(1); }
+}
+
+@keyframes meshDriftC {
+    0%, 100% { transform: translate3d(0, 0, 0) scale(1); }
+    50%      { transform: translate3d(7%, -8%, 0) scale(1.12); }
+}
+
+/* Hạt nhiễu rất nhẹ phủ lên gradient — khử "banding", thêm chất liệu ảnh phim */
+.love-grain {
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+    pointer-events: none;
+    opacity: 0.05;
+    mix-blend-mode: overlay;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+/* Vignette: tối 4 góc để mắt dồn vào giữa panel */
+.love-vignette {
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+    pointer-events: none;
+    background: radial-gradient(ellipse 78% 72% at 50% 46%, transparent 40%, rgba(0, 0, 0, 0.55) 100%);
+}
+
+/* Vòng sáng quay quanh mỗi avatar — avatar đè lên giữa nên chỉ thấy vành ngoài */
+.avatar-ring {
+    position: absolute;
+    inset: -9px;
+    z-index: 0;
+    border-radius: 50%;
+    pointer-events: none;
+    background: conic-gradient(from 0deg,
+        rgba(255, 107, 157, 0) 0deg,
+        rgba(255, 107, 157, 0) 195deg,
+        rgba(255, 143, 184, 0.75) 252deg,
+        rgba(255, 228, 240, 1) 288deg,
+        rgba(255, 107, 157, 0) 330deg);
+    filter: blur(0.4px) drop-shadow(0 0 8px rgba(255, 107, 157, 0.55));
+    animation: ringSpin 8s linear infinite;
+}
+
+@keyframes ringSpin {
+    to { transform: rotate(360deg); }
+}
+
+/* Sợi chỉ đỏ: cung võng xuống nối hai avatar, vẽ dần từ trái sang khi mở panel.
+   Võng đủ sâu (44px) để đoạn cong lộ ra dưới trái tim, không bị tim che mất. */
+.love-thread {
+    position: absolute;
+    top: 56px;
+    left: 14%;
+    right: 14%;
+    height: 44px;
+    z-index: 0;
+    pointer-events: none;
+    border-bottom: 2px solid rgba(255, 107, 157, 0.6);
+    border-radius: 0 0 50% 50% / 0 0 100% 100%;
+    filter: drop-shadow(0 0 5px rgba(255, 107, 157, 0.5));
+    clip-path: inset(0 100% 0 0);
+    animation: threadDraw 1.5s cubic-bezier(0.33, 1, 0.68, 1) 0.55s forwards;
+}
+
+@keyframes threadDraw {
+    to { clip-path: inset(0 0 0 0); }
+}
+
+/* Hover (chỉ thiết bị có chuột): ảnh thẳng lại + phóng nhẹ, vòng quay nhanh hơn */
+@media (hover: hover) and (pointer: fine) {
+    .setlove-person:hover .setlove-avatar-wrap {
+        transform: rotate(0deg) scale(1.06);
+    }
+
+    .setlove-person:hover .avatar-ring {
+        animation-duration: 3.5s;
+    }
+}
+
+/* Mobile: panel chiếm gần hết màn hình, thu nhỏ khoảng trượt của bio (như bản gốc).
+   Vị trí nút trái tim do JS tính cho mọi khổ màn hình (xem positionArrow). */
+@media (max-width: 640px) {
+    .setlove-panel { width: 96vw; }
+    body.love-open .main-viewport { transform: translateX(-40px); }
+    .setlove-counter { grid-template-columns: repeat(2, 1fr); }
+    /* Máy nhỏ: hàng ngang không còn chỗ -> bỏ ảnh nghiêng & sợi chỉ đỏ */
+    .love-thread { display: none; }
+    .setlove-names { gap: 16px; }
+    .setlove-avatar-wrap { width: 92px; height: 92px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    /* Visualizer tự vẽ một khung tĩnh trong JS (xem initBannerVisualizer) */
+    .banner-visualizer { opacity: 0.8; }
+    .setlove-panel, .main-viewport, .love-arrow, .love-arrow i { transition: none; }
+    .setlove-heart, .setlove-decor span { animation: none; }
+    /* Hiệu ứng mới cũng phải tĩnh khi người dùng bật "giảm chuyển động" */
+    .mesh-blob, .avatar-ring { animation: none; }
+    .stats-like.pop i { animation: none; }
+    .setlove-milestone.is-today .milestone-line { animation: none; }
+    .milestone-heart-burst { animation: none; opacity: 0; }
+    .photos-track { animation: none; }
+    .photo-lightbox-card { transition: none; }
+    .love-thread { animation: none; clip-path: none; }
+    .setlove-avatar-wrap { transition: none; }
+    /* Giữ nguyên độ nghiêng, chỉ bỏ phóng to khi hover (tránh nhảy hình) */
+    .setlove-person-a:hover .setlove-avatar-wrap { transform: rotate(-5deg); }
+    .setlove-person-b:hover .setlove-avatar-wrap { transform: rotate(5deg); }
+}
+
+/* ====================================================================
+   DONATE QR MODAL (ảnh QR ngân hàng hiện giữa màn hình)
+   z-index thấp hơn con trỏ chuột (100000) để con trỏ tùy biến vẫn nổi trên hộp thoại
+   ==================================================================== */
+.donate-modal {
+    position: fixed;
+    inset: 0;
+    z-index: 90000;
+    display: none;
+    place-items: center;
+    padding: 24px;
+}
+
+body.donate-open .donate-modal {
+    display: grid;
+}
+
+.donate-backdrop {
+    position: absolute;
+    inset: 0;
+    background: rgba(4, 3, 7, 0.74);
+    backdrop-filter: blur(7px);
+    -webkit-backdrop-filter: blur(7px);
+    opacity: 0;
+    transition: opacity 0.32s ease;
+}
+
+body.donate-open .donate-backdrop {
+    opacity: 1;
+}
+
+.donate-card {
+    position: relative;
+    width: min(430px, 92vw);
+    max-height: 88vh;
+    overflow-y: auto;
+    padding: 26px 26px 20px;
+    border-radius: 26px;
+    border: 1px solid rgba(255, 107, 157, 0.24);
+    background:
+        radial-gradient(ellipse at 50% 0%, rgba(255, 107, 157, 0.14), transparent 60%),
+        linear-gradient(170deg, rgba(24, 19, 28, 0.98), rgba(11, 9, 14, 0.98));
+    box-shadow:
+        0 40px 90px rgba(0, 0, 0, 0.72),
+        inset 0 1px 0 rgba(255, 255, 255, 0.12);
+    text-align: center;
+    opacity: 0;
+    transform: translateY(16px) scale(0.96);
+    transition:
+        transform 0.42s cubic-bezier(0.16, 1, 0.3, 1),
+        opacity 0.3s ease;
+}
+
+body.donate-open .donate-card {
+    opacity: 1;
+    transform: none;
+}
+
+.donate-close {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    width: 34px;
+    height: 34px;
+    display: grid;
+    place-items: center;
+    border-radius: 50%;
+    border: 1px solid var(--border-dim);
+    background: rgba(255, 255, 255, 0.05);
+    color: var(--text-secondary);
+    font-size: 0.95rem;
+    cursor: pointer;
+    transition: var(--transition-smooth);
+}
+
+.donate-close:hover {
+    background: rgba(255, 255, 255, 0.12);
+    color: #ffffff;
+    transform: rotate(90deg);
+}
+
+.donate-head {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 9px;
+    font-family: var(--font-mono);
+    font-size: 0.78rem;
+    font-weight: 700;
+    letter-spacing: 2px;
+    color: #ffd1e3;
+    margin-bottom: 18px;
+}
+
+.donate-qr-wrap {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 1 / 1;
+    max-width: 300px;
+    margin: 0 auto;
+    border-radius: 20px;
+    border: 1px solid rgba(255, 107, 157, 0.22);
+    background: #ffffff;
+    overflow: hidden;
+    display: grid;
+    place-items: center;
+}
+
+/* Ảnh QR luôn nằm TRỌN trong khung vuông:
+   neo tuyệt đối vào khung (khung đã có width + aspect-ratio 1/1 nên cao xác định)
+   rồi dùng object-fit: contain. Nếu để `height: 100%` trong grid thì chiều cao
+   không giải được theo khung, ảnh tràn ra và bị `overflow: hidden` cắt mất viền. */
+.donate-qr {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    display: block;
+}
+
+/* `display` của class thắng [hidden] của trình duyệt -> phải khai báo lại,
+   nếu không: ảnh chưa có sẽ hở icon ảnh vỡ + dòng alt, và khung hướng dẫn
+   sẽ không biến mất sau khi ảnh QR tải xong. */
+.donate-qr[hidden],
+.donate-qr-empty[hidden],
+.setlove-avatar-fallback[hidden] {
+    display: none;
+}
+
+/* Khi chưa có ảnh QR: khung hướng dẫn thay vì ảnh vỡ */
+.donate-qr-empty {
+    display: grid;
+    gap: 8px;
+    place-items: center;
+    padding: 24px;
+    background: rgba(255, 255, 255, 0.96);
+    color: #4a4550;
+    font-size: 0.82rem;
+    line-height: 1.5;
+}
+
+.donate-qr-empty i {
+    font-size: 1.9rem;
+    color: #c084a2;
+}
+
+.donate-qr-empty span {
+    font-weight: 700;
+    font-size: 0.95rem;
+    color: #2b2731;
+}
+
+.donate-qr-empty small {
+    display: block;
+    max-width: 240px;
+    color: #6b6572;
+}
+
+.donate-qr-empty code {
+    font-family: var(--font-mono);
+    font-size: 0.74rem;
+    background: rgba(0, 0, 0, 0.07);
+    padding: 1px 5px;
+    border-radius: 5px;
+}
+
+.donate-info {
+    margin-top: 16px;
+    display: grid;
+    gap: 8px;
+}
+
+.donate-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 9px 13px;
+    border-radius: var(--inner-radius);
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid var(--border-dim);
+    font-size: 0.82rem;
+}
+
+.donate-row span {
+    color: var(--text-muted);
+    font-family: var(--font-mono);
+    font-size: 0.74rem;
+    letter-spacing: 0.6px;
+}
+
+.donate-row b {
+    color: var(--text-primary);
+    font-weight: 600;
+    font-family: var(--font-mono);
+}
+
+.donate-thanks {
+    margin-top: 16px;
+    font-size: 0.86rem;
+    color: var(--text-secondary);
+    font-style: italic;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .donate-card, .donate-backdrop { transition: none; }
+    .donate-card { transform: none; }
+    .donate-close:hover { transform: none; }
+}
+
+/* ====================================================================
+   RESPONSIVE DESIGN (Adaptive for Smaller Tablets / Mobile)
+   ==================================================================== */
+@media (max-width: 900px) {
+    html, body {
+        width: 100%;
+        overflow-y: auto;
+        height: auto;
+        min-height: 100vh;
+    }
+
+    body {
+        align-items: flex-start;
+    }
+
+    .main-viewport {
+        height: auto;
+        max-height: none;
+        padding: 34px 16px 110px 16px;
+    }
+
+    .card-tilt-container,
+    .bio-card {
+        min-width: 0;
+        max-height: none;
+    }
+
+    .card-profile-bar {
+        padding: 0 20px 10px 20px;
+        margin-top: -34px;
+        align-items: flex-end;
+        gap: 12px;
+    }
+
+    .card-bento-body {
+        grid-template-columns: 1fr;
+        gap: 20px;
+        overflow-y: visible;
+        padding: 0 20px 20px 20px;
+        min-width: 0;
+    }
+
+    .bento-col {
+        min-width: 0;
+    }
+
+    /* Discord server card: allow graceful wrapping */
+    .server-body {
+        flex-wrap: wrap;
+        gap: 10px;
+    }
+
+    .server-content {
+        flex: 1 1 160px;
+    }
+
+    [id^="server-stats-"] {
+        flex-wrap: wrap;
+        row-gap: 2px;
+    }
+
+    /* Footer: wrap cleanly instead of overflowing the card */
+    .card-footer {
+        height: auto;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 8px;
+        padding: 10px 16px;
+    }
+
+    .footer-capsule,
+    .brand-insignia,
+    #local-time,
+    #ping-indicator {
+        white-space: nowrap;
+    }
+
+    .audio-widget {
+        bottom: 14px;
+        right: 14px;
+        left: 14px;
+        justify-content: space-between;
+    }
+
+    #cursor-dot, .cyber-cursor, .cursor-ripple {
+        display: none !important;
+    }
+}
+
+/* ---- Phones: centered profile header + stacked, full-width elements ---- */
+@media (max-width: 640px) {
+    .card-banner {
+        height: 96px;
+    }
+
+    .banner-badge-top {
+        top: 10px;
+        right: 12px;
+        font-size: 0.60rem;
+        padding: 4px 10px;
+        letter-spacing: 1.3px;
+    }
+
+    .card-profile-bar {
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        margin-top: -44px;
+        padding: 0 16px 12px 16px;
+        gap: 14px;
+    }
+
+    .profile-main-info {
+        flex-direction: column;
+        align-items: center;
+        gap: 12px;
+        width: 100%;
+    }
+
+    .avatar-wrapper {
+        width: 92px;
+        height: 92px;
+    }
+
+    .user-meta {
+        align-items: center;
+        width: 100%;
+        gap: 6px;
+        padding-bottom: 0;
+    }
+
+    .name-row {
+        justify-content: center;
+        gap: 8px;
+    }
+
+    .user-display-name {
+        font-size: 1.62rem;
+        letter-spacing: -0.3px;
+    }
+
+    .handle-row {
+        justify-content: center;
+        gap: 6px;
+        row-gap: 8px;
+    }
+
+    .meta-dot-sep {
+        display: none;
+    }
+
+    .user-tagline {
+        flex: 1 1 100%;
+        text-align: center;
+        font-size: 0.80rem;
+    }
+
+    .location-row {
+        justify-content: center;
+    }
+
+    .badges-container {
+        align-self: center;
+        justify-content: center;
+        padding-bottom: 0;
+    }
+
+    .card-bento-body {
+        padding: 0 16px 18px 16px;
+        gap: 18px;
+    }
+
+    /* Server card: icon + text on top, Join button full-width below */
+    .server-body {
+        padding: 8px 14px 12px 14px;
+    }
+
+    .server-content {
+        flex: 1 1 140px;
+    }
+
+    .server-name {
+        white-space: nowrap;
+    }
+
+    .server-desc {
+        -webkit-line-clamp: 3;
+    }
+
+    .server-join-btn {
+        flex: 1 1 100%;
+        justify-content: center;
+        margin-top: 4px;
+    }
+
+    /* Footer: hide center brand, keep clock + telemetry centered */
+    .footer-center {
+        display: none;
+    }
+
+    .card-footer {
+        font-size: 0.68rem;
+    }
+}
+
+@media (pointer: coarse) {
+    #cursor-dot, .cyber-cursor, .cursor-ripple {
+        display: none !important;
+    }
+    * {
+        cursor: auto !important;
+    }
+}
+
+@media (max-width: 540px) {
+    .arsenal-grid, .socials-list {
+        grid-template-columns: 1fr;
+    }
+}
+

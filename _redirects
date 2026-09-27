@@ -1,0 +1,10 @@
+# Redirect cho Cloudflare Pages — Pages tự đọc file này.
+# Luật khớp từ trên xuống; không khớp gì thì Pages tự dùng 404.html.
+
+# Force HTTPS + gộp www (Pages đã chuyển HTTPS sẵn; dòng này chỉ dọn đường cũ)
+# https://www.luongkun.pages.dev/*  https://luongkun.pages.dev/:splat  301!
+
+# Trang cũ từng bị tham chiếu trong repo -> dọn sạch
+/nimbus-landing.html   /   301
+/bio-custom.html       /   301
+/bai2.mp3              /   301

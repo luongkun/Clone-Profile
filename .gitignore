@@ -1,0 +1,12 @@
+# Thư mục phụ trợ của app, không thuộc website
+.freebuff/
+
+# Rác của Python khi chạy script trong .github/scripts/
+__pycache__/
+
+# File không thuộc website này
+bio-custom.html
+nimbus-landing.html
+
+# Bài nhạc không còn dùng trong playlist
+bai2.mp3

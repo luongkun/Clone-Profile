@@ -1,0 +1,5 @@
+# Mốc an toàn cho ảnh QR chuyển khoản.
+# Đây là sha256 của CHUỖI mà QR giải mã ra (không phải của file ảnh),
+# nên đổi cách nén/độ phân giải ảnh vẫn qua, chỉ khi NỘI DUNG QR đổi mới báo lỗi.
+# Khi chủ ý đổi ảnh QR: chạy lại 'python3 .github/scripts/check_site.py' để lấy hash mới.
+1f12aab9af150ba74e7c6ea65b30a9100b6aee9e40b9be85a6bf8d54ee5bfecd

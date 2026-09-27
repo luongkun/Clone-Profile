@@ -1,0 +1,62 @@
+# ============================================================================
+# Header cho Cloudflare Pages — Pages tự đọc file này.
+# Chỉ dùng comment dạng '#': block comment '/* */' dễ sai cú pháp và một lỗi
+# nhỏ có thể làm Cloudflare bỏ qua toàn bộ quy tắc phía sau.
+#
+# CSP bên dưới tự cho phép đúng những gì trang dùng. Khi bảo trì:
+#   - thêm domain vào img-src nếu sau này nạp ảnh từ nguồn mới
+#   - 'unsafe-inline' ở style-src là bắt buộc (trang dùng nhiều inline style)
+#   - script chỉ cho phép từ chính site, nên KHÔNG được thêm <script> inline
+#     vào HTML (đã từng suýt vỡ vì đăng ký service worker kiểu này)
+#   - connect-src phải chứa MỌI domain mà JS gọi fetch/WebSocket tới
+# ============================================================================
+
+/*
+  Content-Security-Policy: default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com; font-src https://fonts.gstatic.com https://cdnjs.cloudflare.com; img-src 'self' data: https://cdn.discordapp.com https://media.discordapp.net https://images.unsplash.com https://i.scdn.co; connect-src 'self' https://api.lanyard.rest wss://api.lanyard.rest https://discord.com; media-src 'self'; frame-src 'none'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'
+  X-Frame-Options: DENY
+  X-Content-Type-Options: nosniff
+  Referrer-Policy: strict-origin-when-cross-origin
+  Permissions-Policy: camera=(), microphone=(), geolocation=()
+  Strict-Transport-Security: max-age=31536000; includeSubDomains
+  Cross-Origin-Opener-Policy: same-origin
+*/
+
+# ---------------------------------------------------------------- cache
+# Ảnh nhận diện (avatar, khung, icon, thẻ chia sẻ): cache 1 ngày — đổi ảnh
+# Discord thì hôm sau khách đã thấy, mà lần xem lại trong ngày thì tức thì.
+
+/avatar-me.webp
+  Cache-Control: public, max-age=86400
+
+/avatar-partner.webp
+  Cache-Control: public, max-age=86400
+
+/deco-me.webp
+  Cache-Control: public, max-age=86400
+
+/icon-192.png
+  Cache-Control: public, max-age=86400
+
+/icon-512.png
+  Cache-Control: public, max-age=86400
+
+# Bản maskable cho Android (nền đặc, chữ thu nhỏ nằm trong vùng an toàn)
+/icon-512-maskable.png
+  Cache-Control: public, max-age=86400
+
+/og-image.jpg
+  Cache-Control: public, max-age=86400
+
+# Ảnh QR chuyển khoản: KHÔNG cache lâu. Đổi ngân hàng mà người ủng hộ còn thấy
+# mã cũ là chuyện tiền nong, nên đây là file duy nhất luôn phải lấy bản mới.
+
+/qr-bank.png
+  Cache-Control: public, max-age=0, must-revalidate
+
+# HTML: luôn kiểm tra bản mới vì trang có presence realtime
+
+/index.html
+  Cache-Control: public, max-age=0, must-revalidate
+
+/404.html
+  Cache-Control: public, max-age=0, must-revalidate
