@@ -266,7 +266,8 @@ fs.mkdirSync(distDir, { recursive: true });
 // HUONG-DAN-KHACH/SETUP là tài liệu gửi riêng cho người mua.
 const EXCLUDE = new Set(['.git', 'customers', 'node_modules', 'DEPLOY-HO.md',
     'HUONG-DAN-KHACH.md', 'SETUP.md', 'README.md',
-    'deploy-customer.mjs', 'admin.html', 'admin.js', 'THONG-TIN.md', '.freebuff', '__pycache__']);
+    'deploy-customer.mjs', 'admin.html', 'admin.js', 'THONG-TIN.md', '.freebuff', '__pycache__',
+    'all-in-one.html']);   // bản 1 file gửi khách (form + bio) — không thuộc website deploy
 let copied = 0;
 const copyDir = (src, dest) => {
     fs.mkdirSync(dest, { recursive: true });

@@ -461,13 +461,47 @@ const CONFIG = ${printJS(cfg)};
  * rồi chạy bản HTML đó trong iframe qua thuộc tính `srcdoc` (và tab riêng qua
  * document.write) — preview dùng ĐÚNG thông tin đang điền dở, không cần lưu file.
  * <base href> giữ cho style/script/icon/ảnh tải đúng từ thư mục gốc.
- * Nguồn bản HTML: mở qua http server thì fetch('index.html') (luôn mới nhất);
+ * Nguồn bản HTML: bản ALL-IN-ONE lắp từ 3 khung dữ liệu; mở qua http server thì
+ * fetch('index.html') (luôn mới nhất);
  * mở trực tiếp bằng file:// thì fetch bị trình duyệt chặn — dùng bản chép đã
  * được setup.mjs nhúng sẵn vào admin.html (khung #site-template, chạy node setup.mjs).
  */
+// ------- Bản ALL-IN-ONE (setup.mjs gộp admin + trang bio vào 1 file) -------
+// Trang bio nằm trong 3 khung dữ liệu; nội dung khung bị "vô hiệu hoá" bằng ký tự
+// vô hình (U+200B, tạo bằng fromCharCode để source không chứa ký tự ẩn) chèn trước
+// '<script'/'<!--' — khôi phục lại rồi mới lắp trang. CSS/JS trang bio được DÁN NỘI
+// TUYẾN vào srcdoc nên preview chạy được cả khi mở all-in-one bằng file://.
+const ZWSP = String.fromCharCode(8203);
+function restoreSiteTemplate(raw) {
+    return raw
+        .split('<' + ZWSP + '/script').join('</script')
+        .split('<' + ZWSP + 'script').join('<script')
+        .split('<' + ZWSP + '!--').join('<!--');
+}
+function buildAllInOneDoc(cfgJson) {
+    const bioCss = document.getElementById('bio-css').textContent;
+    const bioJs = document.getElementById('bio-js').textContent;
+    const page = restoreSiteTemplate(document.getElementById('bio-template').textContent);
+    const rxStyle = new RegExp('<link rel="stylesheet" href="style[^"]*">', 'i');
+    const rxScript = new RegExp('<script src="script[^"]*"></scr' + 'ipt>', 'i');
+    const rxConfig = new RegExp('<script src="config[^"]*"></scr' + 'ipt>', 'i');
+    if (!rxScript.test(page) || !rxConfig.test(page)) {
+        throw new Error('Khung bio-template thiếu thẻ script.js/config.js — chạy lại "node setup.mjs"');
+    }
+    // Dùng replace dạng hàm để chuỗi thay thế không bị đọc dấu $ đặc biệt
+    return page
+        .replace(rxStyle, () => '<style>' + bioCss + '</style>')
+        .replace(rxScript, () => '<script>' + bioJs + '</scr' + 'ipt>')
+        .replace(rxConfig, () => '<script>const CONFIG = ' + cfgJson + ';</scr' + 'ipt>');
+}
 async function buildPreviewDoc() {
     const cfgJson = JSON.stringify(buildConfig()).replace(/</g, '\\u003c');
     let html = '';
+    if (document.getElementById('bio-template')) {
+        // Bản ALL-IN-ONE: lắp trang bio từ khung dữ liệu (CSS/JS nội tuyến nên chạy
+        // được cả khi mở bằng file://), không cần <base> như bản thường
+        return buildAllInOneDoc(cfgJson);
+    }
     if (location.protocol === 'file:') {
         const tmpl = document.getElementById('site-template');
         html = tmpl ? tmpl.textContent : '';
@@ -682,6 +716,12 @@ $('btn-download').onclick = () => {
     a.download = 'config.js';
     a.click();
     URL.revokeObjectURL(a.href);
+    // Bản ALL-IN-ONE: lưu thêm bản nháp vào localStorage, khoá theo ĐƯỜNG DẪN file
+    // (mỗi bản all-in-one của mỗi khách một khoá — không đè nhau trên máy dùng chung).
+    // localStorage sống qua cả F5 lẫn đóng/mở lại file — khách điền dở không mất công.
+    try {
+        if (document.getElementById('bio-template')) localStorage.setItem('adminDraft:' + location.href, buildConfigFile());
+    } catch { /* chế độ riêng tư / đầy — bỏ qua */ }
     toast('✓ Đã tải config.js — thay file trong thư mục trang rồi chạy node setup.mjs');
 };
 
@@ -716,6 +756,20 @@ $('btn-reload').onclick = async () => {
 (async () => {
     const status = $('load-status');
     syncToggleFields();
+    if (document.getElementById('bio-template')) {
+        // Bản ALL-IN-ONE: fetch config.js không có nghĩa (file chạy một mình) —
+        // chỉ khôi phục bản nháp đã lưu (nếu có) rồi thôi
+        status.textContent = 'Form gộp 1 file — tải config.js cuối để gửi lại người bán';
+        status.className = 'ok';
+        try {
+            const draft = localStorage.getItem('adminDraft:' + location.href);
+            if (draft) {
+                fillForm(new Function(`${draft}\n;return CONFIG;`)());
+                toast('✓ Đã khôi phục bản nháp lần trước');
+            }
+        } catch { /* bản nháp hỏng — bỏ qua */ }
+        return;
+    }
     if (location.protocol === 'file:') {
         status.textContent = 'Mở qua python3 -m http.server 8000 để tự nạp config';
         status.className = 'warn';

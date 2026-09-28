@@ -16,6 +16,7 @@ Giao diện gồm: màn hình chào, thẻ profile (tên / tên ID / avatar / kh
 | `SETUP.md` | Hướng dẫn từng bước đưa trang thành của bạn |
 | `THONG-TIN.md` | Phiếu điền thông tin in được — đối chiếu khi sửa config |
 | `admin.html` + `admin.js` | Form nhập trực quan sinh `config.js` — nháy đúp mở thẳng bằng trình duyệt được, không cần server |
+| `all-in-one.html` | Bản gộp 1 file duy nhất (form + trang bio) gửi khách — tự sinh bởi `node setup.mjs`, khách nháy đúp là điền + xem trước + tải config |
 | `index.html` | Khung trang, markup tĩnh (giá trị dự phòng được setup.mjs ghi lại, JS đổ dữ liệu thật vào) |
 | `style.css` | Toàn bộ giao diện, responsive, hiệu ứng |
 | `script.js` | Lanyard realtime, render máy chủ, audio, cursor, particle, typewriter |

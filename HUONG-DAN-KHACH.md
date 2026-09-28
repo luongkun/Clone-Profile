@@ -3,6 +3,10 @@
 Bạn **không cần cài gì, không cần biết lập trình** — chỉ cần điền form, tải 1 file
 và gửi lại. Sau đó bạn nhận được **link trang web live** của mình.
 
+> 📦 Nhận từ người bán file **`all-in-one.html`** (1 file duy nhất)? Chỉ cần nháy đúp mở
+> bằng Chrome/Edge/Cốc Cốc là điền được luôn — mọi hướng dẫn dưới đây vẫn áp dụng,
+> bỏ qua các chỗ yêu cầu mở thư mục sản phẩm.
+
 ---
 
 ## Bước 1 — Điền thông tin trong `admin.html`

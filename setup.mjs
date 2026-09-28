@@ -230,6 +230,86 @@ try {
 if (write('index.html', html)) done('index.html', 'thẻ chia sẻ + giá trị dự phòng');
 if (adminChanged) done('admin.html', 'cập nhật bản nhúng cho nút Xem trước (mở file://)');
 
+// ---------------------------------------------------------------- 3f. all-in-one.html
+// 1 FILE DUY NHẤT gửi khách: form admin + trang bio gộp chung (CSS/JS trang bio nằm
+// trong khung dữ liệu type="text/plain" — trình duyệt chỉ coi là văn bản, admin.js
+// tự lắp lại lúc Xem trước). admin.js được nhúng bằng bootstrap gói JSON.stringify
+// để mọi chuỗi nhạy cảm ('</script'...) trong code không phá vỡ khung chứa.
+const css = read('style.css');
+const scriptJs = read('script.js');
+try {
+    const zw = '\u200b';
+    // Quy ước PHẢI khớp restoreSiteTemplate() trong admin.js: ZWSP đứng NGAY SAU '<',
+    // trước '/' đối với thẻ đóng (nếu không khớp, admin.js sẽ không khôi phục được)
+    const dead = (s) => s
+        .replace(/<script/gi, '<' + zw + 'script')
+        .replace(/<\/script/gi, '<' + zw + '/script')
+        .replace(/<!--/g, '<' + zw + '!--');
+    const escapeHtml = (s) => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    const frame = (id, s) => `<script type="text/plain" id="${id}">${dead(s)}</script>`;
+    const adminJsSource = read('admin.js');
+    // HTML tokenizer KHÔNG tha thứ cho 3 mẫu trong script nội tuyến:
+    //   '</script'      → đóng sớm thẻ script
+    //   '<!--' + '<script' → rơi vào chế độ "double-escaped", thẻ đóng THẬT cũng bị nuốt
+    // Escape bằng \uXXXX (JSON hợp lệ, đọc ra đúng ký tự gốc):
+    const jsonSafe = JSON.stringify(adminJsSource)
+        .replace(/<\//gi, '<\\u002f')
+        .replace(/<!--/g, '<\\u0021--')
+        .replace(/<script/gi, '<\\u0073cript');
+    // Chạy source ở GLOBAL scope bằng indirect eval — new Function sẽ giam mọi hàm
+    // trong scope riêng (handler bấm Xem trước không gọi được buildPreviewDoc)
+    const bootstrap = `window.__ADMIN_SRC__=${jsonSafe};
+(0, eval)(window.__ADMIN_SRC__);`;
+    // THÂN FORM admin: cắt nguyên phần giữa <body>…</body> của admin.html, bỏ khung
+    // site-template (bản all-in-one dùng khung bio-template) và thẻ script admin.js cũ
+    const adminHtml = read('admin.html');
+    const bodyOpen = adminHtml.indexOf('<body>');
+    const bodyClose = adminHtml.lastIndexOf('</body>');
+    if (bodyOpen === -1 || bodyClose === -1) throw new Error('admin.html thiếu <body>');
+    let bodyInner = adminHtml.slice(bodyOpen + '<body>'.length, bodyClose);
+    const siteTmplBegin = '<script type="text/plain" id="site-template">';
+    const stIdx = bodyInner.indexOf(siteTmplBegin);
+    if (stIdx !== -1) {
+        const stEnd = bodyInner.indexOf('</script>', stIdx);
+        if (stEnd !== -1) bodyInner = bodyInner.slice(0, stIdx) + bodyInner.slice(stEnd + '</script>'.length);
+    }
+    bodyInner = bodyInner.replace(/<script src="admin\.js"[^>]*><\/script>/, '');
+    const allInOne = `<!DOCTYPE html>
+<!--
+  ALL-IN-ONE — form điền thông tin + trang bio trong MỘT file (tự sinh bởi setup.mjs, KHÔNG sửa tay).
+  Gửi đúng file này cho khách: khách nháy đúp mở bằng Chrome/Edge/Cốc Cốc là điền + Xem trước + tải
+  config.js gửi lại — không cần server, không cần file nào khác. Người bán nhận config.js rồi chạy:
+  node deploy-customer.mjs --customer ten-khach --ingest config.js
+-->
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="robots" content="noindex">
+    <title>Admin — Điền thông tin trang bio</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>${css}</style>
+</head>
+<body>
+${bodyInner}
+    <!-- Các khung dữ liệu dưới đây CHỈ là văn bản: admin.js đọc và lắp thành trang bio lúc Xem trước -->
+    ${frame('bio-template', html)}
+    ${frame('bio-css', css)}
+    ${frame('bio-js', scriptJs)}
+    ${frame('admin-src', adminJsSource)}
+
+    <script>
+${bootstrap}
+    <\/script>
+</body>
+</html>
+`;
+    fs.writeFileSync(rel('all-in-one.html'), allInOne);
+    done('all-in-one.html', `1 file duy nhất cho khách (admin + bio, ${(allInOne.length / 1024).toFixed(0)} KB)`);
+} catch (e) {
+    console.warn('! Bỏ qua sinh all-in-one.html:', e.message);
+}
+
 // ---------------------------------------------------------------- 4. manifest.json
 try {
     const manifest = JSON.parse(read('manifest.json'));

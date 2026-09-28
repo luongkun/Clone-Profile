@@ -8,6 +8,9 @@ __pycache__/
 bio-custom.html
 nimbus-landing.html
 
+# Bản all-in-one (form + bio gộp 1 file gửi khách) — tự sinh bởi setup.mjs
+all-in-one.html
+
 # Bài nhạc không còn dùng trong playlist
 bai2.mp3
 
