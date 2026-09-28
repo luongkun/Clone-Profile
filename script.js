@@ -1408,9 +1408,14 @@ function initProfileUI() {
                         <p class="server-desc">${srv.description}</p>
                     </div>
                     ${isZalo ? `
-                    <a href="${srv.inviteUrl || '#'}" class="server-join-btn server-join-zalo" data-zalo-qr="${srv.zaloQrImage || ''}" title="Mở mã QR để quét bằng Zalo">
-                        <i class="fa-solid fa-comments"></i> Tham gia
-                    </a>` : `
+                    <span class="server-actions-zalo">
+                        <a href="${srv.inviteUrl || '#'}"${srv.inviteUrl ? ' target="_blank" rel="noopener noreferrer"' : ''} class="server-join-btn server-join-zalo" title="${srv.inviteUrl ? 'Mở link nhóm Zalo' : 'Hiện mã QR để quét bằng Zalo'}">
+                            <i class="fa-solid ${srv.inviteUrl ? 'fa-comments' : 'fa-qrcode'}"></i> Join
+                        </a>
+                        ${srv.zaloQrImage && srv.inviteUrl ? `<button type="button" class="server-join-btn server-qr-btn" data-zalo-qr="${srv.zaloQrImage}" title="Hiện mã QR để quét bằng Zalo">
+                            <i class="fa-solid fa-qrcode"></i>
+                        </button>` : ''}
+                    </span>` : `
                     <a href="${srv.inviteUrl}" target="_blank" rel="noopener noreferrer" class="server-join-btn">
                         <i class="fa-brands fa-discord"></i> Join
                     </a>`}
@@ -1419,13 +1424,21 @@ function initProfileUI() {
             serversGrid.appendChild(card);
 
             if (isZalo) {
-                // Nhóm Zalo: không có API công khai — bấm nút là mở ảnh QR để quét
-                const zaloBtn = card.querySelector('.server-join-zalo');
-                if (zaloBtn) {
-                    zaloBtn.addEventListener('click', (e) => {
+                // Nhóm Zalo: nút Join mở link như Discord; nút QR (nếu có ảnh) mở mã để quét.
+                // Không có link thì nút Join chính là nút mở QR (chặn điều hướng rỗng).
+                const joinBtn = card.querySelector('.server-join-zalo');
+                if (joinBtn && !srv.inviteUrl) {
+                    joinBtn.addEventListener('click', (e) => {
                         e.preventDefault();
                         playBeepSound(620, 0.08);
-                        openZaloQr(zaloBtn.dataset.zaloQr, srv.name);
+                        openZaloQr(srv.zaloQrImage, srv.name);
+                    });
+                }
+                const qrBtn = card.querySelector('.server-qr-btn');
+                if (qrBtn) {
+                    qrBtn.addEventListener('click', () => {
+                        playBeepSound(620, 0.08);
+                        openZaloQr(qrBtn.dataset.zaloQr, srv.name);
                     });
                 }
                 return; // Zalo không gọi API Discord

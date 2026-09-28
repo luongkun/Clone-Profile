@@ -1733,7 +1733,16 @@ body.cursor-hidden .cyber-cursor {
     box-shadow: 0 8px 25px rgba(255, 255, 255, 0.45);
 }
 
-/* Biến thể nhóm Zalo: nút xanh thương hiệu Zalo, tag xanh nhẹ (card .server-card-zalo) */
+/* Biến thể nhóm Zalo: nút Join xanh thương hiệu Zalo, tag xanh nhẹ (card .server-card-zalo).
+   Nút QR vuông nhỏ bên cạnh — chỉ hiện khi card có CẢ link VÀ ảnh QR. */
+.server-actions-zalo {
+    align-self: center;
+    flex-shrink: 0;
+    display: inline-flex;
+    gap: 7px;
+    align-items: stretch;
+}
+
 .server-join-zalo {
     background: #0068ff;
     color: #fff;
@@ -1742,6 +1751,20 @@ body.cursor-hidden .cyber-cursor {
 
 .server-join-zalo:hover {
     box-shadow: 0 8px 25px rgba(0, 104, 255, 0.55);
+}
+
+.server-qr-btn {
+    background: rgba(0, 104, 255, 0.14);
+    color: #7db8ff;
+    border: 1px solid rgba(0, 104, 255, 0.4);
+    box-shadow: none;
+    padding: 7px 11px;
+}
+
+.server-qr-btn:hover {
+    background: rgba(0, 104, 255, 0.26);
+    color: #fff;
+    box-shadow: 0 6px 18px rgba(0, 104, 255, 0.3);
 }
 
 .server-card-zalo .server-tag {

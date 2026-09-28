@@ -35,7 +35,7 @@ Cùng thư mục, chọn các file sau rồi nén (chuột phải → *Nén thà
 | File | Khi nào cần |
 |---|---|
 | `config.js` | ✅ **Bắt buộc** |
-| `qr-bank.png` (ảnh QR ngân hàng) | Nếu bật Donate. **Phải là QR của đúng tài khoản bạn**, ảnh rõ nét (≥ 600px), chụp thẳng không bị cắt. Tên file phải đúng như điền trong form. |
+| `qr-bank.png` (ảnh QR ngân hàng) | Nếu bật Donate. **Phải là QR của đúng tài khoản bạn**, ảnh rõ nét (≥ 600px), chụp thẳng không bị cắt. Tên file phải đúng như điền trong form. Ảnh QR **nhóm Zalo** thì khỏi gửi file — upload thẳng trong form admin (mục 5). |
 | File nhạc `.mp3` | Nếu dùng nhạc riêng — tên file phải đúng như điền trong playlist. |
 | `notes.txt` | Tuỳ chọn — ghi chú thêm điều bạn muốn. |
 

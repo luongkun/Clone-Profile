@@ -83,8 +83,8 @@ function renumber(container) {
 const addBadge = () => makeRow($('badge-list'), '#', [['icon', 'Icon FontAwesome'], ['label', 'Nhãn hiển thị'], ['color', 'Màu chữ (tuỳ chọn)']]);
 const addSocial = () => makeRow($('social-list'), '#', [['name', 'Tên mạng'], ['icon', 'Icon FontAwesome'], ['url', 'Link'], ['copy', 'Nội dung copy (tuỳ chọn)']]);
 const addServer = () => {
-    const inputs = makeRow($('server-list'), '#', [['name', 'Tên nhóm/server'], ['inviteUrl', 'Link invite Discord (nếu dùng Discord)'], ['role', 'Vai trò'], ['description', 'Mô tả (textarea)', true], ['tag', 'Nhãn góc card']]);
-    // Ô chọn loại nhóm: Discord (realtime) hoặc Zalo (nút mở QR) + đường dẫn ảnh QR
+    const inputs = makeRow($('server-list'), '#', [['name', 'Tên nhóm/server'], ['inviteUrl', 'Link tham gia (invite Discord hoặc link nhóm Zalo)'], ['role', 'Vai trò'], ['description', 'Mô tả (textarea)', true], ['tag', 'Nhãn góc card']]);
+    // Ô chọn loại nhóm: Discord (realtime) hoặc Zalo (nút Join + QR tuỳ chọn)
     const row = inputs.name.closest('.row');
     const grid = row.querySelector('.grid2');
     const typeWrap = document.createElement('label');
@@ -92,19 +92,71 @@ const addServer = () => {
     const typeSelect = document.createElement('select');
     typeSelect.dataset.field = 'type';
     typeSelect.innerHTML = '<option value="discord">Discord (icon + số member realtime)</option>' +
-        '<option value="zalo">Zalo (nút mở QR để quét)</option>';
+        '<option value="zalo">Zalo (nút Join mở link — QR tuỳ chọn)</option>';
     typeWrap.appendChild(typeSelect);
     grid.appendChild(typeWrap);
+
+    // Ảnh QR nhóm Zalo: tải thẳng trong form (nhúng base64 vào config.js) —
+    // người mua không cần gửi file riêng. Cũng chấp nhận đường dẫn file (vd zalo-qr.png).
     const qrWrap = document.createElement('label');
-    qrWrap.innerHTML = '<b>Ảnh QR Zalo (nếu chọn Zalo)</b> <small>vd: zalo-qr.png — bấm "Tham gia" sẽ mở ảnh này</small>';
+    qrWrap.innerHTML = '<b>Ảnh QR nhóm Zalo (tuỳ chọn)</b> <small>chỉ cần khi KHÔNG điền link — hoặc để khách quét cho nhanh</small>';
+    const qrRow = document.createElement('div');
+    qrRow.style.cssText = 'display:flex;gap:8px;align-items:center;flex-wrap:wrap;';
+    const qrBtn = document.createElement('button');
+    qrBtn.type = 'button';
+    qrBtn.className = 'btn-mini';
+    qrBtn.innerHTML = '<i class="fa-solid fa-camera"></i>Chọn ảnh QR';
+    const qrFile = document.createElement('input');
+    qrFile.type = 'file';
+    qrFile.accept = 'image/*';
+    qrFile.hidden = true;
+    const qrThumb = document.createElement('span');
+    qrThumb.style.cssText = 'display:inline-flex;align-items:center;gap:6px;font-size:0.75rem;color:var(--text-muted,#9aa);';
+    const qrClear = document.createElement('button');
+    qrClear.type = 'button';
+    qrClear.className = 'btn-danger';
+    qrClear.innerHTML = '<i class="fa-solid fa-xmark"></i>';
+    qrClear.hidden = true;
+    qrRow.append(qrBtn, qrFile, qrThumb, qrClear);
+    qrWrap.appendChild(qrRow);
     const qrInput = document.createElement('input');
-    qrInput.type = 'text';
+    qrInput.type = 'hidden';
     qrInput.dataset.field = 'zaloQrImage';
     qrWrap.appendChild(qrInput);
     grid.appendChild(qrWrap);
+
+    const refreshQr = () => {
+        const v = qrInput.value;
+        qrClear.hidden = !v;
+        if (!v) {
+            qrThumb.innerHTML = '<i class="fa-solid fa-qrcode"></i> chưa có';
+        } else if (v.startsWith('data:')) {
+            qrThumb.innerHTML = `<img src="${v}" alt="" style="height:34px;border-radius:6px;border:1px solid rgba(255,255,255,.25)"> <span>✓ đã nhúng vào config</span>`;
+        } else {
+            qrThumb.innerHTML = `<i class="fa-solid fa-file-image"></i> ${v.replace(/[<>&]/g, '')}`;
+        }
+    };
+    qrBtn.addEventListener('click', () => qrFile.click());
+    qrFile.addEventListener('change', () => {
+        const f = qrFile.files[0];
+        if (!f) return;
+        if (!f.type.startsWith('image/')) { toast('✗ Chỉ nhận file ảnh'); return; }
+        if (f.size > 500 * 1024) { toast(`✗ Ảnh ${Math.round(f.size / 1024)}KB — nén nhỏ lại (tối đa ~500KB)`); return; }
+        const reader = new FileReader();
+        reader.onload = () => {
+            qrInput.value = reader.result;
+            refreshQr();
+            toast('✓ Ảnh QR nhóm Zalo đã sẵn sàng nhúng vào config.js');
+        };
+        reader.readAsDataURL(f);
+    });
+    qrClear.addEventListener('click', () => { qrInput.value = ''; qrFile.value = ''; refreshQr(); });
+    qrInput.addEventListener('change', refreshQr);
+
     const syncQrField = () => { qrWrap.style.display = typeSelect.value === 'zalo' ? '' : 'none'; };
     typeSelect.addEventListener('change', syncQrField);
     syncQrField();
+    refreshQr();
     // Đưa 2 ô mới vào map để fillRows nạp được giá trị từ config khi mở form
     inputs.type = typeSelect;
     inputs.zaloQrImage = qrInput;
@@ -277,11 +329,11 @@ function buildConfig() {
             const out = {
                 type: isZalo ? 'zalo' : 'discord',
                 name: d.name, role: d.role, description: d.description,
-                inviteUrl: isZalo ? (d.inviteUrl || '') : d.inviteUrl,
+                inviteUrl: d.inviteUrl || '',   // Zalo: link nhóm (nút Join); Discord: invite
                 icon: '', banner: 'profile_banner_cyber.webp', cdnIcon: '', cdnBanner: 'profile_banner_cyber.webp',
                 members: '', online: '', tag: d.tag || (isZalo ? 'NHÓM ZALO' : 'COMMUNITY'), featured: true,
             };
-            if (isZalo) out.zaloQrImage = d.zaloQrImage || '';
+            if (isZalo) out.zaloQrImage = d.zaloQrImage || '';   // link hoặc data: — trang hiểu cả hai
             return out;
         }),
         socials,

@@ -105,7 +105,7 @@ Mỗi mục có thêm tuỳ chọn `type`:
 | # | Nội dung | Giá trị của bạn | Tên biến |
 |---|----------|-----------------|----------|
 | 🟡 5.1 | Link invite server (vĩnh viễn) — nhóm Zalo điền link nhóm (tuỳ chọn) | `→ ...........` | `servers[].inviteUrl` |
-| 🟡 5.1b | **Ảnh QR nhóm Zalo** (vd `zalo-qr.png`) — chỉ cần khi `type: "zalo"` | `→ ...........` | `servers[].zaloQrImage` |
+| 🟡 5.1b | **Ảnh QR nhóm Zalo** (tuỳ chọn) — nút QR cạnh Join mở ảnh này; nếu KHÔNG điền link nhóm thì nút Join chính là nút mở QR. Upload thẳng trong admin (nhúng base64) hoặc ghi tên file | `→ ...........` | `servers[].zaloQrImage` |
 | 🟡 5.2 | Tên server (chỉ hiện lúc chưa load xong) | `→ ...........` | `servers[].name` |
 | 🟡 5.3 | Vai trò/nhãn (vd `Cộng đồng ...`) | `→ ...........` | `servers[].role` |
 | 🟡 5.4 | Mô tả ngắn về server | `→ ...........` | `servers[].description` |
