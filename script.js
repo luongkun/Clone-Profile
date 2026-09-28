@@ -1378,10 +1378,14 @@ function initProfileUI() {
         // Tiêu đề section đổi theo nội dung: chỉ Discord / chỉ Zalo / hỗn hợp
         const sectionTitle = serversGrid.closest('.servers-section')?.querySelector('.section-title span');
         if (sectionTitle) {
+            // Tiêu đề section: ưu tiên cấu hình tay qua serversTitle (zalo/discord/combined);
+            // không cấu hình thì tự chọn theo nội dung card đang có
             const hasDiscord = CONFIG.servers.some(s => (s.type || 'discord') === 'discord');
             const hasZalo = CONFIG.servers.some(s => s.type === 'zalo');
-            sectionTitle.textContent = hasDiscord && hasZalo ? 'CỘNG ĐỒNG KẾT NỐI'
-                : hasZalo ? 'NHÓM ZALO' : 'AFFILIATED DISCORD SERVERS';
+            const t = CONFIG.serversTitle || {};
+            sectionTitle.textContent = hasDiscord && hasZalo ? (t.combined || 'CỘNG ĐỒNG KẾT NỐI')
+                : hasZalo ? (t.zalo || 'NHÓM ZALO')
+                : (t.discord || 'AFFILIATED DISCORD SERVERS');
         }
         serversGrid.innerHTML = '';
         CONFIG.servers.forEach((srv, idx) => {

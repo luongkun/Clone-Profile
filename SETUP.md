@@ -32,7 +32,8 @@ Các mục **tuỳ chọn**:
 
 | Mục trong config | Ý nghĩa |
 |---|---|
-| `servers` | Card nhóm: `type: "discord"` (mặc định — invite vĩnh viễn, realtime) hoặc `type: "zalo"` (nút mở ảnh QR — điền `zaloQrImage`) |
+| `servers` | Card nhóm, bao nhiêu tuỳ ý: `type: "discord"` (mặc định — invite vĩnh viễn, realtime) hoặc `type: "zalo"` (nút Join mở link nhóm, `zaloQrImage` là ảnh QR tuỳ chọn — nhúng base64 qua admin hoặc đường dẫn file) |
+| `serversTitle` | Tiêu đề phần nhóm: `zalo` / `combined` / `discord` — bỏ trống thì tự chọn mặc định theo nội dung |
 | `music.playlist` | Nhạc nền: đặt file `.mp3` vào thư mục gốc rồi khai báo tại đây |
 | `donate` | Nút donate + ảnh QR ngân hàng |
 | `setlove` | Panel cặp đôi: tên 2 người, 2 Discord ID, ngày bắt đầu yêu, câu nói |

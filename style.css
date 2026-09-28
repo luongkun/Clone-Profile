@@ -1733,6 +1733,22 @@ body.cursor-hidden .cyber-cursor {
     box-shadow: 0 8px 25px rgba(255, 255, 255, 0.45);
 }
 
+/* Admin: bộ chọn bố cục nhanh mục 5 (1 Zalo / 1 Discord / 2 Zalo / 2 Discord) */
+.server-layout-picker {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin: 8px 0 12px;
+}
+
+.server-layout-picker .btn-mini {
+    border: 1px solid rgba(255, 255, 255, 0.18);
+}
+
+.server-layout-picker .btn-mini:hover {
+    border-color: rgba(255, 255, 255, 0.4);
+}
+
 /* Biến thể nhóm Zalo: nút Join xanh thương hiệu Zalo, tag xanh nhẹ (card .server-card-zalo).
    Nút QR vuông nhỏ bên cạnh — chỉ hiện khi card có CẢ link VÀ ảnh QR. */
 .server-actions-zalo {

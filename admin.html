@@ -274,13 +274,24 @@
         <details>
             <summary><span class="num">5</span>Nhóm Discord / Zalo</summary>
             <div class="sec-body">
+                <p class="hint"><b>Cách nhanh nhất</b> — bấm 1 trong 4 bố cục dưới đây, form tự sinh đủ hàng;
+                    vẫn thêm/bớt hàng tự do bằng nút "Thêm nhóm" bên dưới.</p>
+                <div class="server-layout-picker" id="server-layout-picker">
+                    <button class="btn-mini" type="button" data-layout="1zalo"><i class="fa-brands fa-comments"></i>1 Zalo</button>
+                    <button class="btn-mini" type="button" data-layout="1discord"><i class="fa-brands fa-discord"></i>1 Discord</button>
+                    <button class="btn-mini" type="button" data-layout="2zalo"><i class="fa-brands fa-comments"></i>2 Zalo</button>
+                    <button class="btn-mini" type="button" data-layout="2discord"><i class="fa-brands fa-discord"></i>2 Discord</button>
+                </div>
                 <p class="hint">Mỗi hàng chọn <b>Loại nhóm</b>: <b>Discord</b> dùng invite vĩnh viễn
                     (Expire after: Never) — icon, banner, số thành viên/online <b>tự lấy realtime</b>;
-                    <b>Zalo</b> không có API công khai — nút <b>Tham gia</b> mở <b>ảnh QR</b> để quét,
-                    hãy ghi tên file ảnh QR vào hàng đó (ảnh đặt cùng thư mục gốc). Có thể <b>trộn</b>
-                    Discord và Zalo thoải mái.</p>
+                    <b>Zalo</b> — nút <b>Join</b> mở link nhóm, tải ảnh QR ngay trong hàng để khách quét.</p>
                 <div class="row-list" id="server-list"></div>
                 <button class="btn-mini" id="add-server" style="justify-self:start"><i class="fa-solid fa-plus"></i>Thêm nhóm</button>
+                <div class="grid2" style="margin-top:10px">
+                    <label><b>Tiêu đề khi có nhóm Zalo</b><small>(bỏ trống = "NHÓM ZALO")</small><input type="text" id="servers-title-zalo" placeholder="NHÓM ZALO"></label>
+                    <label><b>Tiêu đề khi có cả hai</b><small>(bỏ trống = "CỘNG ĐỒNG KẾT NỐI")</small><input type="text" id="servers-title-combined" placeholder="CỘNG ĐỒNG KẾT NỐI"></label>
+                    <label><b>Tiêu đề khi chỉ có Discord</b><small>(bỏ trống = "AFFILIATED DISCORD SERVERS")</small><input type="text" id="servers-title-discord" placeholder="AFFILIATED DISCORD SERVERS"></label>
+                </div>
             </div>
         </details>
 

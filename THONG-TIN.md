@@ -111,6 +111,14 @@ Mỗi mục có thêm tuỳ chọn `type`:
 | 🟡 5.4 | Mô tả ngắn về server | `→ ...........` | `servers[].description` |
 | 🟡 5.5 | Nhãn góc card (vd `COMMUNITY` / `NHÓM ZALO`) | `→ ...........` | `servers[].tag` |
 | 🟡 5.6 | Số thành viên (chỉ nhóm Zalo — Discord tự lấy realtime) | `→ ...........` | `servers[].members` |
+| 🟡 5.7 | **Tiêu đề phần nhóm khi có Zalo** (bỏ trống = "NHÓM ZALO") | `→ ...........` | `serversTitle.zalo` |
+| 🟡 5.8 | Tiêu đề khi có cả Discord + Zalo (bỏ trống = "CỘNG ĐỒNG KẾT NỐI") | `→ ...........` | `serversTitle.combined` |
+| 🟡 5.9 | Tiêu đề khi chỉ có Discord (bỏ trống = "AFFILIATED DISCORD SERVERS") | `→ ...........` | `serversTitle.discord` |
+
+> **Chọn số lượng nhanh trong admin**: mục 5 có 4 nút bố cục — `1 Zalo` · `1 Discord` ·
+> `2 Zalo` · `2 Discord`. Bấm là form tự sinh đúng số hàng; vẫn thêm/bớt tự do được.
+> Có thể trộn (1 Discord + 1 Zalo, hoặc bao nhiêu cũng được) — tiêu đề section tự chọn
+> theo nội dung trừ khi bạn đặt `serversTitle`.
 
 ## PHẦN 6 — NHẠC NỀN → `music` trong config.js
 

@@ -211,6 +211,12 @@ function fillForm(cfg) {
 
     fillRows('server-list', cfg.servers || [], addServer, ['name', 'inviteUrl', 'role', 'description', 'tag', 'type', 'zaloQrImage']);
 
+    // Tiêu đề section nhóm (serversTitle) — để trống là dùng mặc định
+    const st = cfg.serversTitle || {};
+    $('servers-title-zalo').value = st.zalo || '';
+    $('servers-title-combined').value = st.combined || '';
+    $('servers-title-discord').value = st.discord || '';
+
     const music = cfg.music || {};
     $('music-enabled').checked = music.enabled !== false;
     $('music-autoplay').checked = !!music.autoplayOnEnter;
@@ -333,9 +339,17 @@ function buildConfig() {
                 icon: '', banner: 'profile_banner_cyber.webp', cdnIcon: '', cdnBanner: 'profile_banner_cyber.webp',
                 members: '', online: '', tag: d.tag || (isZalo ? 'NHÓM ZALO' : 'COMMUNITY'), featured: true,
             };
-            if (isZalo) out.zaloQrImage = d.zaloQrImage || '';   // link hoặc data: — trang hiểu cả hai
+            if (isZalo) out.zaloQrImage = d.zaloQrImage || '';   // data: hoặc đường dẫn — trang hiểu cả hai
             return out;
         }),
+        // Tiêu đề section nhóm: chỉ ghi những ô khách tự đặt (tránh rác trong config)
+        serversTitle: (() => {
+            const t = {};
+            if (val('servers-title-zalo').trim()) t.zalo = val('servers-title-zalo').trim();
+            if (val('servers-title-combined').trim()) t.combined = val('servers-title-combined').trim();
+            if (val('servers-title-discord').trim()) t.discord = val('servers-title-discord').trim();
+            return Object.keys(t).length ? t : undefined;
+        })(),
         socials,
         donate: {
             enabled: $('social-donate').checked,
@@ -583,6 +597,29 @@ $('add-social').onclick = addSocial;
 $('add-server').onclick = addServer;
 $('add-track').onclick = addTrack;
 $('add-tech').onclick = addTech;
+
+/* ---- bố cục nhanh mục 5: 1 Zalo / 1 Discord / 2 Zalo / 2 Discord ----
+ * Bấm là form tự sinh đúng số hàng đúng loại; người mua chỉ điền nội dung.
+ * Hàng có sẵn bị THAY THẾ (có xác nhận nếu đã điền gì đó).
+ */
+function applyServerLayout(kind) {
+    const existing = [...document.querySelectorAll('#server-list .row')];
+    const hasContent = existing.some(row => [...row.querySelectorAll('[data-field]')]
+        .some(inp => inp.value.trim() && inp.dataset.field !== 'type'));
+    if (hasContent && !confirm('Bố cục mới sẽ THAY THẾ các nhóm đang điền. Tiếp tục?')) return;
+    $('server-list').innerHTML = '';
+    const plan = { '1zalo': ['zalo'], '1discord': ['discord'], '2zalo': ['zalo', 'zalo'], '2discord': ['discord', 'discord'] }[kind];
+    plan.forEach(type => {
+        const inputs = addServer();
+        const sel = inputs.type;
+        sel.value = type;
+        sel.dispatchEvent(new Event('change'));
+    });
+    toast(kind.startsWith('2') ? '✓ Đã sinh 2 hàng nhóm' : '✓ Đã sinh 1 hàng nhóm');
+}
+document.querySelectorAll('#server-layout-picker [data-layout]').forEach(btn => {
+    btn.addEventListener('click', () => applyServerLayout(btn.dataset.layout));
+});
 
 $('btn-download').onclick = () => {
     if (!val('site-domain')) {
