@@ -154,11 +154,77 @@ const addServer = () => {
 
     const syncQrField = () => { qrWrap.style.display = typeSelect.value === 'zalo' ? '' : 'none'; };
     typeSelect.addEventListener('change', syncQrField);
-    syncQrField();
+
+    // ---- Avatar nhóm Zalo (khung to bằng avatar server Discord) ----
+    // Ảnh vuông, nhúng base64 vào config (zaloAvatarData); không có thì trang dùng icon mặc định
+    const avWrap = document.createElement('label');
+    avWrap.innerHTML = '<b>Ảnh avatar nhóm Zalo (tuỳ chọn)</b> <small>ảnh vuông, khung bằng avatar server Discord</small>';
+    const avRow = document.createElement('div');
+    avRow.style.cssText = 'display:flex;gap:8px;align-items:center;flex-wrap:wrap;';
+    const avBtn = document.createElement('button');
+    avBtn.type = 'button';
+    avBtn.className = 'btn-mini';
+    avBtn.innerHTML = '<i class="fa-solid fa-image"></i>Chọn avatar';
+    const avFile = document.createElement('input');
+    avFile.type = 'file';
+    avFile.accept = 'image/*';
+    avFile.hidden = true;
+    const avThumb = document.createElement('span');
+    avThumb.style.cssText = 'display:inline-flex;align-items:center;gap:6px;font-size:0.75rem;color:var(--text-muted,#9aa);';
+    const avClear = document.createElement('button');
+    avClear.type = 'button';
+    avClear.className = 'btn-danger';
+    avClear.innerHTML = '<i class="fa-solid fa-xmark"></i>';
+    avClear.hidden = true;
+    avRow.append(avBtn, avFile, avThumb, avClear);
+    avWrap.appendChild(avRow);
+    const avInput = document.createElement('input');
+    avInput.type = 'hidden';
+    avInput.dataset.field = 'zaloAvatarData';
+    avWrap.appendChild(avInput);
+    grid.appendChild(avWrap);
+
+    const refreshAv = () => {
+        const v = avInput.value;
+        avClear.hidden = !v;
+        if (!v) {
+            avThumb.innerHTML = '<i class="fa-solid fa-image"></i> chưa có — dùng icon mặc định';
+        } else if (v.startsWith('data:')) {
+            avThumb.innerHTML = `<img src="${v}" alt="" style="width:34px;height:34px;border-radius:10px;object-fit:cover;border:1px solid rgba(255,255,255,.25)"> <span>✓ đã nhúng vào config</span>`;
+        } else {
+            avThumb.innerHTML = `<i class="fa-solid fa-file-image"></i> ${v.replace(/[<>&]/g, '')}`;
+        }
+    };
+    avBtn.addEventListener('click', () => avFile.click());
+    avFile.addEventListener('change', () => {
+        const f = avFile.files[0];
+        if (!f) return;
+        if (!f.type.startsWith('image/')) { toast('✗ Chỉ nhận file ảnh'); return; }
+        if (f.size > 500 * 1024) { toast(`✗ Ảnh ${Math.round(f.size / 1024)}KB — nén nhỏ lại (tối đa ~500KB)`); return; }
+        const reader = new FileReader();
+        reader.onload = () => {
+            avInput.value = reader.result;
+            refreshAv();
+            toast('✓ Avatar nhóm Zalo đã sẵn sàng nhúng vào config.js');
+        };
+        reader.readAsDataURL(f);
+    });
+    avClear.addEventListener('click', () => { avInput.value = ''; avFile.value = ''; refreshAv(); });
+    avInput.addEventListener('change', refreshAv);
+
+    const syncTypeFields = () => {
+        const isZalo = typeSelect.value === 'zalo';
+        qrWrap.style.display = isZalo ? '' : 'none';
+        avWrap.style.display = isZalo ? '' : 'none';
+    };
+    typeSelect.addEventListener('change', syncTypeFields);
+    syncTypeFields();
     refreshQr();
-    // Đưa 2 ô mới vào map để fillRows nạp được giá trị từ config khi mở form
+    refreshAv();
+    // Đưa các ô mới vào map để fillRows nạp được giá trị từ config khi mở form
     inputs.type = typeSelect;
     inputs.zaloQrImage = qrInput;
+    inputs.zaloAvatarData = avInput;
     return inputs;
 };
 // addBadge/addTrack/addTech đã bỏ cùng các mục tương ứng trong form — badges,
@@ -169,6 +235,7 @@ function fillForm(cfg) {
     const site = cfg.site || {};
     $('site-fullName').value = site.fullName || '';
     $('site-domain').value = site.domain || '';
+    $('site-artistName').value = site.artistName || '';
     $('site-description').value = site.description || '';
 
     $('discordId').value = cfg.discordId || '';
@@ -177,6 +244,7 @@ function fillForm(cfg) {
 
     const p = cfg.profile || {};
     $('profile-name').value = p.name || '';
+    $('profile-customStatus').value = p.customStatus || '';
     $('profile-bio').value = p.bio || '';
     $('profile-location').value = p.location || '';
     $('profile-banner').value = p.banner || '';
@@ -208,7 +276,7 @@ function fillForm(cfg) {
     $('social-donate').checked = (cfg.socials || []).some(s => s.action === 'donate') && donate.enabled !== false;
     $('donate-qrImage').value = donate.qrImage || '';
 
-    fillRows('server-list', cfg.servers || [], addServer, ['name', 'inviteUrl', 'role', 'description', 'tag', 'type', 'zaloQrImage']);
+    fillRows('server-list', cfg.servers || [], addServer, ['name', 'inviteUrl', 'role', 'description', 'tag', 'type', 'zaloQrImage', 'zaloAvatarData']);
 
     // Tiêu đề section nhóm (serversTitle) — để trống là dùng mặc định
     const st = cfg.serversTitle || {};
@@ -216,8 +284,7 @@ function fillForm(cfg) {
     $('servers-title-combined').value = st.combined || '';
     $('servers-title-discord').value = st.discord || '';
 
-    const music = cfg.music || {};
-    $('music-enabled').checked = music.enabled !== false;
+    // Nhạc nền luôn bật mặc định — form không còn công tắc riêng
 
     const love = cfg.setlove || {};
     $('setlove-enabled').checked = love.enabled !== false;
@@ -289,8 +356,8 @@ const DEFAULT_TECH = [
 ];
 
 function buildConfig() {
-    // Mạng xã hội: các ô đơn giản Facebook/TikTok/Instagram/YouTube/Email — dán link là chạy.
-    // Bỏ trống mạng nào là trang tự ẩn mạng đó.
+    // Mạng xã hội: các nút LUÔN HIỆN ở vị trí mặc định — dán link thì bấm được,
+    // bỏ trống thì nút mờ + không bấm được (script.js đọc url/copy rỗng là hiểu)
     const SOCIAL_PRESETS = [
         ['social-facebook', 'Facebook', 'fa-brands fa-facebook'],
         ['social-tiktok', 'TikTok', 'fa-brands fa-tiktok'],
@@ -299,11 +366,9 @@ function buildConfig() {
     ];
     const socials = [];
     for (const [id, name, icon] of SOCIAL_PRESETS) {
-        const v = val(id).trim();
-        if (v) socials.push({ name, icon, url: v });
+        socials.push({ name, icon, url: val(id).trim() });
     }
-    const email = val('social-email').trim();
-    if (email) socials.push({ name: 'Email', icon: 'fa-solid fa-envelope', copy: email });
+    socials.push({ name: 'Email', icon: 'fa-solid fa-envelope', copy: val('social-email').trim() });
     // Liên kết khác (hàng tự do cho mạng ngoài danh sách)
     collectRows('social-extra-list', null, d => {
         if (!d.name) return null;
@@ -332,9 +397,8 @@ function buildConfig() {
         site: {
             fullName: val('site-fullName'),
             domain: val('site-domain'),
-            // artistName/monogram/siteName không có ô trong form — dùng giá trị trung tính
-            // (script.js + setup.mjs tự sinh monogram từ fullName khi cần)
-            artistName: val('site-fullName'),
+            // Tên nghệ sĩ / ca sĩ: dùng làm ca sĩ các bài hát + chữ logo footer
+            artistName: val('site-artistName') || val('site-fullName'),
             description: val('site-description'),
             // Câu màn chào / chữ nút vào trang / chữ cạnh footer không có ô trong form
             // nữa — dùng mặc định của config gốc (script.js chỉ ghi đè khi có giá trị)
@@ -366,6 +430,8 @@ function buildConfig() {
             bannerData: val('profile-bannerData'),
             bio: val('profile-bio'),
             location: val('profile-location'),
+            // Current status hiện ở vùng presence khi KHÔNG liên kết Discord realtime
+            customStatus: val('profile-customStatus'),
             quotes: lines('profile-quotes'),
         },
         servers: collectRows('server-list', null, d => {
@@ -378,7 +444,10 @@ function buildConfig() {
                 icon: '', banner: 'profile_banner_cyber.webp', cdnIcon: '', cdnBanner: 'profile_banner_cyber.webp',
                 members: '', online: '', tag: d.tag || (isZalo ? 'NHÓM ZALO' : 'COMMUNITY'), featured: true,
             };
-            if (isZalo) out.zaloQrImage = d.zaloQrImage || '';   // data: hoặc đường dẫn — trang hiểu cả hai
+            if (isZalo) {
+                out.zaloQrImage = d.zaloQrImage || '';      // data: hoặc đường dẫn — trang hiểu cả hai
+                out.zaloAvatarData = d.zaloAvatarData || ''; // avatar nhóm (base64/đường dẫn) — khung bằng avatar Discord
+            }
             return out;
         }),
         // Tiêu đề section nhóm: chỉ ghi những ô khách tự đặt (tránh rác trong config)
@@ -409,10 +478,10 @@ function buildConfig() {
             photos,
             quotes: lines('love-quotes'),
         },
-        // Nhạc nền: công tắc Bật/Tắt duy nhất; playlist mặc định kèm sản phẩm
-        // (khách dùng bài riêng thì ghi trong notes — người bán thay giúp)
+        // Nhạc nền: luôn bật, playlist mặc định kèm sản phẩm (khách dùng bài riêng
+        // thì ghi trong notes — người bán thay giúp)
         music: {
-            enabled: $('music-enabled').checked,
+            enabled: true,
             autoplayOnEnter: true,
             volume: 1,
             playlist: DEFAULT_PLAYLIST,
@@ -605,11 +674,10 @@ document.addEventListener('keydown', (e) => {
 function syncToggleFields() {
     $('discord-fields').style.display = $('discord-enabled').checked ? '' : 'none';
     $('setlove-fields').style.display = $('setlove-enabled').checked ? '' : 'none';
-    // Mục Nhạc đã gọn thành 1 công tắc (không còn khối #music-fields)
+    // Mục Nhạc đã bỏ khỏi form (luôn bật) — không còn khối #music-fields
 }
 $('discord-enabled').addEventListener('change', syncToggleFields);
 $('setlove-enabled').addEventListener('change', syncToggleFields);
-$('music-enabled').addEventListener('change', syncToggleFields);
 
 /* ---------------- tải ảnh lên (avatar chính / banner / avatar người ấy) ----------------
  * Một hàm dùng chung cho cả 3 khung upload: đọc ảnh thành base64 data-URL và

@@ -1396,11 +1396,17 @@ function initProfileUI() {
             const card = document.createElement('div');
             card.className = 'server-card' + (isZalo ? ' server-card-zalo' : '');
             card.id = `server-card-${idx}`;
+            // Avatar nhóm Zalo: ảnh khách tải lên (zaloAvatarData base64 hoặc đường dẫn);
+            // không có thì dùng icon mặc định như Discord — khung to bằng avatar server
+            const avatarSrc = isZalo ? (srv.zaloAvatarData || srv.icon || '') : srv.icon;
+            const avatarTag = isZalo && (srv.zaloAvatarData || '').startsWith('data:')
+                ? `<img src="${srv.zaloAvatarData}" alt="${srv.name} Avatar" class="server-icon server-icon-zalo" id="server-icon-${idx}">`
+                : `<img src="${avatarSrc}" alt="${srv.name} Icon" class="server-icon" id="server-icon-${idx}">`;
             card.innerHTML = `
                 <img src="${srv.banner}" alt="${srv.name} Banner" class="server-banner-img" id="server-banner-${idx}">
                 <div class="server-body">
                     <div class="server-icon-wrap">
-                        <img src="${srv.icon}" alt="${srv.name} Icon" class="server-icon" id="server-icon-${idx}">
+                        ${avatarTag}
                     </div>
                     <div class="server-content">
                         <div class="server-top-line">
@@ -1482,10 +1488,16 @@ function initProfileUI() {
         socialsList.innerHTML = '';
         CONFIG.socials.forEach(soc => {
             const a = document.createElement('a');
-            a.className = soc.highlight ? 'social-pill highlight' : 'social-pill';
+            // Chưa gán link/copy -> nút vẫn hiện ở vị trí mặc định nhưng mờ + không bấm được
+            const isDisabled = !soc.url && !soc.copy && soc.action !== 'donate';
+            a.className = (soc.highlight ? 'social-pill highlight' : 'social-pill') + (isDisabled ? ' is-disabled' : '');
             a.href = soc.url || '#';
             a.target = soc.url ? '_blank' : null;
             a.rel = 'noopener noreferrer';
+            if (isDisabled) {
+                a.title = `${soc.name} — chưa liên kết`;
+                a.addEventListener('click', (e) => e.preventDefault());
+            }
             a.innerHTML = `<i class="${soc.icon}"></i> <span>${soc.name}</span>`;
 
             if (soc.action === 'donate') {
@@ -2480,17 +2492,50 @@ function initLanyardRealtime() {
 // Tắt sạch UI phụ thuộc Discord khi discordEnabled: false — trang vẫn là một bio
 // hoàn chỉnh (avatar/banner/tên lấy từ CONFIG, không kết nối Lanyard)
 function disableDiscordUI() {
-    // Vùng presence (status, Spotify, game đang chơi)
-    const presenceSection = document.getElementById('presence-section');
-    if (presenceSection) presenceSection.style.display = 'none';
-    // Dot trạng thái trên avatar + nhãn DISCORD LIVE trên banner
+    // KHÔNG ẩn vùng presence nữa — đổi thành "Trạng thái hiện tại" tĩnh:
+    // current status từ form; không có gì đang chơi thì hiện card "Đang nghe nhạc"
+    // theo bài đầu trong playlist nhạc nền.
     const statusIndicator = document.getElementById('status-indicator');
     if (statusIndicator) statusIndicator.style.display = 'none';
     const liveBadge = document.querySelector('.banner-badge-top');
     if (liveBadge) liveBadge.style.display = 'none';
-    // Nút Copy Discord (không còn ID nào để copy)
     const copyBtn = document.getElementById('copy-tag-btn');
     if (copyBtn) copyBtn.style.display = 'none';
+    const ping = document.getElementById('lanyard-ping');
+    if (ping) ping.style.display = 'none';
+
+    const presenceSection = document.getElementById('presence-section');
+    if (presenceSection) {
+        const titleEl = presenceSection.querySelector('.section-title span');
+        if (titleEl) titleEl.textContent = 'TRẠNG THÁI HIỆN TẠI';
+        const iconEl = presenceSection.querySelector('.section-title i');
+        if (iconEl) iconEl.className = 'fa-solid fa-circle-user';
+    }
+    // Current status: khách điền trong form (profile.customStatus) — không có thì câu mặc định
+    const statusText = document.getElementById('custom-status-text');
+    if (statusText) statusText.textContent = (CONFIG.profile && CONFIG.profile.customStatus) || 'Đang online, cứ nhắn tin nhé 💬';
+
+    // Card "Đang nghe nhạc" thay cho game activity: lấy bài đầu playlist nhạc nền
+    const music = CONFIG.music || {};
+    const firstTrack = Array.isArray(music.playlist) && music.playlist[0];
+    const gameCard = document.getElementById('game-card');
+    if (gameCard) {
+        if (music.enabled !== false && firstTrack) {
+            gameCard.style.display = 'flex';
+            const badge = document.getElementById('game-badge');
+            if (badge) badge.innerHTML = '<i class="fa-solid fa-music"></i> NOW LISTENING';
+            const nameEl = document.getElementById('game-name');
+            if (nameEl) nameEl.textContent = firstTrack.title || 'Đang nghe nhạc';
+            const stateEl = document.getElementById('game-state');
+            if (stateEl) stateEl.textContent = 'Đang nghe nhạc';
+            const detEl = document.getElementById('game-details-text');
+            if (detEl) detEl.textContent = firstTrack.artist || '';
+            const art = document.getElementById('game-art');
+            if (art) art.style.display = 'none';
+        } else {
+            gameCard.style.display = 'none';
+        }
+    }
 }
 
 function connectLanyardWebSocket() {

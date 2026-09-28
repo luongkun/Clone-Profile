@@ -1640,6 +1640,12 @@ body.cursor-hidden .cyber-cursor {
     box-shadow: 0 6px 15px rgba(0, 0, 0, 0.7);
 }
 
+/* Avatar nhóm Zalo do khách tải lên — cùng khung với avatar server Discord */
+.server-icon-zalo {
+    object-fit: cover;
+    background: #101014;
+}
+
 .server-content {
     flex: 1;
     min-width: 0;
@@ -1816,6 +1822,13 @@ body.cursor-hidden .cyber-cursor {
     font-weight: 600;
     transition: var(--transition-smooth);
     min-height: 44px;
+}
+
+/* Chưa gán link: nút vẫn nằm ở vị trí mặc định nhưng mờ đi, không bấm được */
+.social-pill.is-disabled {
+    opacity: 0.35;
+    cursor: not-allowed;
+    filter: grayscale(0.6);
 }
 
 /* Nút Donate: chiếm trọn một hàng và có ánh hồng để nổi bật hơn các link còn lại */

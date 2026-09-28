@@ -158,6 +158,7 @@
                     <label><b>Tên đầy đủ <span class="req">*</span></b>(footer + thẻ chia sẻ)<input type="text" id="site-fullName"></label>
                     <label><b>Domain <span class="req">*</span></b>(không có https://, vd tenban.pages.dev)<input type="text" id="site-domain"></label>
                 </div>
+                <label><b>Tên nghệ sĩ / ca sĩ</b>(ca sĩ các bài hát trong playlist + chữ logo footer — bỏ trống lấy tên đầy đủ)<input type="text" id="site-artistName"></label>
                 <label><b>Mô tả trang</b>(hiện khi dán link lên Facebook/Discord — bỏ trống dùng câu mặc định)<textarea id="site-description"></textarea></label>
                 <p class="hint">✨ Các phần còn lại (câu chào, chữ nút vào trang, tiêu đề tab, hiệu ứng…) dùng <b>mặc định sẵn đẹp</b> — không cần điền. Chỉ những ai muốn đổi mới cần sửa config.js.</p>
             </div>
@@ -192,6 +193,7 @@
             <summary><span class="num">2</span>Profile cá nhân</summary>
             <div class="sec-body">
                 <label><b>Tên hiển thị <span class="req">*</span></b>(dự phòng lúc mới tải)<input type="text" id="profile-name"></label>
+                <label><b>Current status</b>(dòng trạng thái khi KHÔNG liên kết Discord realtime — bỏ trống dùng câu mặc định)<input type="text" id="profile-customStatus" placeholder="Đang online, cứ nhắn tin nhé 💬"></label>
                 <p class="hint">Tagline dưới tên dùng <b>mặc định</b> — muốn dòng chữ riêng thì sửa <code>profile.title</code> trong config.js.</p>
                 <label><b>Bio dài</b><textarea id="profile-bio"></textarea></label>
                 <div class="grid2">
@@ -221,7 +223,7 @@
         <details open>
             <summary><span class="num">3</span>Mạng xã hội</summary>
             <div class="sec-body">
-                <p class="hint">Chỉ cần dán link vào ô — bỏ trống mạng nào là trang tự ẩn mạng đó. Email thì khách bấm là <b>sao chép địa chỉ</b>.</p>
+                <p class="hint">Dán link vào ô tương ứng — nút mạng xã hội <b>luôn hiện sẵn</b>, chưa dán link thì nút mờ và không bấm được. Email thì khách bấm là <b>sao chép địa chỉ</b>.</p>
                 <div class="grid2">
                     <label><b>Facebook</b><input type="text" id="social-facebook" placeholder="https://facebook.com/tenban"></label>
                     <label><b>TikTok</b><input type="text" id="social-tiktok" placeholder="https://tiktok.com/@tenban"></label>
@@ -273,8 +275,7 @@
         <details>
             <summary><span class="num">6</span>Nhạc nền</summary>
             <div class="sec-body">
-                <label class="check"><input type="checkbox" id="music-enabled" checked>Bật nhạc nền — tắt là mất widget điều khiển nhạc ở góc màn hình</label>
-                <p class="hint">Bật là dùng ngay <b>playlist lofi mặc định</b> kèm sản phẩm. Muốn dùng bài của riêng mình: gửi file mp3 kèm zip + ghi tên bài trong notes — người bán sẽ thay giúp.</p>
+                <p class="hint">🎵 Dùng sẵn <b>playlist lofi mặc định</b> kèm sản phẩm — không cần chỉnh gì. Muốn dùng bài của riêng mình: gửi file mp3 kèm zip + ghi tên bài trong notes — người bán sẽ thay giúp.</p>
             </div>
         </details>
 
@@ -321,8 +322,8 @@
         <details>
             <summary><span class="num">8</span>Sở thích (6 pill)</summary>
             <div class="sec-body">
-                <p class="hint">Dùng sẵn <b>6 sở thích mặc định</b> (Gaming, Nghe nhạc, Cà phê, Du lịch, Chụp ảnh, Xem phim).
-                    Muốn đổi theo sở thích thật của mình: ghi trong notes gửi người bán, hoặc tự sửa <code>techStack</code> trong config.js.</p>
+                <p class="hint">✨ Dùng sẵn <b>6 sở thích mặc định</b> (Gaming, Nghe nhạc, Cà phê, Du lịch, Chụp ảnh, Xem phim) — không cần chỉnh gì.
+                    Muốn đổi theo sở thích thật: ghi trong notes gửi người bán, hoặc tự sửa <code>techStack</code> trong config.js.</p>
             </div>
         </details>
 

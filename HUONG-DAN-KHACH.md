@@ -24,10 +24,11 @@ Vài công tắc cần quyết:
 
 | Công tắc | Bật khi nào |
 |---|---|
-| **Discord** | Bạn muốn hiện trạng thái online/game đang chơi realtime từ Discord → cần Discord ID (Cách lấy: Discord → Cài đặt → Nâng cao → bật Developer Mode → chuột phải vào chính mình → Copy User ID). **Tắt** thì trang vẫn chạy — khi đó dùng nút **tải avatar lên** trong form. |
-| **Nhạc nền** | Không muốn nhạc thì tắt — widget nhạc biến mất hẳn. |
-| **Donate (QR)** | Bật nếu muốn hiện mã chuyển khoản. |
+| **Discord** | Bạn muốn hiện trạng thái online/game/Spotify realtime từ Discord → cần Discord ID (Cách lấy: Discord → Cài đặt → Nâng cao → bật Developer Mode → chuột phải vào chính mình → Copy User ID). **Tắt** thì trang vẫn chạy — khi đó điền **Current status** (dòng trạng thái) + dùng nút **tải avatar lên** trong form; vùng presence đổi thành "Trạng thái hiện tại" kèm card "Đang nghe nhạc". |
+| **Donate (QR)** | Bật nếu muốn hiện mã chuyển khoản — chỉ cần ảnh QR rõ nét, không cần ghi thông tin ngân hàng. |
 | **Setlove (cặp đôi)** | Panel kỷ niệm ngày yêu — không cần thì tắt. |
+
+> 🎵 Nhạc nền dùng sẵn **playlist lofi mặc định** — không cần điền gì. Mạng xã hội: nút luôn hiện sẵn, dán link vào ô là bấm được (chưa dán thì nút mờ, không bấm được). Nhóm Zalo có thể tải thêm **ảnh avatar nhóm** (khung bằng avatar server Discord).
 
 > 💡 Ảnh avatar / banner **upload thẳng trong form** là được — đã nhúng vào file config,
 > **không cần gửi file ảnh riêng** cho những mục này.
