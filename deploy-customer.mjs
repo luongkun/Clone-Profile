@@ -10,6 +10,11 @@
  *  Cách dùng:
  *      node deploy-customer.mjs --customer lan-anh --dry-run   # chỉ dựng + kiểm tra
  *      node deploy-customer.mjs --customer lan-anh             # deploy thật
+ *
+ *      # Khách gửi file config.js / zip / thư mục đã điền sẵn (admin.html):
+ *      node deploy-customer.mjs --customer lan-anh --ingest ~/Downloads/lan-anh.zip --dry-run
+ *      node deploy-customer.mjs --customer lan-anh --assets ~/Downloads/anh-nhac.zip --dry-run
+ *
  *      node deploy-customer.mjs --customer lan-anh --no-assets # bỏ qua assets/ của khách
  *      node deploy-customer.mjs --customer lan-anh --keep      # giữ thư mục build lại
  *
@@ -56,6 +61,10 @@ const dryRun = flag('--dry-run');
 const noAssets = flag('--no-assets');
 const keep = flag('--keep');
 const customDomain = flag('--custom-domain'); // khách sẽ gắn domain riêng (site.domain != *.pages.dev)
+// --ingest: file/thư mục/zip KHÁCH GỬI — script tự trích config.js + ảnh/nhạc vào customers/<slug>/
+const ingest = args.includes('--ingest') ? needValue('--ingest') : null;
+// --assets: nạp riêng ảnh/nhạc (khi config đã có) — cũng nhận zip/thư mục/file
+const assetsArg = args.includes('--assets') ? needValue('--assets') : null;
 if (args.length) {
     console.error(`✗ Tham số không rõ: ${args.join(' ')}`);
     process.exit(1);
@@ -80,9 +89,121 @@ const WRANGLER = process.env.WRANGLER || 'wrangler';
 const step = (msg) => console.log(`\n▶ ${msg}`);
 const ok = (msg) => console.log(`  ✓ ${msg}`);
 
+// ------------------------------------------------------------------ 0. nạp dữ liệu khách gửi (--ingest / --assets)
+// Khách tự điền admin.html rồi gửi lại: file config.js, hoặc zip/thư mục chứa
+// config + ảnh QR/avatar + nhạc. Script tự xếp đúng chỗ — người bán KHÔNG mở file nào.
+const MEDIA_EXT = new Set(['png', 'jpg', 'jpeg', 'webp', 'gif', 'svg', 'ico', 'mp3', 'wav', 'ogg', 'm4a', 'mp4', 'webm']);
+
+function walkFiles(dir, out = []) {
+    for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
+        if (entry.name === '.git' || entry.name === 'node_modules' || entry.name === '__MACOSX') continue;
+        const full = path.join(dir, entry.name);
+        if (entry.isDirectory()) walkFiles(full, out);
+        else out.push(full);
+    }
+    return out;
+}
+
+function extractArchive(archivePath, destDir) {
+    if (/\.zip$/i.test(archivePath)) {
+        if (spawnSync('unzip', ['-v'], { encoding: 'utf8' }).status !== 0) {
+            console.error('✗ File .zip cần lệnh `unzip` (Ubuntu: sudo apt-get install unzip).');
+            console.error('  Cách khác: giải nén hộp này rồi truyền vào --ingest ĐƯỜNG DẪN THƯ MỤC.');
+            process.exit(1);
+        }
+        const r = spawnSync('unzip', ['-o', '-q', archivePath, '-d', destDir], { encoding: 'utf8' });
+        if (r.status !== 0) {
+            console.error(`✗ Giải nén thất bại: ${(r.stderr || '').trim().slice(0, 300)}`);
+            process.exit(1);
+        }
+    } else if (/\.(tar\.gz|tgz)$/i.test(archivePath)) {
+        const r = spawnSync('tar', ['-xzf', archivePath, '-C', destDir], { encoding: 'utf8' });
+        if (r.status !== 0) {
+            console.error(`✗ Giải nén thất bại: ${(r.stderr || '').trim().slice(0, 300)}`);
+            process.exit(1);
+        }
+    } else {
+        return false;
+    }
+    return true;
+}
+
+function ingestInto(srcPath, { mediaOnly = false } = {}) {
+    const abs = path.resolve(srcPath);
+    if (!fs.existsSync(abs)) {
+        console.error(`✗ Không tìm thấy file/thư mục khách gửi: ${srcPath}`);
+        process.exit(1);
+    }
+    fs.mkdirSync(custDir, { recursive: true });
+
+    let files = [];
+    const tmpDir = path.join(ROOT, 'customers', 'build', `ingest-${Date.now()}`);
+    if (fs.statSync(abs).isDirectory()) {
+        files = walkFiles(abs);
+    } else if (extractArchive(abs, tmpDir)) {
+        files = walkFiles(tmpDir);
+    } else {
+        files = [abs];
+    }
+
+    let configCandidates = [];
+    let copiedMedia = [], copiedNotes = 0, ignored = [];
+    for (const f of files) {
+        const base = path.basename(f);
+        const ext = path.extname(base).slice(1).toLowerCase();
+        if (base === 'config.js') {
+            configCandidates.push(f);
+            continue;
+        }
+        if (/^notes\.(md|txt)$/i.test(base)) {
+            fs.copyFileSync(f, path.join(custDir, 'notes.md'));
+            copiedNotes++;
+            continue;
+        }
+        if (MEDIA_EXT.has(ext)) {
+            fs.mkdirSync(path.join(custDir, 'assets'), { recursive: true });
+            fs.copyFileSync(f, path.join(custDir, 'assets', base));
+            copiedMedia.push(base);
+            continue;
+        }
+        ignored.push(base);
+    }
+
+    // config.js: chọn bản ở tầng thư mục nông nhất (gốc gói > thư mục con)
+    if (!mediaOnly && configCandidates.length) {
+        configCandidates.sort((a, b) => a.split(path.sep).length - b.split(path.sep).length);
+        const dest = path.join(custDir, 'config.js');
+        if (fs.existsSync(dest)) {
+            const bak = `${dest}.bak-${new Date().toISOString().replace(/[:.]/g, '-').slice(0, 19)}`;
+            fs.copyFileSync(dest, bak);
+            console.log(`  • config.js cũ được giữ lại thành ${path.basename(bak)}`);
+        }
+        fs.copyFileSync(configCandidates[0], dest);
+        ok(`config.js: đã nạp từ ${path.relative(ROOT, configCandidates[0])}`);
+        if (configCandidates.length > 1) console.warn(`  ! Có ${configCandidates.length} file config.js — dùng bản ở tầng nông nhất, còn lại bỏ qua.`);
+    }
+    if (copiedMedia.length) ok(`${copiedMedia.length} file ảnh/nhạc -> assets/: ${copiedMedia.slice(0, 5).join(', ')}${copiedMedia.length > 5 ? ', …' : ''}`);
+    if (mediaOnly && configCandidates.length) console.warn('  ! --assets bỏ qua config.js (dùng --ingest nếu muốn nạp cả config).');
+    if (copiedNotes) ok('notes.md: ghi chú của khách');
+    if (ignored.length) console.warn(`  ! Bỏ qua ${ignored.length} file không liên quan: ${ignored.slice(0, 4).join(', ')}${ignored.length > 4 ? ', …' : ''}`);
+    if (!mediaOnly && !configCandidates.length && !copiedMedia.length && !copiedNotes) {
+        console.warn('  ! Không thấy config.js hay file ảnh/nhạc nào trong dữ liệu khách gửi.');
+    }
+    fs.rmSync(tmpDir, { recursive: true, force: true });
+}
+
 console.log(`Khách:         ${customer} (slug: ${slug})`);
 console.log(`Thư mục khách:  ${path.relative(ROOT, custDir)}`);
 if (dryRun) console.log('Chế độ:        DRY-RUN — chỉ dựng và kiểm tra, không deploy\n');
+
+if (ingest) {
+    step('Nạp dữ liệu khách gửi vào customers/' + slug);
+    ingestInto(ingest);
+}
+if (assetsArg) {
+    step('Nạp assets khách gửi (--assets)');
+    ingestInto(assetsArg, { mediaOnly: true });
+}
 
 // ------------------------------------------------------------------ 1. kiểm tra đầu vào
 step('Kiểm tra thư mục khách');
@@ -106,6 +227,19 @@ if (!site.domain) {
     process.exit(1);
 }
 ok(`site.domain = ${site.domain}`);
+// Tự sửa domain pages.dev theo slug: khách hay điền domain mẫu/khác, để nguyên
+// thì sitemap/canonical/OG trỏ sai. Chỉ tự sửa với *.pages.dev; domain riêng thì
+// bắt buộc --custom-domain (kiểm tra ở dưới).
+if (!customDomain && /\.pages\.dev$/i.test(site.domain) && site.domain.toLowerCase() !== `${slug}.pages.dev`) {
+    const m = configSrc.match(/domain:\s*(["'])([^"']*)\1/);
+    if (m) {
+        const fixed = configSrc.replace(/domain:\s*(["'])[^"']*\1/, `domain: ${m[1]}${slug}.pages.dev${m[1]}`);
+        fs.writeFileSync(path.join(custDir, 'config.js'), fixed);
+        CONFIG = new Function(`${fixed}\n;return CONFIG;`)();
+        console.log(`  • Tự sửa site.domain: "${site.domain}" -> "${slug}.pages.dev"`);
+        site.domain = `${slug}.pages.dev`;
+    }
+}
 if (!dryRun && !customDomain && site.domain !== `${slug}.pages.dev`) {
     console.error(`✗ Lệch domain: config ghi "${site.domain}" nhưng project sẽ là "${slug}.pages.dev".`);
     console.error('  Sửa site.domain trong config.js của khách, hoặc thêm --custom-domain');

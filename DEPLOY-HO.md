@@ -116,6 +116,28 @@ phiếu THONG-TIN.md đã điền — bạn cập nhật config rồi chạy l�
    Khách chỉ đụng DNS của tên miền họ — không phải cấp quyền tài khoản.
 4. Deploy lại 1 lần sau khi domain verify để canonical/OG khớp.
 
+
+### Không muốn mở file config của khách? Dùng --ingest (tự động hoàn toàn)
+
+Khách tự điền `admin.html` (hoặc sửa config.js) rồi gửi lại **một file** — config.js,
+zip hoặc thư mục (kèm ảnh QR/avatar/nhạc). Bạn **không mở file nào**, chỉ chạy:
+
+```bash
+# Nạp mọi thứ khách gửi + dựng + kiểm tra
+node deploy-customer.mjs --customer lan-anh --ingest ~/Downloads/lan-anh.zip --dry-run
+
+# Ấn y là deploy thật (bỏ --dry-run) — ra link live
+node deploy-customer.mjs --customer lan-anh --ingest ~/Downloads/lan-anh.zip
+
+# Khách gửi thêm ảnh/nhạc sau này (không đụng config):
+node deploy-customer.mjs --customer lan-anh --assets ~/Downloads/anh-moi.zip
+```
+
+Script tự làm: trích zip (hoặc nhận thư mục/file lẻ), xếp config.js đúng chỗ, ảnh/nhạc vào
+`assets/`, notes.md vào thư mục khách, **sao lưu config cũ** thành `config.js.bak-…`, và **tự sửa
+`site.domain` sai của khách** thành `<slug>.pages.dev`. Domain riêng (khác *.pages.dev) vẫn phải
+đặt trong config + cờ `--custom-domain`.
+
 ## Bảo trì nhiều khách
 
 | Việc | Lệnh |

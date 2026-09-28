@@ -119,8 +119,9 @@ không cần tạo tài khoản, bạn cũng không dùng tài khoản cá nhân
 (1 lần), rồi mỗi khách chỉ cần:
 
 ```bash
-node deploy-customer.mjs --customer ten-khach --dry-run   # dựng + kiểm tra, chưa deploy
-node deploy-customer.mjs --customer ten-khach             # deploy thật, trả về link live
+# Khách điền admin.html rồi gửi lại 1 file (config/zip/thư mục) — nạp tự động:
+node deploy-customer.mjs --customer ten-khach --ingest file-khach-gui.zip --dry-run
+node deploy-customer.mjs --customer ten-khach --ingest file-khach-gui.zip   # deploy thật
 ```
 
 Dữ liệu từng khách nằm trong `customers/` (không commit). `deploy-customer.mjs`, `admin.html`,
