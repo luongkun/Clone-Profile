@@ -1807,6 +1807,10 @@ function initAudioController() {
             artistName.textContent = `${countTag}${track.artist || artistFallback}`;
         }
 
+        // Card NOW LISTENING (khi không có Discord realtime) đổi theo bài vừa chọn —
+        // gọi ở đây để next/prev/hết bài tự chuyển theo widget nhạc nền
+        if (typeof updateNowListeningCard === 'function') updateNowListeningCard();
+
         if (autoPlay) {
             audio.play().then(() => {
                 updateAudioWidgetState(true);
@@ -1876,8 +1880,15 @@ function initAudioController() {
     }
 
     // Audio events
-    audio.addEventListener('play', () => updateAudioWidgetState(true));
-    audio.addEventListener('pause', () => updateAudioWidgetState(false));
+    audio.addEventListener('play', () => {
+        updateAudioWidgetState(true);
+        // Đổi nhãn card theo trạng thái phát (NOW PLAYING ↔ NOW LISTENING)
+        if (typeof updateNowListeningCard === 'function') updateNowListeningCard();
+    });
+    audio.addEventListener('pause', () => {
+        updateAudioWidgetState(false);
+        if (typeof updateNowListeningCard === 'function') updateNowListeningCard();
+    });
     audio.addEventListener('ended', () => {
         // Auto-advance to next song in playlist
         playNextTrack();
@@ -2493,8 +2504,8 @@ function initLanyardRealtime() {
 // hoàn chỉnh (avatar/banner/tên lấy từ CONFIG, không kết nối Lanyard)
 function disableDiscordUI() {
     // KHÔNG ẩn vùng presence nữa — đổi thành "Trạng thái hiện tại" tĩnh:
-    // current status từ form; không có gì đang chơi thì hiện card "Đang nghe nhạc"
-    // theo bài đầu trong playlist nhạc nền.
+    // current status từ form; card NOW LISTENING theo bài ĐANG PHÁT trong widget
+    // nhạc nền (tự đổi khi next/prev/hết bài — xem updateNowListeningCard).
     const statusIndicator = document.getElementById('status-indicator');
     if (statusIndicator) statusIndicator.style.display = 'none';
     const liveBadge = document.querySelector('.banner-badge-top');
@@ -2515,27 +2526,41 @@ function disableDiscordUI() {
     const statusText = document.getElementById('custom-status-text');
     if (statusText) statusText.textContent = (CONFIG.profile && CONFIG.profile.customStatus) || 'Đang online, cứ nhắn tin nhé 💬';
 
-    // Card "Đang nghe nhạc" thay cho game activity: lấy bài đầu playlist nhạc nền
-    const music = CONFIG.music || {};
-    const firstTrack = Array.isArray(music.playlist) && music.playlist[0];
+    // Card NOW LISTENING: hiển thị theo trạng thái nhạc hiện tại
+    updateNowListeningCard();
+}
+
+// Card NOW LISTENING (thay game activity khi không có Discord realtime):
+// hiện bài ĐANG PHÁT trong widget nhạc nền — tự đổi khi next/prev/hết bài.
+// Được loadTrack() gọi lại mỗi lần đổi bài; disableDiscordUI chỉ vẽ lần đầu.
+function updateNowListeningCard() {
     const gameCard = document.getElementById('game-card');
-    if (gameCard) {
-        if (music.enabled !== false && firstTrack) {
-            gameCard.style.display = 'flex';
-            const badge = document.getElementById('game-badge');
-            if (badge) badge.innerHTML = '<i class="fa-solid fa-music"></i> NOW LISTENING';
-            const nameEl = document.getElementById('game-name');
-            if (nameEl) nameEl.textContent = firstTrack.title || 'Đang nghe nhạc';
-            const stateEl = document.getElementById('game-state');
-            if (stateEl) stateEl.textContent = 'Đang nghe nhạc';
-            const detEl = document.getElementById('game-details-text');
-            if (detEl) detEl.textContent = firstTrack.artist || '';
-            const art = document.getElementById('game-art');
-            if (art) art.style.display = 'none';
-        } else {
-            gameCard.style.display = 'none';
-        }
+    if (!gameCard) return;
+    const music = CONFIG.music || {};
+    const track = (typeof playlist !== 'undefined' && playlist.length)
+        ? playlist[currentTrackIndex]
+        : ((Array.isArray(music.playlist) && music.playlist[0]) || null);
+
+    if (music.enabled === false || !track) {
+        gameCard.style.display = 'none';
+        return;
     }
+    gameCard.style.display = 'flex';
+    const isPlaying = document.getElementById('bg-audio')
+        && !document.getElementById('bg-audio').paused
+        && !!document.getElementById('bg-audio').getAttribute('src');
+    const badge = document.getElementById('game-badge');
+    if (badge) badge.innerHTML = isPlaying
+        ? '<i class="fa-solid fa-music"></i> NOW LISTENING'
+        : '<i class="fa-solid fa-compact-disc"></i> NOW PLAYING';
+    const nameEl = document.getElementById('game-name');
+    if (nameEl) nameEl.textContent = track.title || 'Đang nghe nhạc';
+    const stateEl = document.getElementById('game-state');
+    if (stateEl) stateEl.textContent = 'Đang nghe nhạc';
+    const detEl = document.getElementById('game-details-text');
+    if (detEl) detEl.textContent = track.artist || (CONFIG.site && CONFIG.site.artistName) || '';
+    const art = document.getElementById('game-art');
+    if (art) art.style.display = 'none';
 }
 
 function connectLanyardWebSocket() {
