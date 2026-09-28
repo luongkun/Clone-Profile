@@ -81,7 +81,7 @@ function renumber(container) {
 }
 
 const addBadge = () => makeRow($('badge-list'), '#', [['icon', 'Icon FontAwesome'], ['label', 'Nhãn hiển thị'], ['color', 'Màu chữ (tuỳ chọn)']]);
-const addSocial = () => makeRow($('social-list'), '#', [['name', 'Tên mạng'], ['icon', 'Icon FontAwesome'], ['url', 'Link'], ['copy', 'Nội dung copy (tuỳ chọn)']]);
+const addSocial = () => makeRow($('social-extra-list'), '#', [['name', 'Tên mạng'], ['icon', 'Icon FontAwesome'], ['url', 'Link'], ['copy', 'Nội dung copy (tuỳ chọn)']]);
 const addServer = () => {
     const inputs = makeRow($('server-list'), '#', [['name', 'Tên nhóm/server'], ['inviteUrl', 'Link tham gia (invite Discord hoặc link nhóm Zalo)'], ['role', 'Vai trò'], ['description', 'Mô tả (textarea)', true], ['tag', 'Nhãn góc card']]);
     // Ô chọn loại nhóm: Discord (realtime) hoặc Zalo (nút Join + QR tuỳ chọn)
@@ -197,8 +197,23 @@ function fillForm(cfg) {
     $('profile-avatarLocal').value = p.avatarLocal || '';
     $('profile-quotes').value = (p.quotes || []).join('\n');
     fillRows('badge-list', p.badges || [], addBadge, ['icon', 'label', 'color']);
-    // Mục Donate (action: 'donate') không vào form — điều khiển bằng checkbox ở phần 3
-    fillRows('social-list', (cfg.socials || []).filter(s => s.action !== 'donate'), addSocial, ['name', 'icon', 'url', 'copy']);
+    // Mạng xã hội: điền vào các ô đơn giản theo tên (Facebook/TikTok/Instagram/YouTube/Email);
+    // mạng lạ (không nằm trong danh sách) thì đổ vào hàng "Liên kết khác"
+    const PRESET_MAP = { facebook: 'social-facebook', tiktok: 'social-tiktok', instagram: 'social-instagram', youtube: 'social-youtube', email: 'social-email' };
+    Object.values(PRESET_MAP).forEach(id => { $(id).value = ''; });
+    $('social-extra-list').innerHTML = '';
+    (cfg.socials || []).filter(s => s.action !== 'donate').forEach(s => {
+        const key = (s.name || '').trim().toLowerCase();
+        if (PRESET_MAP[key]) {
+            $(PRESET_MAP[key]).value = s.copy || s.url || '';
+        } else {
+            const inputs = addSocial();
+            inputs.name.value = s.name || '';
+            inputs.icon.value = s.icon || '';
+            inputs.url.value = s.url || '';
+            inputs.copy.value = s.copy || '';
+        }
+    });
 
     const donate = cfg.donate || {};
     // Nút Donate trong socials là nguồn sự thật: enabled lấy theo có nút hay không
@@ -242,13 +257,7 @@ function fillForm(cfg) {
     $('love-partnerAvatarData').value = love.partnerAvatarData || '';
 
     fillRows('tech-list', cfg.techStack || [], addTech, ['name', 'domain', 'icon']);
-
-    const eff = cfg.effects || {};
-    $('effects-tilt').checked = eff.enableTilt !== false;
-    $('effects-spotlight').checked = eff.enableSpotlight !== false;
-    $('effects-cursor').checked = eff.enableCustomCursor !== false;
-    $('effects-particles').checked = eff.enableParticles !== false;
-    $('effects-stars').checked = eff.enableShootingStars !== false;
+    // Hiệu ứng luôn bật mặc định — form không còn tuỳ chỉnh
 }
 
 function fillRows(listId, items, addFn, fields) {
@@ -275,12 +284,28 @@ function collectRows(listId, fields, mapFn) {
 
 /* ---------------- sinh config.js ---------------- */
 function buildConfig() {
-    const socials = collectRows('social-list', null, d => {
+    // Mạng xã hội: các ô đơn giản Facebook/TikTok/Instagram/YouTube/Email — dán link là chạy.
+    // Bỏ trống mạng nào là trang tự ẩn mạng đó.
+    const SOCIAL_PRESETS = [
+        ['social-facebook', 'Facebook', 'fa-brands fa-facebook'],
+        ['social-tiktok', 'TikTok', 'fa-brands fa-tiktok'],
+        ['social-instagram', 'Instagram', 'fa-brands fa-instagram'],
+        ['social-youtube', 'YouTube', 'fa-brands fa-youtube'],
+    ];
+    const socials = [];
+    for (const [id, name, icon] of SOCIAL_PRESETS) {
+        const v = val(id).trim();
+        if (v) socials.push({ name, icon, url: v });
+    }
+    const email = val('social-email').trim();
+    if (email) socials.push({ name: 'Email', icon: 'fa-solid fa-envelope', copy: email });
+    // Liên kết khác (hàng tự do cho mạng ngoài danh sách)
+    collectRows('social-extra-list', null, d => {
         if (!d.name) return null;
         const s = { name: d.name, icon: d.icon || 'fa-solid fa-link' };
         if (d.copy) s.copy = d.copy; else s.url = d.url;
         return s;
-    });
+    }).forEach(s => socials.push(s));
     if ($('social-donate').checked) {
         socials.push({ name: 'Donate', icon: 'fa-solid fa-qrcode', action: 'donate', highlight: true });
     }
@@ -378,12 +403,13 @@ function buildConfig() {
             playlist: collectRows('track-list', null, d => d.url ? { title: d.title, artist: d.artist, url: d.url } : null),
             title: '', artist: '', url: '',
         },
+        // Hiệu ứng: luôn bật mặc định (form không còn tuỳ chỉnh từng hiệu ứng)
         effects: {
-            enableTilt: $('effects-tilt').checked,
-            enableSpotlight: $('effects-spotlight').checked,
-            enableCustomCursor: $('effects-cursor').checked,
-            enableParticles: $('effects-particles').checked,
-            enableShootingStars: $('effects-stars').checked,
+            enableTilt: true,
+            enableSpotlight: true,
+            enableCustomCursor: true,
+            enableParticles: true,
+            enableShootingStars: true,
         },
         techStack: collectRows('tech-list', null, d => d.name ? { name: d.name, domain: d.domain, icon: d.icon } : null),
     };
@@ -593,7 +619,11 @@ const updateLoveUploadUI = setupUploadBox({
 
 /* ---------------- sự kiện ---------------- */
 $('add-badge').onclick = addBadge;
-$('add-social').onclick = addSocial;
+$('add-social').onclick = () => {
+    const inputs = addSocial();
+    inputs.name.focus();
+    $('social-extra-list').lastElementChild?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+};
 $('add-server').onclick = addServer;
 $('add-track').onclick = addTrack;
 $('add-tech').onclick = addTech;
@@ -627,8 +657,9 @@ $('btn-download').onclick = () => {
         $('site-domain').focus();
         return;
     }
-    if (!val('discordId')) {
-        toast('⚠️ Chưa điền Discord User ID (phần 1)');
+    // Chỉ bắt Discord ID khi khách BẬT Discord — tắt Discord thì không cần ID
+    if ($('discord-enabled').checked && !val('discordId')) {
+        toast('⚠️ Discord đang bật nhưng chưa có Discord User ID — điền ID hoặc TẮT Discord (phần 1)');
         $('discordId').focus();
         return;
     }

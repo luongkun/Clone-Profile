@@ -169,11 +169,7 @@
                     <label><b>Chữ nút vào trang</b><input type="text" id="site-enterLabel"></label>
                     <label><b>Chữ nhỏ cạnh footer</b><input type="text" id="site-footerSuffix"></label>
                 </div>
-                <label class="check"><input type="checkbox" id="effects-tilt">Hiệu ứng card nghiêng theo chuột (tilt)</label>
-                <label class="check"><input type="checkbox" id="effects-spotlight">Đốm sáng theo chuột (spotlight)</label>
-                <label class="check"><input type="checkbox" id="effects-cursor">Con trỏ tuỳ chỉnh</label>
-                <label class="check"><input type="checkbox" id="effects-particles">Hạt nền bay</label>
-                <label class="check"><input type="checkbox" id="effects-stars">Sao băng</label>
+                <p class="hint">✨ Các hiệu ứng trang (nghiêng card, hạt nền, sao băng…) đã <b>bật sẵn</b> — không cần chỉnh.</p>
             </div>
         </details>
 
@@ -183,7 +179,7 @@
                 <label class="check"><input type="checkbox" id="discord-enabled" checked>Kết nối Discord realtime (trạng thái, Spotify, game đang chơi)</label>
                 <div id="discord-fields">
                     <div class="grid2">
-                        <label><b>Discord User ID <span class="req">*</span></b>(Developer Mode → chuột phải avatar → Copy ID)<input type="text" id="discordId"></label>
+                        <label><b>Discord User ID</b>(chỉ cần khi bật Discord — Developer Mode → chuột phải avatar → Copy ID)<input type="text" id="discordId"></label>
                         <label><b>Username Discord</b>(dòng @username trên card)<input type="text" id="profile-username"></label>
                     </div>
                     <p class="hint">⚠️ Phải tham gia server <code>discord.gg/lanyard</code> thì trạng thái realtime mới chạy.<br>
@@ -246,14 +242,20 @@
         </details>
 
         <details open>
-            <summary><span class="num">3</span>Direct Connections (mạng xã hội)</summary>
+            <summary><span class="num">3</span>Mạng xã hội</summary>
             <div class="sec-body">
-                <p class="hint">Mục có <b>Nội dung copy</b> thì bấm là sao chép (không mở link). Icon mẫu:
-                    <code>fa-brands fa-facebook</code>, <code>fa-brands fa-tiktok</code>, <code>fa-brands fa-instagram</code>,
-                    <code>fa-brands fa-youtube</code>, <code>fa-solid fa-envelope</code>…</p>
-                <div class="row-list" id="social-list"></div>
-                <button class="btn-mini" id="add-social" style="justify-self:start"><i class="fa-solid fa-plus"></i>Thêm liên kết</button>
+                <p class="hint">Chỉ cần dán link vào ô — bỏ trống mạng nào là trang tự ẩn mạng đó. Email thì khách bấm là <b>sao chép địa chỉ</b>.</p>
+                <div class="grid2">
+                    <label><b>Facebook</b><input type="text" id="social-facebook" placeholder="https://facebook.com/tenban"></label>
+                    <label><b>TikTok</b><input type="text" id="social-tiktok" placeholder="https://tiktok.com/@tenban"></label>
+                    <label><b>Instagram</b><input type="text" id="social-instagram" placeholder="https://instagram.com/tenban"></label>
+                    <label><b>YouTube</b><input type="text" id="social-youtube" placeholder="https://youtube.com/@tenban"></label>
+                    <label><b>Email</b>(bấm là sao chép)<input type="text" id="social-email" placeholder="ten@gmail.com"></label>
+                </div>
                 <label class="check"><input type="checkbox" id="social-donate" checked>Hiện nút Donate — tắt là mất nút, không hiện QR (thông tin QR ở phần 4 cũng bị bỏ qua)</label>
+                <div class="row-head" style="margin:10px 0 6px"><b style="font-size:.85rem">Liên kết khác (nếu cần)</b>
+                    <button class="btn-mini" id="add-social"><i class="fa-solid fa-plus"></i>Thêm</button></div>
+                <div class="row-list" id="social-extra-list"></div>
             </div>
         </details>
 
