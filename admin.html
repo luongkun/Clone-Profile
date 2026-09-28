@@ -223,15 +223,15 @@
         <details open>
             <summary><span class="num">3</span>Mạng xã hội</summary>
             <div class="sec-body">
-                <p class="hint">Dán link vào ô tương ứng — nút mạng xã hội <b>luôn hiện sẵn</b>, chưa dán link thì nút mờ và không bấm được. Email thì khách bấm là <b>sao chép địa chỉ</b>.</p>
+                <p class="hint">Tick chọn mạng muốn hiện (tối đa <b>4</b>) rồi dán link vào ô — nút nào không tick sẽ <b>ẩn khỏi trang</b>. Email thì khách bấm là <b>sao chép địa chỉ</b>. Nút Donate QR luôn hiện sẵn.</p>
                 <div class="grid2">
-                    <label><b>Facebook</b><input type="text" id="social-facebook" placeholder="https://facebook.com/tenban"></label>
-                    <label><b>TikTok</b><input type="text" id="social-tiktok" placeholder="https://tiktok.com/@tenban"></label>
-                    <label><b>Instagram</b><input type="text" id="social-instagram" placeholder="https://instagram.com/tenban"></label>
-                    <label><b>YouTube</b><input type="text" id="social-youtube" placeholder="https://youtube.com/@tenban"></label>
-                    <label><b>Email</b>(bấm là sao chép)<input type="text" id="social-email" placeholder="ten@gmail.com"></label>
+                    <label><b><input type="checkbox" id="social-facebook-on" checked style="margin-right:6px">Facebook</b><input type="text" id="social-facebook" placeholder="https://facebook.com/tenban"></label>
+                    <label><b><input type="checkbox" id="social-tiktok-on" checked style="margin-right:6px">TikTok</b><input type="text" id="social-tiktok" placeholder="https://tiktok.com/@tenban"></label>
+                    <label><b><input type="checkbox" id="social-instagram-on" checked style="margin-right:6px">Instagram</b><input type="text" id="social-instagram" placeholder="https://instagram.com/tenban"></label>
+                    <label><b><input type="checkbox" id="social-youtube-on" checked style="margin-right:6px">YouTube</b><input type="text" id="social-youtube" placeholder="https://youtube.com/@tenban"></label>
+                    <label><b><input type="checkbox" id="social-email-on" checked style="margin-right:6px">Email</b>(bấm là sao chép)<input type="text" id="social-email" placeholder="ten@gmail.com"></label>
+                    <label><b><input type="checkbox" id="social-locket-on" checked style="margin-right:6px">Locket</b>(ảnh qa — locket.wtat.app/@tenban)<input type="text" id="social-locket" placeholder="https://locket.wtat.app/tenban"></label>
                 </div>
-                <label class="check"><input type="checkbox" id="social-donate" checked>Hiện nút Donate — tắt là mất nút, không hiện QR (thông tin QR ở phần 4 cũng bị bỏ qua)</label>
                 <div class="row-head" style="margin:10px 0 6px"><b style="font-size:.85rem">Liên kết khác (nếu cần)</b>
                     <button class="btn-mini" id="add-social"><i class="fa-solid fa-plus"></i>Thêm</button></div>
                 <div class="row-list" id="social-extra-list"></div>
@@ -243,8 +243,8 @@
             <div class="sec-body">
                 <p class="hint">💡 Chỉ cần ảnh QR rõ nét — khách quét là chuyển được, không cần ghi thêm thông tin.
                     Muốn ẩn hẳn nút Donate? Tắt checkbox <b>Hiện nút Donate</b> ở phần 3.</p>
-                <label><b>Ảnh QR</b>(đường dẫn file trong repo — ví dụ <code>qr-bank.png</code>)<input type="text" id="donate-qrImage" placeholder="qr-bank.png"></label>
-                <p class="hint">⚠️ File ảnh QR đặt cùng thư mục gốc với index.html, gửi kèm trong zip cho người bán.</p>
+                <label><b>Ảnh QR</b>(đường dẫn file trong repo — ví dụ <code>qr-bank.png</code>; bỏ trống dùng QR mặc định kèm sản phẩm)<input type="text" id="donate-qrImage" placeholder="qr-bank.png"></label>
+                <p class="hint">✅ Nút Donate <b>luôn bật</b> — khách quét QR là chuyển được. File ảnh QR đặt cùng thư mục gốc, gửi kèm trong zip cho người bán.</p>
             </div>
         </details>
 

@@ -253,14 +253,16 @@ function fillForm(cfg) {
     $('profile-avatarData').value = p.avatarData || '';
     updateAvatarUploadUI();
     $('profile-quotes').value = (p.quotes || []).join('\n');
-    // Mạng xã hội: điền vào các ô đơn giản theo tên (Facebook/TikTok/Instagram/YouTube/Email);
-    // mạng lạ (không nằm trong danh sách) thì đổ vào hàng "Liên kết khác"
-    const PRESET_MAP = { facebook: 'social-facebook', tiktok: 'social-tiktok', instagram: 'social-instagram', youtube: 'social-youtube', email: 'social-email' };
+    // Mạng xã hội: nạp vào ô + checkbox theo tên; mạng lạ đổ vào hàng "Liên kết khác"
+    const PRESET_MAP = { facebook: 'social-facebook', tiktok: 'social-tiktok', instagram: 'social-instagram', youtube: 'social-youtube', email: 'social-email', locket: 'social-locket' };
     Object.values(PRESET_MAP).forEach(id => { $(id).value = ''; });
+    const CB_MAP = { facebook: 'social-facebook-on', tiktok: 'social-tiktok-on', instagram: 'social-instagram-on', youtube: 'social-youtube-on', email: 'social-email-on', locket: 'social-locket-on' };
+    Object.values(CB_MAP).forEach(id => { $(id).checked = false; });
     $('social-extra-list').innerHTML = '';
     (cfg.socials || []).filter(s => s.action !== 'donate').forEach(s => {
         const key = (s.name || '').trim().toLowerCase();
         if (PRESET_MAP[key]) {
+            $(CB_MAP[key]).checked = true;
             $(PRESET_MAP[key]).value = s.copy || s.url || '';
         } else {
             const inputs = addSocial();
@@ -272,8 +274,6 @@ function fillForm(cfg) {
     });
 
     const donate = cfg.donate || {};
-    // Nút Donate trong socials là nguồn sự thật: enabled lấy theo có nút hay không
-    $('social-donate').checked = (cfg.socials || []).some(s => s.action === 'donate') && donate.enabled !== false;
     $('donate-qrImage').value = donate.qrImage || '';
 
     fillRows('server-list', cfg.servers || [], addServer, ['name', 'inviteUrl', 'role', 'description', 'tag', 'type', 'zaloQrImage', 'zaloAvatarData']);
@@ -356,19 +356,24 @@ const DEFAULT_TECH = [
 ];
 
 function buildConfig() {
-    // Mạng xã hội: các nút LUÔN HIỆN ở vị trí mặc định — dán link thì bấm được,
-    // bỏ trống thì nút mờ + không bấm được (script.js đọc url/copy rỗng là hiểu)
+    // Mạng xã hội: CHECKBOX chọn hiện/ẩn (tối đa 4 gợi ý trong hint, code không chặn cứng);
+    // tick thì nút luôn hiện — dán link là bấm được, bỏ trống thì nút mờ chờ link.
+    // Không tick → khỏi đưa vào config (trang không vẽ nút).
     const SOCIAL_PRESETS = [
-        ['social-facebook', 'Facebook', 'fa-brands fa-facebook'],
-        ['social-tiktok', 'TikTok', 'fa-brands fa-tiktok'],
-        ['social-instagram', 'Instagram', 'fa-brands fa-instagram'],
-        ['social-youtube', 'YouTube', 'fa-brands fa-youtube'],
+        ['social-facebook-on', 'social-facebook', 'Facebook', 'fa-brands fa-facebook'],
+        ['social-tiktok-on', 'social-tiktok', 'TikTok', 'fa-brands fa-tiktok'],
+        ['social-instagram-on', 'social-instagram', 'Instagram', 'fa-brands fa-instagram'],
+        ['social-youtube-on', 'social-youtube', 'YouTube', 'fa-brands fa-youtube'],
+        ['social-email-on', 'social-email', 'Email', 'fa-solid fa-envelope'],
+        ['social-locket-on', 'social-locket', 'Locket', 'fa-solid fa-gem'],
     ];
     const socials = [];
-    for (const [id, name, icon] of SOCIAL_PRESETS) {
-        socials.push({ name, icon, url: val(id).trim() });
+    for (const [cbId, inputId, name, icon] of SOCIAL_PRESETS) {
+        if (!$(cbId).checked) continue;
+        const v = val(inputId).trim();
+        if (name === 'Email') socials.push({ name, icon, copy: v });
+        else socials.push({ name, icon, url: v });
     }
-    socials.push({ name: 'Email', icon: 'fa-solid fa-envelope', copy: val('social-email').trim() });
     // Liên kết khác (hàng tự do cho mạng ngoài danh sách)
     collectRows('social-extra-list', null, d => {
         if (!d.name) return null;
@@ -376,9 +381,8 @@ function buildConfig() {
         if (d.copy) s.copy = d.copy; else s.url = d.url;
         return s;
     }).forEach(s => socials.push(s));
-    if ($('social-donate').checked) {
-        socials.push({ name: 'Donate', icon: 'fa-solid fa-qrcode', action: 'donate', highlight: true });
-    }
+    // Donate luôn bật (mặc định của sản phẩm) — ẩn bằng cách sửa tay config.js
+    socials.push({ name: 'Donate', icon: 'fa-solid fa-qrcode', action: 'donate', highlight: true });
 
     const visuals = {};
     const myId = val('love-myId');
@@ -426,13 +430,18 @@ function buildConfig() {
             avatar: val('profile-avatar'),
             avatarData: val('profile-avatarData'),
             avatarLocal: val('profile-avatarLocal'),
-            banner: val('profile-banner'),
+            // Banner card: không tải lên thì dùng banner mặc định kèm sản phẩm
+            banner: val('profile-banner') || 'banner_executive.webp',
             bannerData: val('profile-bannerData'),
-            bio: val('profile-bio'),
-            location: val('profile-location'),
+            // Bio dài: bỏ trống dùng mô tả mặc định kèm sản phẩm
+            bio: val('profile-bio') || 'Just a normal guy who enjoys the simple things in life. Passionate about gaming, good music, and a perfect cup of coffee. Love traveling to new places, capturing moments, and binge-watching movies. Welcome to my little corner of the internet.',
+location: val('profile-location'),
             // Current status hiện ở vùng presence khi KHÔNG liên kết Discord realtime
             customStatus: val('profile-customStatus'),
             quotes: lines('profile-quotes'),
+            // Badges (huy hiệu) nằm TRONG profile như config gốc — script.js đọc
+            // CONFIG.profile.badges; form không còn ô tuỳ chỉnh, dùng bộ mặc định
+            badges: DEFAULT_BADGES,
         },
         servers: collectRows('server-list', null, d => {
             if (!d.name && !d.inviteUrl) return null;
@@ -460,11 +469,9 @@ function buildConfig() {
         })(),
         socials,
         donate: {
-            enabled: $('social-donate').checked,
+            enabled: true,   // luôn bật — ẩn bằng cách bỏ nút Donate trong socials (sửa tay config)
+            // QR mặc định kèm sản phẩm; khách có QR riêng thì điền đường dẫn
             qrImage: val('donate-qrImage') || 'qr-bank.png',
-            // Thông tin ngân hàng (bankName/accountName/…) không có trong form nữa —
-            // khách chỉ cần QR; ai muốn hiện dòng chữ sẽ sửa tay trong config.js
-            // (script.js tự ẩn dòng nào không có dữ liệu)
         },
         setlove: {
             enabled: $('setlove-enabled').checked,
@@ -494,9 +501,8 @@ function buildConfig() {
             enableParticles: true,
             enableShootingStars: true,
         },
-        // Sở thích + badges: form không còn ô tuỳ chỉnh — sinh sẵn bộ mặc định kèm
-        // sản phẩm (ai muốn khác thì sửa tay techStack/badges trong config.js)
-        badges: DEFAULT_BADGES,
+        // Sở thích: form không còn ô tuỳ chỉnh — sinh sẵn bộ mặc định kèm sản phẩm
+        // (badges đã đặt đúng chỗ trong profile phía trên)
         techStack: DEFAULT_TECH,
     };
     return cfg;

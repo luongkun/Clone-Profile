@@ -1336,9 +1336,10 @@ function initProfileUI() {
     // tới URL dự phòng (avatar) — cả hai cùng hiện ở màn chào lẫn card chính
     const avatarSource = CONFIG.profile.avatarData || CONFIG.profile.avatar;
     if (avatarEl && avatarSource) avatarEl.src = avatarSource;
-    // Banner: ưu tiên ảnh tải lên (bannerData) rồi mới tới file trong repo (banner)
-    const bannerSource = CONFIG.profile.bannerData || CONFIG.profile.banner;
-    if (bannerEl && bannerSource) bannerEl.style.backgroundImage = `url('${bannerSource}')`;
+    // Banner: ưu tiên ảnh tải lên (bannerData) → file trong config → banner mặc định
+    // kèm sản phẩm (banner_executive.webp — vẫn hiện khi config khách bỏ trống)
+    const bannerSource = CONFIG.profile.bannerData || CONFIG.profile.banner || 'banner_executive.webp';
+    if (bannerEl) bannerEl.style.backgroundImage = `url('${bannerSource}')`;
 
     // Synchronize Cute Welcome Overlay
     const enterAvatarEl = document.querySelector('.cute-avatar-img, .enter-avatar-img');
