@@ -107,6 +107,11 @@ Script tự làm hết các bước:
 Bàn giao khách: gửi link live + hẹn ngày bảo trì. Khách muốn sửa nội dung thì gửi lại
 phiếu THONG-TIN.md đã điền — bạn cập nhật config rồi chạy lại 1 lệnh là xong.
 
+> 📦 **Bộ file gửi khách khi bán** (kèm sản phẩm, KHÔNG deploy lên trang live):
+> `HUONG-DAN-KHACH.md` — hướng dẫn khách tự điền và gửi thông tin; `admin.html` + `admin.js`
+> — form điền thông tin; `THONG-TIN.md` — cho khách thích sửa config tay. Khách đọc
+> `HUONG-DAN-KHACH.md` là đủ, không cần biết gì thêm.
+
 ## Domain riêng của khách
 
 1. Trong config khách đặt `site.domain = tenmiencuakhach.com` rồi deploy với `--custom-domain`.

@@ -260,9 +260,12 @@ step('Dựng thư mục build (template + assets khách)');
 fs.rmSync(buildDir, { recursive: true, force: true });
 fs.mkdirSync(distDir, { recursive: true });
 
-// 2a. copy toàn bộ template trừ .git và các file hỗ trợ người bán
+// 2a. copy toàn bộ template trừ .git, file hỗ trợ người bán và tài liệu repo
 // (.github GIỮ LẠI: setup.mjs/check_site.py cần scripts + mốc QR; xoá trước khi deploy)
+// .md của repo không lên trang live: README mô tả cả mô hình kinh doanh, còn
+// HUONG-DAN-KHACH/SETUP là tài liệu gửi riêng cho người mua.
 const EXCLUDE = new Set(['.git', 'customers', 'node_modules', 'DEPLOY-HO.md',
+    'HUONG-DAN-KHACH.md', 'SETUP.md', 'README.md',
     'deploy-customer.mjs', 'admin.html', 'admin.js', 'THONG-TIN.md', '.freebuff', '__pycache__']);
 let copied = 0;
 const copyDir = (src, dest) => {
