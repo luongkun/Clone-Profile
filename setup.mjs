@@ -274,6 +274,12 @@ try {
         if (stEnd !== -1) bodyInner = bodyInner.slice(0, stIdx) + bodyInner.slice(stEnd + '</script>'.length);
     }
     bodyInner = bodyInner.replace(/<script src="admin\.js"[^>]*><\/script>/, '');
+    // CSS CỦA ADMIN nằm inline trong admin.html (style.css là của trang bio!) —
+    // trích khối <style>…</style> đầu file để dán vào <head> của all-in-one
+    const cssStart = adminHtml.indexOf('<style>');
+    const cssEnd = adminHtml.indexOf('</style>', cssStart);
+    if (cssStart === -1 || cssEnd === -1) throw new Error('admin.html thiếu khối <style>');
+    const adminCss = adminHtml.slice(cssStart + '<style>'.length, cssEnd);
     const allInOne = `<!DOCTYPE html>
 <!--
   ALL-IN-ONE — form điền thông tin + trang bio trong MỘT file (tự sinh bởi setup.mjs, KHÔNG sửa tay).
@@ -288,7 +294,7 @@ try {
     <meta name="robots" content="noindex">
     <title>Admin — Điền thông tin trang bio</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    <style>${css}</style>
+    <style>${adminCss}</style>
 </head>
 <body>
 ${bodyInner}
