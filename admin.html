@@ -158,18 +158,8 @@
                     <label><b>Tên đầy đủ <span class="req">*</span></b>(footer + thẻ chia sẻ)<input type="text" id="site-fullName"></label>
                     <label><b>Domain <span class="req">*</span></b>(không có https://, vd tenban.pages.dev)<input type="text" id="site-domain"></label>
                 </div>
-                <label><b>Tên nghệ sĩ / ca sĩ</b>(ca sĩ các bài hát không điền riêng + chữ logo footer — đổi một chỗ là đổi cả hai)<input type="text" id="site-artistName"></label>
-                <div class="grid2">
-                    <label><b>Tiêu đề tab</b>(vd @TenBan)<input type="text" id="siteName"></label>
-                    <label><b>Monogram favicon</b>(1–2 chữ cái, vd NL)<input type="text" id="site-monogram" maxlength="3"></label>
-                </div>
-                <label><b>Mô tả trang</b>(hiện khi dán link lên Facebook/Discord)<textarea id="site-description"></textarea></label>
-                <div class="grid3">
-                    <label><b>Câu màn chào</b><input type="text" id="site-welcomeText"></label>
-                    <label><b>Chữ nút vào trang</b><input type="text" id="site-enterLabel"></label>
-                    <label><b>Chữ nhỏ cạnh footer</b><input type="text" id="site-footerSuffix"></label>
-                </div>
-                <p class="hint">✨ Các hiệu ứng trang (nghiêng card, hạt nền, sao băng…) đã <b>bật sẵn</b> — không cần chỉnh.</p>
+                <label><b>Mô tả trang</b>(hiện khi dán link lên Facebook/Discord — bỏ trống dùng câu mặc định)<textarea id="site-description"></textarea></label>
+                <p class="hint">✨ Các phần còn lại (câu chào, chữ nút vào trang, tiêu đề tab, hiệu ứng…) dùng <b>mặc định sẵn đẹp</b> — không cần điền. Chỉ những ai muốn đổi mới cần sửa config.js.</p>
             </div>
         </details>
 
@@ -178,10 +168,7 @@
             <div class="sec-body">
                 <label class="check"><input type="checkbox" id="discord-enabled" checked>Kết nối Discord realtime (trạng thái, Spotify, game đang chơi)</label>
                 <div id="discord-fields">
-                    <div class="grid2">
-                        <label><b>Discord User ID</b>(chỉ cần khi bật Discord — Developer Mode → chuột phải avatar → Copy ID)<input type="text" id="discordId"></label>
-                        <label><b>Username Discord</b>(dòng @username trên card)<input type="text" id="profile-username"></label>
-                    </div>
+                    <label><b>Discord User ID</b>(Developer Mode → chuột phải avatar → Copy ID — dòng @username trên card <b>tự lấy realtime</b> từ ID, không cần điền)<input type="text" id="discordId"></label>
                     <p class="hint">⚠️ Phải tham gia server <code>discord.gg/lanyard</code> thì trạng thái realtime mới chạy.<br>
                     Tắt kết nối Discord thì trang vẫn chạy — avatar/tên lấy từ form, vùng trạng thái realtime và nút Copy Discord bị ẩn đi.</p>
                     <div class="upload-box" id="avatar-upload-box">
@@ -197,17 +184,15 @@
                         </div>
                         <input type="file" id="avatar-upload-file" accept="image/*" hidden>
                     </div>
+                </div><!-- /discord-fields -->
             </div>
         </details>
 
         <details open>
             <summary><span class="num">2</span>Profile cá nhân</summary>
             <div class="sec-body">
-                <div class="grid2">
-                    <label><b>Tên hiển thị <span class="req">*</span></b>(dự phòng lúc mới tải)<input type="text" id="profile-name"></label>
-                    <label><b>Tagline</b>(Gamer • Music…)<input type="text" id="profile-title"></label>
-                </div>
-                <label class="check"><input type="checkbox" id="profile-sync">Tên trên card lấy theo tên hiển thị Discord (realtime)</label>
+                <label><b>Tên hiển thị <span class="req">*</span></b>(dự phòng lúc mới tải)<input type="text" id="profile-name"></label>
+                <p class="hint">Tagline dưới tên dùng <b>mặc định</b> — muốn dòng chữ riêng thì sửa <code>profile.title</code> trong config.js.</p>
                 <label><b>Bio dài</b><textarea id="profile-bio"></textarea></label>
                 <div class="grid2">
                     <label><b>Vị trí</b><input type="text" id="profile-location"></label>
@@ -226,18 +211,10 @@
                     </div>
                     <input type="file" id="banner-upload-file" accept="image/*" hidden>
                 </div>
-                <label><b>4 câu quote ngắn</b>(mỗi dòng một câu, xoay vòng)<textarea id="profile-quotes"></textarea></label>                    <label><b>Avatar dự phòng (URL)</b>(khi CDN Discord bị chặn — không dùng khi đã tải ảnh lên)<input type="text" id="profile-avatar"></label>
+                <label><b>4 câu quote ngắn</b>(mỗi dòng một câu, xoay vòng — bỏ trống dùng mặc định)<textarea id="profile-quotes"></textarea></label>
+                <label><b>Avatar dự phòng (URL)</b>(khi không dùng Discord — không cần nếu đã tải ảnh lên)<input type="text" id="profile-avatar"></label>
                     <input type="hidden" id="profile-avatarData">
                     <input type="hidden" id="profile-bannerData">
-                <div class="grid2">
-                    <label><b>Avatar dự phòng local</b><input type="text" id="profile-avatarLocal"></label>
-                    <label><b>Khung avatar dự phòng (deco) local</b><input type="text" id="profile-decoLocal"></label>
-                </div>
-                <div>
-                    <div class="row-head" style="margin-bottom:8px"><b style="font-size:.85rem">Badges (huy hiệu)</b>
-                        <button class="btn-mini" id="add-badge"><i class="fa-solid fa-plus"></i>Thêm badge</button></div>
-                    <div class="row-list" id="badge-list"></div>
-                </div>
             </div>
         </details>
 
@@ -262,18 +239,10 @@
         <details>
             <summary><span class="num">4</span>Donate (QR ngân hàng)</summary>
             <div class="sec-body">
-                <p class="hint">💡 Muốn ẩn hẳn khu Donate? Tắt checkbox <b>Hiện nút Donate</b> ở phần 3 — không cần xoá thông tin QR.</p>
-                <label><b>File ảnh QR</b>(đặt cùng thư mục gốc)<input type="text" id="donate-qrImage"></label>
-                <div class="grid2">
-                    <label><b>Tên ngân hàng</b>(trống = ẩn)<input type="text" id="donate-bankName"></label>
-                    <label><b>Chủ tài khoản</b><input type="text" id="donate-accountName"></label>
-                </div>
-                <div class="grid2">
-                    <label><b>Số tài khoản</b><input type="text" id="donate-accountNumber"></label>
-                    <label><b>Lời nhắn</b><input type="text" id="donate-note"></label>
-                </div>
-                <p class="hint">⚠️ Đổi ảnh QR xong nhớ chạy <code>check_site.py</code> và cập nhật mốc
-                    <code>.github/qr-expected.sha256</code> — QR sai một ký tự là tiền chuyển sai người.</p>
+                <p class="hint">💡 Chỉ cần ảnh QR rõ nét — khách quét là chuyển được, không cần ghi thêm thông tin.
+                    Muốn ẩn hẳn nút Donate? Tắt checkbox <b>Hiện nút Donate</b> ở phần 3.</p>
+                <label><b>Ảnh QR</b>(đường dẫn file trong repo — ví dụ <code>qr-bank.png</code>)<input type="text" id="donate-qrImage" placeholder="qr-bank.png"></label>
+                <p class="hint">⚠️ File ảnh QR đặt cùng thư mục gốc với index.html, gửi kèm trong zip cho người bán.</p>
             </div>
         </details>
 
@@ -305,15 +274,7 @@
             <summary><span class="num">6</span>Nhạc nền</summary>
             <div class="sec-body">
                 <label class="check"><input type="checkbox" id="music-enabled" checked>Bật nhạc nền — tắt là mất widget điều khiển nhạc ở góc màn hình</label>
-                <div id="music-fields">
-                    <div class="grid2">
-                        <label class="check" style="align-self:end"><input type="checkbox" id="music-autoplay">Tự phát khi khách bấm vào trang</label>
-                        <label><b>Âm lượng mặc định</b>(0 → 1)<input type="number" id="music-volume" min="0" max="1" step="0.05"></label>
-                    </div>
-                    <div class="row-list" id="track-list"></div>
-                    <button class="btn-mini" id="add-track" style="justify-self:start"><i class="fa-solid fa-plus"></i>Thêm bài hát</button>
-                    <p class="hint">File mp3 đặt cùng thư mục gốc với <code>index.html</code>. Không muốn nhạc → tắt công tắc trên (không cần xoá bài).</p>
-                </div>
+                <p class="hint">Bật là dùng ngay <b>playlist lofi mặc định</b> kèm sản phẩm. Muốn dùng bài của riêng mình: gửi file mp3 kèm zip + ghi tên bài trong notes — người bán sẽ thay giúp.</p>
             </div>
         </details>
 
@@ -360,8 +321,8 @@
         <details>
             <summary><span class="num">8</span>Sở thích (6 pill)</summary>
             <div class="sec-body">
-                <div class="row-list" id="tech-list"></div>
-                <button class="btn-mini" id="add-tech" style="justify-self:start"><i class="fa-solid fa-plus"></i>Thêm sở thích</button>
+                <p class="hint">Dùng sẵn <b>6 sở thích mặc định</b> (Gaming, Nghe nhạc, Cà phê, Du lịch, Chụp ảnh, Xem phim).
+                    Muốn đổi theo sở thích thật của mình: ghi trong notes gửi người bán, hoặc tự sửa <code>techStack</code> trong config.js.</p>
             </div>
         </details>
 

@@ -80,7 +80,6 @@ function renumber(container) {
     });
 }
 
-const addBadge = () => makeRow($('badge-list'), '#', [['icon', 'Icon FontAwesome'], ['label', 'Nhãn hiển thị'], ['color', 'Màu chữ (tuỳ chọn)']]);
 const addSocial = () => makeRow($('social-extra-list'), '#', [['name', 'Tên mạng'], ['icon', 'Icon FontAwesome'], ['url', 'Link'], ['copy', 'Nội dung copy (tuỳ chọn)']]);
 const addServer = () => {
     const inputs = makeRow($('server-list'), '#', [['name', 'Tên nhóm/server'], ['inviteUrl', 'Link tham gia (invite Discord hoặc link nhóm Zalo)'], ['role', 'Vai trò'], ['description', 'Mô tả (textarea)', true], ['tag', 'Nhãn góc card']]);
@@ -162,21 +161,15 @@ const addServer = () => {
     inputs.zaloQrImage = qrInput;
     return inputs;
 };
-const addTrack = () => makeRow($('track-list'), '#', [['title', 'Tên bài'], ['artist', 'Ca sĩ'], ['url', 'File mp3']]);
-const addTech = () => makeRow($('tech-list'), '#', [['name', 'Tên sở thích'], ['domain', 'Chi tiết nhỏ'], ['icon', 'Icon FontAwesome']]);
+// addBadge/addTrack/addTech đã bỏ cùng các mục tương ứng trong form — badges,
+// playlist nhạc và sở thích giờ sinh từ bộ DEFAULT_* trong buildConfig()
 
 /* ---------------- nạp form từ object CONFIG ---------------- */
 function fillForm(cfg) {
     const site = cfg.site || {};
     $('site-fullName').value = site.fullName || '';
     $('site-domain').value = site.domain || '';
-    $('site-artistName').value = site.artistName || '';
-    $('siteName').value = cfg.siteName || '';
-    $('site-monogram').value = site.monogram || '';
     $('site-description').value = site.description || '';
-    $('site-welcomeText').value = site.welcomeText || '';
-    $('site-enterLabel').value = site.enterLabel || '';
-    $('site-footerSuffix').value = site.footerSuffix || '';
 
     $('discordId').value = cfg.discordId || '';
     // Công tắc Discord: mặc định BẬT trừ khi config ghi rõ discordEnabled: false
@@ -184,9 +177,6 @@ function fillForm(cfg) {
 
     const p = cfg.profile || {};
     $('profile-name').value = p.name || '';
-    $('profile-username').value = p.username || '';
-    $('profile-title').value = p.title || '';
-    $('profile-sync').checked = p.syncNameWithDiscord !== false;
     $('profile-bio').value = p.bio || '';
     $('profile-location').value = p.location || '';
     $('profile-banner').value = p.banner || '';
@@ -194,9 +184,7 @@ function fillForm(cfg) {
     $('profile-avatar').value = p.avatar || '';
     $('profile-avatarData').value = p.avatarData || '';
     updateAvatarUploadUI();
-    $('profile-avatarLocal').value = p.avatarLocal || '';
     $('profile-quotes').value = (p.quotes || []).join('\n');
-    fillRows('badge-list', p.badges || [], addBadge, ['icon', 'label', 'color']);
     // Mạng xã hội: điền vào các ô đơn giản theo tên (Facebook/TikTok/Instagram/YouTube/Email);
     // mạng lạ (không nằm trong danh sách) thì đổ vào hàng "Liên kết khác"
     const PRESET_MAP = { facebook: 'social-facebook', tiktok: 'social-tiktok', instagram: 'social-instagram', youtube: 'social-youtube', email: 'social-email' };
@@ -219,10 +207,6 @@ function fillForm(cfg) {
     // Nút Donate trong socials là nguồn sự thật: enabled lấy theo có nút hay không
     $('social-donate').checked = (cfg.socials || []).some(s => s.action === 'donate') && donate.enabled !== false;
     $('donate-qrImage').value = donate.qrImage || '';
-    $('donate-bankName').value = donate.bankName || '';
-    $('donate-accountName').value = donate.accountName || '';
-    $('donate-accountNumber').value = donate.accountNumber || '';
-    $('donate-note').value = donate.note || '';
 
     fillRows('server-list', cfg.servers || [], addServer, ['name', 'inviteUrl', 'role', 'description', 'tag', 'type', 'zaloQrImage']);
 
@@ -234,9 +218,6 @@ function fillForm(cfg) {
 
     const music = cfg.music || {};
     $('music-enabled').checked = music.enabled !== false;
-    $('music-autoplay').checked = !!music.autoplayOnEnter;
-    $('music-volume').value = music.volume ?? 1;
-    fillRows('track-list', music.playlist || [], addTrack, ['title', 'artist', 'url']);
 
     const love = cfg.setlove || {};
     $('setlove-enabled').checked = love.enabled !== false;
@@ -256,8 +237,7 @@ function fillForm(cfg) {
     if (visuals.length >= 2 && visuals[1][1]) $('love-partnerAvatarLocal').value = visuals[1][1].avatar || '';
     $('love-partnerAvatarData').value = love.partnerAvatarData || '';
 
-    fillRows('tech-list', cfg.techStack || [], addTech, ['name', 'domain', 'icon']);
-    // Hiệu ứng luôn bật mặc định — form không còn tuỳ chỉnh
+    // Hiệu ứng + sở thích + badges + playlist nhạc dùng mặc định — form không còn ô
 }
 
 function fillRows(listId, items, addFn, fields) {
@@ -283,6 +263,31 @@ function collectRows(listId, fields, mapFn) {
 }
 
 /* ---------------- sinh config.js ---------------- */
+// Bộ mặc định kèm sản phẩm — form không còn ô sửa các mục này; file mp3 đã nằm
+// sẵn trong thư mục trang nên playlist phát được ngay sau khi deploy
+const DEFAULT_PLAYLIST = [
+    { title: 'Mưa Đợi Chờ', artist: 'Bio Music', url: 'bai1.mp3' },
+    { title: 'Tháng 12 Anh Có', artist: 'Bio Music', url: 'thang12-anh-co.mp3' },
+    { title: 'Thất Tình', artist: 'Bio Music', url: 'that-tinh.mp3' },
+    { title: 'Chàng Trai Bất Tử', artist: 'Bio Music', url: 'chang-trai-bat-tu.mp3' },
+];
+const DEFAULT_BADGES = [
+    { icon: 'fa-solid fa-gamepad', label: 'Gamer', color: '#ffffff' },
+    { icon: 'fa-solid fa-headphones', label: 'Music Lover', color: '#e0e0e0' },
+    { icon: 'fa-solid fa-mug-hot', label: 'Coffee Addict', color: '#ffffff' },
+    { icon: 'fa-solid fa-plane', label: 'Traveler', color: '#d1d5db' },
+    { icon: 'fa-solid fa-camera', label: 'Photography', color: '#a1a1aa' },
+    { icon: 'fa-solid fa-film', label: 'Movie Buff', color: '#ffffff' },
+];
+const DEFAULT_TECH = [
+    { name: 'Gaming', domain: 'PC • Mobile • Co-op', icon: 'fa-solid fa-gamepad' },
+    { name: 'Nghe nhạc', domain: 'Lofi • Chill • V-Pop', icon: 'fa-solid fa-headphones' },
+    { name: 'Cà phê', domain: 'Sáng • Sữa đá • Góc chill', icon: 'fa-solid fa-mug-hot' },
+    { name: 'Du lịch', domain: 'Biển • Núi • Khám phá', icon: 'fa-solid fa-plane' },
+    { name: 'Chụp ảnh', domain: 'Khoảnh khắc • Đời thường', icon: 'fa-solid fa-camera' },
+    { name: 'Xem phim', domain: 'Anime • Phim lẻ • Series', icon: 'fa-solid fa-film' },
+];
+
 function buildConfig() {
     // Mạng xã hội: các ô đơn giản Facebook/TikTok/Instagram/YouTube/Email — dán link là chạy.
     // Bỏ trống mạng nào là trang tự ẩn mạng đó.
@@ -327,23 +332,33 @@ function buildConfig() {
         site: {
             fullName: val('site-fullName'),
             domain: val('site-domain'),
-            artistName: val('site-artistName'),
+            // artistName/monogram/siteName không có ô trong form — dùng giá trị trung tính
+            // (script.js + setup.mjs tự sinh monogram từ fullName khi cần)
+            artistName: val('site-fullName'),
             description: val('site-description'),
-            welcomeText: val('site-welcomeText'),
-            enterLabel: val('site-enterLabel'),
-            // Chữ logo footer = Tên nghệ sĩ (đổi một chỗ, đổi cả hai)
-            footerBrand: val('site-artistName'),
-            footerSuffix: val('site-footerSuffix'),
-            monogram: val('site-monogram'),
+            // Câu màn chào / chữ nút vào trang / chữ cạnh footer không có ô trong form
+            // nữa — dùng mặc định của config gốc (script.js chỉ ghi đè khi có giá trị)
+            welcomeText: 'welcome to my quiet corner',
+            enterLabel: 'open sanctuary',
+            // Chữ logo footer = Tên đầy đủ (đổi một chỗ, đổi cả hai)
+            footerBrand: val('site-fullName'),
+            footerSuffix: '',
+            // Monogram favicon tự sinh từ tên đầy đủ khi chạy setup.mjs
+            monogram: '',
         },
-        siteName: val('siteName'),
+        siteName: '',   // tiêu đề tab tự theo tên (setup.mjs + script.js sinh từ profile.name)
         discordEnabled: $('discord-enabled').checked,
         discordId: val('discordId'),
         profile: {
             name: val('profile-name'),
-            syncNameWithDiscord: $('profile-sync').checked,
-            username: val('profile-username'),
-            title: val('profile-title'),
+            // Tên trên card luôn lấy theo tên hiển thị Discord (realtime) khi bật
+            syncNameWithDiscord: true,
+            // Dòng @username trên card tự lấy realtime từ Discord ID (Lanyard);
+            // khi tắt Discord thì ẩn — không cần điền tay
+            username: '',
+            // Tagline (profile.title) không có ô trong form nữa — dùng mặc định của config gốc;
+            // ai muốn chữ riêng thì sửa tay trong config.js
+            title: 'Gamer • Music Lover • Coffee Addict',
             avatar: val('profile-avatar'),
             avatarData: val('profile-avatarData'),
             avatarLocal: val('profile-avatarLocal'),
@@ -352,7 +367,6 @@ function buildConfig() {
             bio: val('profile-bio'),
             location: val('profile-location'),
             quotes: lines('profile-quotes'),
-            badges: collectRows('badge-list', null, d => d.icon ? { icon: d.icon, label: d.label, color: d.color || '#ffffff' } : null),
         },
         servers: collectRows('server-list', null, d => {
             if (!d.name && !d.inviteUrl) return null;
@@ -379,10 +393,9 @@ function buildConfig() {
         donate: {
             enabled: $('social-donate').checked,
             qrImage: val('donate-qrImage') || 'qr-bank.png',
-            bankName: val('donate-bankName'),
-            accountName: val('donate-accountName'),
-            accountNumber: val('donate-accountNumber'),
-            note: val('donate-note'),
+            // Thông tin ngân hàng (bankName/accountName/…) không có trong form nữa —
+            // khách chỉ cần QR; ai muốn hiện dòng chữ sẽ sửa tay trong config.js
+            // (script.js tự ẩn dòng nào không có dữ liệu)
         },
         setlove: {
             enabled: $('setlove-enabled').checked,
@@ -396,12 +409,13 @@ function buildConfig() {
             photos,
             quotes: lines('love-quotes'),
         },
+        // Nhạc nền: công tắc Bật/Tắt duy nhất; playlist mặc định kèm sản phẩm
+        // (khách dùng bài riêng thì ghi trong notes — người bán thay giúp)
         music: {
             enabled: $('music-enabled').checked,
-            autoplayOnEnter: $('music-autoplay').checked,
-            volume: num('music-volume', 1),
-            playlist: collectRows('track-list', null, d => d.url ? { title: d.title, artist: d.artist, url: d.url } : null),
-            title: '', artist: '', url: '',
+            autoplayOnEnter: true,
+            volume: 1,
+            playlist: DEFAULT_PLAYLIST,
         },
         // Hiệu ứng: luôn bật mặc định (form không còn tuỳ chỉnh từng hiệu ứng)
         effects: {
@@ -411,7 +425,10 @@ function buildConfig() {
             enableParticles: true,
             enableShootingStars: true,
         },
-        techStack: collectRows('tech-list', null, d => d.name ? { name: d.name, domain: d.domain, icon: d.icon } : null),
+        // Sở thích + badges: form không còn ô tuỳ chỉnh — sinh sẵn bộ mặc định kèm
+        // sản phẩm (ai muốn khác thì sửa tay techStack/badges trong config.js)
+        badges: DEFAULT_BADGES,
+        techStack: DEFAULT_TECH,
     };
     return cfg;
 }
@@ -588,7 +605,7 @@ document.addEventListener('keydown', (e) => {
 function syncToggleFields() {
     $('discord-fields').style.display = $('discord-enabled').checked ? '' : 'none';
     $('setlove-fields').style.display = $('setlove-enabled').checked ? '' : 'none';
-    $('music-fields').style.display = $('music-enabled').checked ? '' : 'none';
+    // Mục Nhạc đã gọn thành 1 công tắc (không còn khối #music-fields)
 }
 $('discord-enabled').addEventListener('change', syncToggleFields);
 $('setlove-enabled').addEventListener('change', syncToggleFields);
@@ -665,15 +682,12 @@ const updateLoveUploadUI = setupUploadBox({
 });
 
 /* ---------------- sự kiện ---------------- */
-$('add-badge').onclick = addBadge;
 $('add-social').onclick = () => {
     const inputs = addSocial();
     inputs.name.focus();
     $('social-extra-list').lastElementChild?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
 };
 $('add-server').onclick = addServer;
-$('add-track').onclick = addTrack;
-$('add-tech').onclick = addTech;
 
 /* ---- bố cục nhanh mục 5: 1 Zalo / 1 Discord / 2 Zalo / 2 Discord ----
  * Bấm là form tự sinh đúng số hàng đúng loại; người mua chỉ điền nội dung.
