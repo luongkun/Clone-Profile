@@ -385,6 +385,598 @@
         <iframe class="preview-frame" id="preview-frame" title="Xem trước trang bio"></iframe>
     </div>
 
+    <!-- Bản chép index.html do setup.mjs ghi lại (chạy: node setup.mjs). Nút Xem trước
+         dùng bản này khi admin.html được mở trực tiếp bằng file:// — trình duyệt không cho
+         fetch() file local. KHÔNG sửa khung dưới, nội dung sẽ bị ghi đè lần chạy sau. -->
+    <script type="text/plain" id="site-template">
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <​!-- ==================== SETUP:BEGIN (setup.mjs tự ghi lại) ====================
+         Vùng này được SINH LẠI từ config.js mỗi lần chạy: node setup.mjs
+         Các thẻ chia sẻ phải viết tĩnh vì bot Facebook/Messenger/Discord
+         không chạy JavaScript. KHÔNG sửa tay: lần chạy sau sẽ bị ghi đè.
+    -->
+    <title>@Luong Kun</title>
+    <meta name="description" content="Trang bio cá nhân: Discord presence thời gian thực, máy chủ đang tham gia, nhạc nền và khung ủng hộ.">
+
+    <link rel="canonical" href="https://luongkun.pages.dev/">
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="luongkun">
+    <meta property="og:locale" content="vi_VN">
+    <meta property="og:url" content="https://luongkun.pages.dev/">
+    <meta property="og:title" content="Nguyễn Lương — @Luong Kun">
+    <meta property="og:description" content="Trang bio cá nhân: Discord presence thời gian thực, máy chủ đang tham gia, nhạc nền và khung ủng hộ.">
+    <meta property="og:image" content="https://luongkun.pages.dev/og-image.jpg">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta property="og:image:alt" content="Thẻ giới thiệu Nguyễn Lương">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Nguyễn Lương — @Luong Kun">
+    <meta name="twitter:description" content="Trang bio cá nhân: Discord presence thời gian thực, máy chủ đang tham gia, nhạc nền và khung ủng hộ.">
+    <meta name="twitter:image" content="https://luongkun.pages.dev/og-image.jpg">
+    <​!-- ==================== SETUP:END ==================== -->
+    <meta name="theme-color" content="#0a0a0a">
+
+    <​!-- Mở sẵn kết nối tới những máy chủ dùng NGAY khi tải trang: bớt được một vòng
+         bắt tay DNS/TLS cho mỗi nơi (rõ rệt nhất trên mạng di động). Chỉ khai báo cho
+         nơi thật sự cần sớm — khai tràn lan lại làm loãng kết nối. -->
+    <link rel="preconnect" href="https://cdnjs.cloudflare.com">      <​!-- CSS FontAwesome: đang chặn vẽ trang -->
+    <link rel="preconnect" href="https://cdn.discordapp.com">        <​!-- avatar Discord: hiện ngay ở màn chào -->
+    <link rel="preconnect" href="https://api.lanyard.rest">          <​!-- trạng thái realtime (WebSocket + REST) -->
+    <link rel="dns-prefetch" href="https://discord.com">             <​!-- chỉ dùng để đếm thành viên server -->
+
+    <​!-- Ảnh nền của card xuất hiện ngay khi mở trang: nạp sớm, không đợi tới lúc CSS
+         được phân tích xong mới bắt đầu tải. (Đường dẫn này cũng do setup.mjs ghi
+         theo CONFIG.profile.banner.) -->
+    <link rel="preload" as="image" href="banner_executive.webp" fetchpriority="high" data-setup-banner-preload>
+
+    <​!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <​!-- FontAwesome 6 Pro/Free Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+
+    <​!-- Rounded Avatar Favicons -->
+    <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png?v=8">
+    <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png?v=8">
+    <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png?v=8">
+    <link rel="shortcut icon" href="favicon.ico?v=8">
+    <link rel="manifest" href="manifest.json">
+
+    <​!-- Stylesheet with Cache Buster -->
+    <link rel="stylesheet" href="style.css?v=12.0">
+</head>
+<body>
+    <​!-- Background Canvas for Particles -->
+    <canvas id="bg-canvas"></canvas>
+
+    <​!-- Ambient Dynamic Mouse Spotlight -->
+    <div id="mouse-spotlight"></div>
+
+    <​!-- Luxury Cyber Reticle & Precision Cursor System -->
+    <div id="cursor-dot" class="cursor-dot"></div>
+    <div id="cyber-cursor" class="cyber-cursor">
+        <div class="cursor-ring-halo"></div>
+        <div class="cursor-crosshair"></div>
+        <div class="cursor-brackets">
+            <span class="corner c-tl"></span>
+            <span class="corner c-tr"></span>
+            <span class="corner c-br"></span>
+            <span class="corner c-bl"></span>
+        </div>
+        <div class="cursor-diamond"></div>
+    </div>
+
+    <​!-- Cute & Aesthetic Welcome Screen (Soft, Cozy & Charming) -->
+    <div id="enter-overlay" class="enter-overlay">
+        <​!-- Floating cute decor elements -->
+        <div class="cute-floating-decor">
+            <span class="decor-sparkle d-1">✨</span>
+            <span class="decor-sparkle d-2">☁️</span>
+            <span class="decor-sparkle d-3">♪</span>
+            <span class="decor-sparkle d-4">🤍</span>
+            <span class="decor-sparkle d-5">✨</span>
+        </div>
+
+        <div class="cute-enter-card">
+            <​!-- Cute Avatar with soft halo & floating greeting.
+                 Giá trị dưới đây chỉ là DỰ PHÒNG: setup.mjs ghi lại từ config.js
+                 (profile.avatar), còn script.js sẽ đổi theo Discord realtime. -->
+            <div class="cute-avatar-wrap">
+                <div class="cute-avatar-halo"></div>
+                <img data-setup-welcome-avatar src="https://cdn.discordapp.com/avatars/1222143238056574990/cd20117cf2a6a045b8dd4b62cc048320.png?size=256" alt="Ảnh đại diện" class="cute-avatar-img">
+            </div>
+
+            <​!-- Profile Info: Soft & Sweet -->
+            <div class="cute-identity">
+                <div class="cute-name-box">
+                    <​!-- Tên dự phòng hiện ngay khi trang vừa vẽ. setup.mjs ghi lại
+                         từ config.js -> profile.name, script.js đổi theo Discord. -->
+                    <span class="cute-name" data-setup-welcome-name>Toa</span>
+                    <span class="cute-sparkle-icon">✧</span>
+                </div>
+                <p class="cute-subtext" data-setup-welcome-text>welcome to my quiet corner</p>
+            </div>
+
+            <​!-- Soft Glowing Pill Action (NO 'click to enter' text!) -->
+            <div class="cute-pill-btn">
+                <span class="cute-pill-icon"><i class="fa-solid fa-play"></i></span>
+                <span class="cute-pill-label" data-setup-enter-label>open sanctuary</span>
+                <span class="cute-pill-star">✨</span>
+            </div>
+
+            <​!-- Gentle audio & interaction note -->
+            <div class="cute-audio-hint">
+                <i class="fa-solid fa-headphones-simple"></i>
+                <span>1 track playlist ready • tap anywhere</span>
+            </div>
+        </div>
+    </div>
+
+    <​!-- Audio Element — preload="none": KHÔNG tải bài nhạc 1.1MB khi mới vào trang.
+         Nhạc chỉ bắt đầu tải đúng lúc khách bấm vào màn chào (lúc đó mới gọi play()). -->
+    <audio id="bg-audio" preload="none"></audio>
+
+    <​!-- Floating Audio Control Widget -->
+    <div class="audio-widget" id="audio-widget" title="Điều khiển nhạc nền">
+        <div class="audio-disc" id="audio-disc">
+            <i class="fa-solid fa-compact-disc"></i>
+        </div>
+        <div class="audio-info">
+            <​!-- Bài đầu trong playlist — setup.mjs ghi lại từ config.js -> music.playlist[0] -->
+            <div class="audio-track" id="audio-track-title" data-setup-track-title>Mưa Đợi Chờ</div>
+            <div class="audio-artist" id="audio-artist-name" data-setup-track-artist>Nguyễn Lương</div>
+        </div>
+        <div class="audio-controls">
+            <button id="audio-prev-btn" class="ctrl-btn" aria-label="Bài trước" title="Bài trước (Previous)">
+                <i class="fa-solid fa-backward-step"></i>
+            </button>
+            <button id="audio-play-btn" class="ctrl-btn play-btn-main" aria-label="Phát / Tạm dừng" title="Phát / Tạm dừng">
+                <i class="fa-solid fa-play" id="play-icon"></i>
+            </button>
+            <button id="audio-next-btn" class="ctrl-btn" aria-label="Bài tiếp theo" title="Bài tiếp theo (Next)">
+                <i class="fa-solid fa-forward-step"></i>
+            </button>
+            <div class="equalizer" id="equalizer">
+                <span class="bar bar-1"></span>
+                <span class="bar bar-2"></span>
+                <span class="bar bar-3"></span>
+                <span class="bar bar-4"></span>
+            </div>
+            <div class="volume-slider-wrap">
+                <input type="range" id="volume-slider" min="0" max="1" step="0.05" value="1" aria-label="Volume">
+            </div>
+        </div>
+    </div>
+
+    <​!-- Main Viewport (Centered, 100vh fit, no scroll) -->
+    <main class="main-viewport">
+        <div class="card-tilt-container" id="tilt-container">
+            <article class="bio-card" id="bio-card">
+                <​!-- Card Dynamic Glare Reflection -->
+                <div class="card-glare" id="card-glare"></div>
+
+                <​!-- Top Profile Banner -->
+                <div class="card-banner" id="card-banner">
+                    <div class="banner-gradient"></div>
+                    <div class="banner-badge-top">
+                        <span class="live-dot-ping"></span>
+                        <span id="header-status-text">DISCORD LIVE</span>
+                    </div>
+                </div>
+
+                <​!-- Top Profile Bar (Full width, perfectly visible, never clipped) -->
+                <section class="card-profile-bar">
+                    <div class="profile-main-info">
+                        <div class="avatar-wrapper" id="avatar-wrapper">
+                            <img src="https://cdn.discordapp.com/avatars/1222143238056574990/cd20117cf2a6a045b8dd4b62cc048320.png?size=256" alt="Ảnh đại diện" id="profile-avatar" class="profile-avatar">
+                            <img src="avatar_decoration.webp" alt="" class="avatar-decoration" id="profile-avatar-decoration" aria-hidden="true">
+                            <div class="status-indicator" id="status-indicator" title="Discord Status">
+                                <span class="status-dot"></span>
+                            </div>
+                        </div>
+
+                        <div class="user-meta">
+                            <div class="name-row">
+                                <​!-- Tên dự phòng: setup.mjs ghi lại từ config.js -> profile.name,
+                                     script.js đổi theo tên hiển thị Discord. -->
+                                <h1 class="user-display-name" id="user-display-name" data-setup-name>Toa</h1>
+                                <span class="verified-badge" title="Verified Visionary">
+                                    <i class="fa-solid fa-circle-check"></i>
+                                </span>
+                            </div>
+                            <div class="handle-row">
+                                <span class="user-handle" id="user-handle" data-setup-handle>@chilanoidau</span>
+                                <button class="copy-tag-btn" id="copy-tag-btn" title="Sao chép Discord ID/Tag">
+                                    <i class="fa-regular fa-copy"></i>
+                                    <span class="tooltip">Copy Discord</span>
+                                </button>
+                                <button class="copy-tag-btn" id="copy-link-btn" title="Sao chép liên kết trang">
+                                    <i class="fa-solid fa-link"></i>
+                                    <span class="tooltip">Copy Link</span>
+                                </button>
+                                <span class="meta-dot-sep">•</span>
+                                <p class="user-tagline" id="user-tagline" data-setup-tagline>Gamer • Music Lover • Coffee Addict</p>
+                            </div>
+                            <div class="location-row">
+                                <i class="fa-solid fa-location-dot"></i>
+                                <span id="user-location" data-setup-location>Ninh Bình, Việt Nam</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <​!-- Badges Bar in Header -->
+                    <div class="badges-container" id="badges-container" aria-label="Huy hiệu đặc quyền">
+                        <​!-- Dynamic badges populated from config -->
+                    </div>
+                </section>
+
+                <​!-- Bento Body (Two columns centered side-by-side) -->
+                <div class="card-bento-body">
+                    <​!-- LEFT COLUMN: Realtime Presence, Quote & Bio -->
+                    <div class="bento-col bento-col-left">
+                        <​!-- Time-based Greeting -->
+                        <div class="quote-box">
+                            <i class="fa-solid fa-hand-sparkles quote-icon"></i>
+                            <span class="quote-text" id="greeting-text"></span>
+                            <span class="typewriter-cursor" id="greeting-cursor">|</span>
+                        </div>
+
+                        <​!-- Bio Description: setup.mjs ghi lại từ config.js -> profile.bio -->
+                        <p class="user-bio" id="user-bio" data-setup-bio>Just a normal guy who enjoys the simple things in life. Passionate about gaming, good music, and a perfect cup of coffee. Love traveling to new places, capturing moments, and binge-watching movies. Welcome to my little corner of the internet.</p>
+
+                        <​!-- Discord Live Presence Widget -->
+                        <section class="presence-section" id="presence-section">
+                            <div class="section-title">
+                                <i class="fa-brands fa-discord"></i>
+                                <span>DISCORD REALTIME PRESENCE</span>
+                                <div class="lanyard-ping" id="lanyard-ping" title="WebSocket Connected">
+                                    <span class="ping-wave"></span>
+                                    <span class="ping-core"></span>
+                                </div>
+                            </div>
+
+                            <​!-- Custom Status Message -->
+                            <div class="custom-status-card" id="custom-status-card">
+                                <div class="status-emoji" id="custom-status-emoji">💬</div>
+                                <div class="status-content">
+                                    <div class="status-label">CURRENT STATUS</div>
+                                    <div class="status-message" id="custom-status-text">Đang kết nối Discord Lanyard...</div>
+                                </div>
+                            </div>
+
+                            <​!-- Live Spotify Activity -->
+                            <div class="activity-card spotify-card" id="spotify-card" style="display: none;">
+                                <div class="spotify-art-wrap">
+                                    <img src="" alt="Spotify Album Art" id="spotify-album-art" class="spotify-art">
+                                    <div class="spotify-vinyl-center"></div>
+                                </div>
+                                <div class="spotify-details">
+                                    <div class="activity-badge spotify-badge">
+                                        <i class="fa-brands fa-spotify"></i> LISTENING TO SPOTIFY
+                                    </div>
+                                    <div class="track-title" id="spotify-track">Track Name</div>
+                                    <div class="track-artist" id="spotify-artist">Artist Name</div>
+                                    <​!-- Live Progress Bar -->
+                                    <div class="spotify-progress-box">
+                                        <span class="time-stamp" id="spotify-time-current">0:00</span>
+                                        <div class="progress-track">
+                                            <div class="progress-fill" id="spotify-progress-fill"></div>
+                                        </div>
+                                        <span class="time-stamp" id="spotify-time-total">3:45</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <​!-- Live Game / VS Code Activity -->
+                            <div class="activity-card game-card" id="game-card" style="display: none;">
+                                <div class="game-art-wrap">
+                                    <img src="" alt="Activity Image" id="game-art" class="game-art">
+                                </div>
+                                <div class="game-details">
+                                    <div class="activity-badge game-badge" id="game-badge">
+                                        <i class="fa-solid fa-gamepad"></i> CURRENT ACTIVITY
+                                    </div>
+                                    <div class="game-name" id="game-name">Visual Studio Code</div>
+                                    <div class="game-state" id="game-state">Editing index.html</div>
+                                    <div class="game-details-text" id="game-details-text">Workspace: RyzenBio</div>
+                                </div>
+                            </div>
+                        </section>
+
+                        <​!-- Core Engineering Arsenal (Symmetrical 6-Pill Grid) -->
+                        <section class="arsenal-section" id="arsenal-section">
+                            <div class="section-title">
+                                <i class="fa-solid fa-code"></i>
+                                <span>MY VIBES & HOBBIES</span>
+                            </div>
+                            <div class="arsenal-grid" id="arsenal-grid">
+                                <div class="arsenal-pill" data-setup-arsenal>
+                                    <div class="arsenal-icon-wrap">
+                                        <i class="fa-solid fa-gamepad"></i>
+                                    </div>
+                                    <div class="arsenal-info">
+                                        <span class="arsenal-name">Gaming</span>
+                                        <span class="arsenal-sub">PC • Mobile • Co-op</span>
+                                    </div>
+                                </div>
+                                <div class="arsenal-pill" data-setup-arsenal>
+                                    <div class="arsenal-icon-wrap">
+                                        <i class="fa-solid fa-headphones"></i>
+                                    </div>
+                                    <div class="arsenal-info">
+                                        <span class="arsenal-name">Nghe nhạc</span>
+                                        <span class="arsenal-sub">Lofi • Chill • V-Pop</span>
+                                    </div>
+                                </div>
+                                <div class="arsenal-pill" data-setup-arsenal>
+                                    <div class="arsenal-icon-wrap">
+                                        <i class="fa-solid fa-mug-hot"></i>
+                                    </div>
+                                    <div class="arsenal-info">
+                                        <span class="arsenal-name">Cà phê</span>
+                                        <span class="arsenal-sub">Sáng • Sữa đá • Góc chill</span>
+                                    </div>
+                                </div>
+                                <div class="arsenal-pill" data-setup-arsenal>
+                                    <div class="arsenal-icon-wrap">
+                                        <i class="fa-solid fa-plane"></i>
+                                    </div>
+                                    <div class="arsenal-info">
+                                        <span class="arsenal-name">Du lịch</span>
+                                        <span class="arsenal-sub">Biển • Núi • Khám phá</span>
+                                    </div>
+                                </div>
+                                <div class="arsenal-pill" data-setup-arsenal>
+                                    <div class="arsenal-icon-wrap">
+                                        <i class="fa-solid fa-camera"></i>
+                                    </div>
+                                    <div class="arsenal-info">
+                                        <span class="arsenal-name">Chụp ảnh</span>
+                                        <span class="arsenal-sub">Khoảnh khắc • Đời thường</span>
+                                    </div>
+                                </div>
+                                <div class="arsenal-pill" data-setup-arsenal>
+                                    <div class="arsenal-icon-wrap">
+                                        <i class="fa-solid fa-film"></i>
+                                    </div>
+                                    <div class="arsenal-info">
+                                        <span class="arsenal-name">Xem phim</span>
+                                        <span class="arsenal-sub">Anime • Phim lẻ • Series</span>
+                                    </div>
+                                </div>
+</div>
+                        </section>
+                    </div>
+
+                    <​!-- RIGHT COLUMN: 2 Discord Servers & Direct Connections -->
+                    <div class="bento-col bento-col-right">
+                        <​!-- Featured Discord Servers -->
+                        <section class="servers-section">
+                            <div class="section-title">
+                                <i class="fa-solid fa-server"></i>
+                                <span>AFFILIATED DISCORD SERVERS</span>
+                            </div>
+
+                            <div class="servers-grid" id="servers-grid">
+                                <​!-- Server cards dynamically rendered from config.js -->
+                            </div>
+                        </section>
+
+                        <​!-- Social Links Pills -->
+                        <section class="socials-section">
+                            <div class="section-title">
+                                <i class="fa-solid fa-link"></i>
+                                <span>DIRECT CONNECTIONS</span>
+                            </div>
+                            <div class="socials-list" id="socials-list">
+                                <​!-- Social buttons rendered from config.js -->
+                            </div>
+                        </section>
+                    </div>
+                </div>
+
+                <​!-- Setlove Slide Panel (trượt từ phải sang) -->
+                <div class="setlove-panel" id="setlove-panel" aria-hidden="true">
+                    <​!-- Nền mesh gradient động: 3 khối sáng mờ trôi lệch pha nhau -->
+                    <div class="love-mesh" aria-hidden="true">
+                        <span class="mesh-blob mb-1"></span>
+                        <span class="mesh-blob mb-2"></span>
+                        <span class="mesh-blob mb-3"></span>
+                    </div>
+
+                    <​!-- Canvas trái tim bay (nền động) -->
+                    <canvas class="love-canvas" id="love-canvas" aria-hidden="true"></canvas>
+
+                    <​!-- Lớp hạt nhiễu (grain) + vignette tối 4 góc -->
+                    <div class="love-grain" aria-hidden="true"></div>
+                    <div class="love-vignette" aria-hidden="true"></div>
+                    <div class="setlove-inner">
+                        <div class="setlove-decor" aria-hidden="true">
+                            <span>💗</span><span>🌸</span><span>✨</span><span>💗</span><span>🌸</span>
+                        </div>
+
+                        <div class="setlove-names">
+                            <​!-- Sợi chỉ đỏ nối hai người (vẽ dần khi mở panel) -->
+                            <div class="love-thread" aria-hidden="true"></div>
+
+                            <div class="setlove-person setlove-person-a">
+                                <div class="setlove-avatar-wrap">
+                                    <span class="avatar-ring" aria-hidden="true"></span>
+                                    <span class="setlove-avatar-fallback" id="setlove-my-fallback" data-setup-love-fallback>L</span>
+                                    <img class="setlove-avatar" id="setlove-my-avatar" alt="Avatar của Lương" hidden>
+                                    <img class="setlove-avatar-decoration" id="setlove-my-deco" alt="" aria-hidden="true" hidden>
+                                </div>
+                                <span class="setlove-name" id="setlove-my-name" data-setup-love-name-1>Lương</span>
+                            </div>
+
+                            <span class="setlove-heart-wrap">
+                                <i class="fa-solid fa-heart setlove-heart" id="setlove-heart"></i>
+                            </span>
+
+                            <div class="setlove-person setlove-person-b">
+                                <div class="setlove-avatar-wrap">
+                                    <span class="avatar-ring" aria-hidden="true"></span>
+                                    <span class="setlove-avatar-fallback" id="setlove-partner-fallback" data-setup-love-fallback-2>T</span>
+                                    <img class="setlove-avatar" id="setlove-partner-avatar" alt="Avatar của Tuyết Anh" hidden>
+                                    <img class="setlove-avatar-decoration" id="setlove-partner-deco" alt="" aria-hidden="true" hidden>
+                                </div>
+                                <span class="setlove-name" id="setlove-partner-name" data-setup-love-name-2>Tuyết Anh</span>
+                            </div>
+                        </div>
+
+                        <div class="setlove-caption">
+                            💖 Bắt đầu yêu từ <span id="setlove-start-date">27/05/2026</span> 💖
+                        </div>
+
+                        <div class="setlove-counter" id="setlove-counter">
+                            <div class="love-cell">
+                                <div class="love-num" id="love-days">0</div>
+                                <div class="love-label">ngày</div>
+                            </div>
+                            <div class="love-cell">
+                                <div class="love-num" id="love-hours">0</div>
+                                <div class="love-label">giờ</div>
+                            </div>
+                            <div class="love-cell">
+                                <div class="love-num" id="love-mins">0</div>
+                                <div class="love-label">phút</div>
+                            </div>
+                            <div class="love-cell">
+                                <div class="love-num" id="love-secs">0</div>
+                                <div class="love-label">giây</div>
+                            </div>
+                        </div>
+
+                        <​!-- Cột mốc kỷ niệm: TỰ TÍNH từ ngày bắt đầu yêu (mốc tròn
+                             trăm ngày + kỷ niệm theo tháng) — không phải cập nhật tay.
+                             Chưa có startDate thì script.js để nguyên `hidden`. -->
+                        <div class="setlove-milestone" id="setlove-milestone" hidden>
+                            <div class="milestone-line">
+                                <i class="fa-solid fa-cake-candles milestone-icon" aria-hidden="true"></i>
+                                <span id="milestone-text">Đang tính…</span>
+                            </div>
+                            <div class="milestone-track" aria-hidden="true">
+                                <div class="milestone-fill" id="milestone-fill"></div>
+                            </div>
+                        </div>
+
+                        <div class="setlove-quote" id="setlove-quote" title="Bấm để đổi câu khác 💕" data-setup-love-quote>"Yêu nhau yêu hẳn đi — đừng nửa vời nửa vời 💕"</div>
+
+                        <​!-- Dải ảnh kỷ niệm: chỉ hiện khi config.js -> setlove.photos có
+                             ảnh. Ảnh chỉ được tải khi panel mở lần đầu, nên trang vẫn nhẹ. -->
+                        <div class="setlove-photos" id="setlove-photos" hidden>
+                            <div class="photos-track" id="setlove-photos-track"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <​!-- Slide Arrow (giữa bên phải màn hình) -->
+                <button class="love-arrow" id="love-arrow" aria-label="Xem phần Setlove" title="Setlove 💕">
+                    <i class="fa-solid fa-heart"></i>
+                </button>
+
+                <​!-- Card Footer with Precision Glass Capsules & Brand Insignia -->
+                <footer class="card-footer">
+                    <div class="footer-left footer-capsule">
+                        <i class="fa-regular fa-clock footer-icon"></i>
+                        <span id="local-time">00:00:00 (GMT+7)</span>
+                    </div>
+                    <div class="footer-center">
+                        <div class="brand-insignia">
+                            <span class="insignia-crest">✦</span>
+                            <​!-- Footer brand: setup.mjs ghi lại từ config.js -> site.footerBrand / footerSuffix -->
+                            <span class="mono-logo" data-setup-footer-brand>NGUYỄN LƯƠNG</span>
+                            <span class="insignia-sep">•</span>
+                            <span class="insignia-sub" data-setup-footer-suffix>PROFILE</span>
+                        </div>
+                    </div>
+                    <div class="footer-right-group">
+                        <​!-- Lượt xem + nút thích: số liệu THẬT lấy từ /api/stats
+                             (Cloudflare Pages Function + KV). Nếu chưa gắn KV hoặc API
+                             lỗi thì script.js để nguyên thuộc tính `hidden` này —
+                             khách không thấy gì lạ, trang vẫn chạy y như cũ. -->
+                        <div class="footer-capsule stats-capsule" id="site-stats" hidden>
+                            <i class="fa-regular fa-eye footer-icon"></i>
+                            <span id="stat-views">0</span>
+                            <button class="stats-like" id="stats-like" type="button"
+                                    aria-label="Thích trang này" title="Thích trang này" aria-pressed="false">
+                                <i class="fa-regular fa-heart" id="stats-like-icon"></i>
+                                <span id="stat-likes">0</span>
+                            </button>
+                        </div>
+                        <div class="footer-right footer-capsule">
+                            <span class="telemetry-live-dot"></span>
+                            <i class="fa-solid fa-signal telemetry-icon"></i>
+                            <span id="ping-indicator">24ms • 100% ONLINE</span>
+                        </div>
+                    </div>
+                </footer>
+            </article>
+        </div>
+    </main>
+
+    <​!-- Toast Notification Container -->
+    <div id="toast-container" class="toast-container"></div>
+
+    <​!-- Xem ảnh kỷ niệm lớn (chỉ dùng khi dải ảnh bật). Thẳng con của <body> để
+         `position: fixed` neo đúng màn hình, giống hộp thoại Donate. -->
+    <div class="photo-lightbox" id="photo-lightbox" aria-hidden="true" role="dialog" aria-modal="true" aria-label="Ảnh kỷ niệm">
+        <div class="photo-lightbox-backdrop" id="photo-lightbox-backdrop"></div>
+        <figure class="photo-lightbox-card">
+            <button class="photo-lightbox-close" id="photo-lightbox-close" aria-label="Đóng" title="Đóng (ESC)">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+            <img id="photo-lightbox-img" alt="">
+            <figcaption id="photo-lightbox-caption"></figcaption>
+        </figure>
+    </div>
+
+    <​!-- Donate QR Modal (thẳng con của <body> để `position: fixed` neo đúng màn hình) -->
+    <div class="donate-modal" id="donate-modal" aria-hidden="true" role="dialog" aria-modal="true" aria-label="Ủng hộ tác giả">
+        <div class="donate-backdrop" id="donate-backdrop"></div>
+        <div class="donate-card">
+            <button class="donate-close" id="donate-close" aria-label="Đóng" title="Đóng (ESC)">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+
+            <div class="donate-head">
+                <i class="fa-solid fa-qrcode"></i>
+                <span>ỦNG HỘ • DONATE</span>
+            </div>
+
+            <div class="donate-qr-wrap">
+                <img class="donate-qr" id="donate-qr" alt="Mã QR chuyển khoản" hidden>
+                <div class="donate-qr-empty" id="donate-qr-empty">
+                    <i class="fa-solid fa-image"></i>
+                    <span>Chưa có ảnh QR</span>
+                    <small>Đặt ảnh vào repo và ghi tên file vào <code>config.js</code> → <code>donate.qrImage</code></small>
+                </div>
+            </div>
+
+            <div class="donate-info" id="donate-info" hidden></div>
+
+            <p class="donate-thanks">Cảm ơn bạn đã ủng hộ 💗</p>
+        </div>
+    </div>
+
+    <​!-- Scripts with Cache Buster -->
+    <​script src="config.js?v=12.0"><​/script>
+    <​script src="script.js?v=12.0"><​/script>
+</body>
+</html>
+
+    </script>
+
     <div id="toast"></div>
     <script src="admin.js" defer></script>
 </body>

@@ -195,7 +195,40 @@ if (Array.isArray(CONFIG.techStack) && CONFIG.techStack.length > 0) {
         html = html.slice(0, openEnd) + '\n' + pills + '\n' + html.slice(i - 6);
     }
 }
+// 3e. Nhúng BẢN CHÉP index.html vào admin.html — nút "Xem trước" của form dùng bản
+// này khi admin.html được mở trực tiếp (file://), vì trình duyệt không cho fetch()
+// file local. Không làm gì cả khi admin.html không có khung site-template.
+let adminChanged = false;
+try {
+    const tmplBegin = '<script type="text/plain" id="site-template">';
+    const tmplEnd = '</script>';
+    let admin = read('admin.html');
+    const aIdx = admin.indexOf(tmplBegin);
+    if (aIdx !== -1) {
+        // Nội dung nhúng phải "chết": biến mọi chuỗi mở đầu thẻ script và comment HTML
+        // thành ký tự khoảng trắng vô hình — parser HTML không hiểu là thẻ nên không
+        // cắt đoạn nhúng sớm, còn admin.js nhét vào srcdoc sẽ tự khôi phục.
+        const embed = html
+            .replace(/<script/gi, '<\u200bscript')
+            .replace(/<\/script/gi, '<\u200b/script')
+            .replace(/<!--/g, '<\u200b!--');
+        const bodyStart = aIdx + tmplBegin.length;
+        const bodyEnd = admin.indexOf(tmplEnd, bodyStart);
+        if (bodyEnd === -1) {
+            console.warn('! admin.html: khung site-template bị thủng (thiếu </script>) — bỏ qua.');
+        } else {
+            const next = admin.slice(0, bodyStart) + '\n' + embed + '\n    ' + admin.slice(bodyEnd);
+            if (next !== admin) {
+                fs.writeFileSync(rel('admin.html'), next);
+                adminChanged = true;
+            }
+        }
+    }
+} catch (e) {
+    console.warn('! Bỏ qua nhúng index.html vào admin.html:', e.message);
+}
 if (write('index.html', html)) done('index.html', 'thẻ chia sẻ + giá trị dự phòng');
+if (adminChanged) done('admin.html', 'cập nhật bản nhúng cho nút Xem trước (mở file://)');
 
 // ---------------------------------------------------------------- 4. manifest.json
 try {

@@ -9,7 +9,12 @@ và gửi lại. Sau đó bạn nhận được **link trang web live** của m�
 
 1. Mở file **`admin.html`** trong thư mục sản phẩm (nhấn đúp để mở bằng Chrome/Edge/Cốc Cốc).
 2. Điền form theo từng phần — mỗi ô đều có chú thích ngay bên dưới.
-3. Bấm **Xem trước** bất cứ lúc nào để xem trang sẽ trông thế nào với thông tin của bạn.
+3. Bấm **Xem trước** bất cứ lúc nào để xem trang sẽ trông thế nào với thông tin của bạn
+   (chạy ngay khi nháy đúp mở file, không cần cài đặt gì thêm).
+
+> 💡 Nếu bấm Xem trước mà form báo "*Bản nhúng cho xem trước chưa có*": máy của bạn đang có
+> bản sản phẩm chưa chạy lần lệnh đồng bộ — báo người bán, hoặc tự chạy 1 lệnh `node setup.mjs`
+> trong thư mục sản phẩm (cần cài [Node.js](https://nodejs.org)) rồi mở lại `admin.html`.
 
 Vài công tắc cần quyết:
 

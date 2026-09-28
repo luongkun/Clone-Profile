@@ -457,31 +457,44 @@ const CONFIG = ${printJS(cfg)};
 }
 
 /* ---------------- xem trước trang thật ----------------
- * Fetch index.html, thay thẻ <script src="config.js"> bằng CONFIG sinh từ form,
+ * Lấy bản HTML trang bio, thay thẻ <script src="config.js"> bằng CONFIG sinh từ form,
  * rồi chạy bản HTML đó trong iframe qua thuộc tính `srcdoc` (và tab riêng qua
  * document.write) — preview dùng ĐÚNG thông tin đang điền dở, không cần lưu file.
  * <base href> giữ cho style/script/icon/ảnh tải đúng từ thư mục gốc.
- * Cần chạy qua http server (file:// không fetch được index.html; bản deploy
- * Cloudflare có CSP chặn script nội tuyến nên cũng không dùng được).
+ * Nguồn bản HTML: mở qua http server thì fetch('index.html') (luôn mới nhất);
+ * mở trực tiếp bằng file:// thì fetch bị trình duyệt chặn — dùng bản chép đã
+ * được setup.mjs nhúng sẵn vào admin.html (khung #site-template, chạy node setup.mjs).
  */
 async function buildPreviewDoc() {
+    const cfgJson = JSON.stringify(buildConfig()).replace(/</g, '\\u003c');
+    let html = '';
     if (location.protocol === 'file:') {
-        throw new Error('Xem trước cần mở admin.html qua http server: python3 -m http.server 8000');
+        const tmpl = document.getElementById('site-template');
+        html = tmpl ? tmpl.textContent : '';
+        if (!html.trim()) {
+            throw new Error('Bản nhúng cho xem trước chưa có — chạy "node setup.mjs" một lần rồi mở lại admin.html nhé');
+        }
+        // setup.mjs chèn ký tự '\u200b' trước '<script' / '<!--' trong bản nhúng để khung
+        // không bị trình duyệt cắt sớm — khôi phục lại trước khi chạy
+        html = html
+            .replace(/<\u200b\/script/g, '</script')
+            .replace(/<\u200bscript/g, '<script')
+            .replace(/<\u200b!--/g, '<!--');
+    } else {
+        const res = await fetch('index.html', { cache: 'no-store' });
+        if (!res.ok) throw new Error(`Không đọc được index.html (HTTP ${res.status})`);
+        const csp = (res.headers.get('content-security-policy') || '');
+        if (csp.includes('script-src') && !csp.includes('unsafe-inline')) {
+            throw new Error('Trang đang chạy với CSP chặn script nội tuyến (bản deploy Cloudflare) — xem trước chỉ dùng được khi chạy cục bộ: python3 -m http.server 8000');
+        }
+        html = await res.text();
     }
-    const res = await fetch('index.html', { cache: 'no-store' });
-    if (!res.ok) throw new Error(`Không đọc được index.html (HTTP ${res.status})`);
-    const csp = (res.headers.get('content-security-policy') || '');
-    if (csp.includes('script-src') && !csp.includes('unsafe-inline')) {
-        throw new Error('Trang đang chạy với CSP chặn script nội tuyến (bản deploy Cloudflare) — xem trước chỉ dùng được khi chạy cục bộ: python3 -m http.server 8000');
-    }
-    let html = await res.text();
 
     const cfgTag = /<script src="config\.js[^"]*"><\/script>/;
     if (!cfgTag.test(html)) throw new Error('index.html không có thẻ config.js');
 
     // JSON.stringify đủ an toàn làm source JS; escape '<' để chuỗi chứa "</script>"
     // (nếu người dùng gõ vào bio) không đóng sớm thẻ script
-    const cfgJson = JSON.stringify(buildConfig()).replace(/</g, '\\u003c');
     html = html.replace(cfgTag, `<script>const CONFIG = ${cfgJson};</script>`);
 
     // <base> để style/script/icon của trang thật vẫn tải đúng từ thư mục gốc
