@@ -32,7 +32,7 @@ Các mục **tuỳ chọn**:
 
 | Mục trong config | Ý nghĩa |
 |---|---|
-| `servers` | Card máy chủ Discord (dùng invite vĩnh viễn — Expire after: Never) |
+| `servers` | Card nhóm: `type: "discord"` (mặc định — invite vĩnh viễn, realtime) hoặc `type: "zalo"` (nút mở ảnh QR — điền `zaloQrImage`) |
 | `music.playlist` | Nhạc nền: đặt file `.mp3` vào thư mục gốc rồi khai báo tại đây |
 | `donate` | Nút donate + ảnh QR ngân hàng |
 | `setlove` | Panel cặp đôi: tên 2 người, 2 Discord ID, ngày bắt đầu yêu, câu nói |

@@ -15,6 +15,7 @@ document.addEventListener('DOMContentLoaded', () => {
     initGreeting();
     initSetlove();
     initDonate();
+    initZaloGroups();
     initStats();
     initBannerVisualizer();
     // Nối chuỗi dự phòng cho mọi ảnh đang trỏ thẳng CDN Discord (khi trang vừa mở)
@@ -738,21 +739,108 @@ function initSetlove() {
 // Ảnh QR chỉ được tải khi khách THẬT SỰ mở hộp thoại (tiết kiệm ~152KB cho người không dùng)
 // Nạp ảnh QR vào sẵn (gọi lúc trang rảnh, hoặc lúc mở hộp thoại nếu chưa kịp).
 // Idempotent: gọi lại nhiều lần cũng chỉ tải ảnh một lần.
-function loadDonateQr() {
+function loadDonateQr({ allowSteal = true } = {}) {
     const img = document.getElementById('donate-qr');
     const empty = document.getElementById('donate-qr-empty');
     const cfg = CONFIG.donate || {};
-    if (!img || img.dataset.loaded || !cfg.qrImage) return;
-    img.dataset.loaded = '1';
-    img.addEventListener('load', () => {
-        img.hidden = false;
-        if (empty) empty.hidden = true;
-    });
-    img.addEventListener('error', () => {
-        img.hidden = true;
-        if (empty) empty.hidden = false;
-    });
+    const modal = document.getElementById('donate-modal');
+    if (!img || !cfg.qrImage) return;
+    // Modal đang mượn hiện QR nhóm Zalo — đừng đụng vào
+    if (modal && modal.dataset.mode === 'zalo') return;
+    if (!img.dataset.wired) {
+        img.dataset.wired = '1';
+        img.addEventListener('load', () => {
+            img.hidden = false;
+            if (empty) empty.hidden = true;
+        });
+        img.addEventListener('error', () => {
+            img.hidden = true;
+            if (empty) empty.hidden = false;
+        });
+    }
+    // Ảnh donate đã hiện đúng — chỉ bảo đảm nó visible
+    if (img.getAttribute('src') === cfg.qrImage) {
+        if (img.complete && img.naturalWidth > 0) {
+            img.hidden = false;
+            if (empty) empty.hidden = true;
+        }
+        return;
+    }
+    // Modal đang bị nhóm Zalo mượn hiện QR khác: nạp NỀN thì thôi, đụng vào là
+    // giựt QR giữa lúc khách đang quét. Lần mở Donate sau sẽ nạp lại bình thường.
+    if (!allowSteal && img.getAttribute('src')) return;
+    img.hidden = true;
     img.src = cfg.qrImage;
+}
+
+/* ====================================================================
+   0.9 NHÓM ZALO — modal quét QR (Zalo không có API công khai nên
+   dùng cách giống modal Donate: hiện ảnh QR, người dùng quét bằng app)
+   ==================================================================== */
+function openZaloQr(qrImage, groupName) {
+    const modal = document.getElementById('donate-modal');
+    if (!modal) return;
+    // Đánh dấu modal đang ở chế độ Zalo để loadDonateQr KHÔNG giựt ảnh QR donate
+    modal.dataset.mode = 'zalo';
+    const qr = document.getElementById('donate-qr');
+    const empty = document.getElementById('donate-qr-empty');
+    const info = document.getElementById('donate-info');
+    const head = modal.querySelector('.donate-head');
+    const thanks = modal.querySelector('.donate-thanks');
+    if (!qr) return;
+
+    // Đổi tiêu đề + lời cảm ơn sang ngữ cảnh Zalo; hàm đóng modal sẽ trả lại như cũ
+    if (head) head.innerHTML = '<i class="fa-solid fa-comments"></i><span>THAM GIA NHÓM ZALO</span>';
+    if (thanks) thanks.textContent = 'Mở Zalo → Quét QR để vào nhóm 💬';
+    if (groupName && info) {
+        info.innerHTML = `<div class="donate-row"><span>Nhóm</span><b>${groupName}</b></div>`;
+        info.hidden = false;
+    } else if (info) {
+        info.hidden = true;
+    }
+
+    if (qrImage) {
+        qr.src = qrImage;
+        qr.hidden = false;
+        if (empty) empty.hidden = true;
+    } else if (empty) {
+        qr.hidden = true;
+        empty.hidden = false;
+        empty.innerHTML = '<i class="fa-solid fa-qrcode"></i><span>Chưa có ảnh QR nhóm</span>' +
+            '<small>Điền đường dẫn ảnh vào <code>config.js</code> → <code>servers[].zaloQrImage</code></small>';
+    }
+    openDonate(true);
+}
+
+function initZaloGroups() {
+    const modal = document.getElementById('donate-modal');
+    if (!modal) return;
+    const head = modal.querySelector('.donate-head');
+    const thanks = modal.querySelector('.donate-thanks');
+    const info = document.getElementById('donate-info');
+    const empty = document.getElementById('donate-qr-empty');
+    const DONATE_HEAD = '<i class="fa-solid fa-qrcode"></i><span>ỦNG HỘ • DONATE</span>';
+    const DONATE_THANKS = 'Cảm ơn bạn đã ủng hộ 💗';
+    // Khi modal đóng (bất kể đang là Zalo hay Donate) — trả lại nội dung gốc của Donate
+    const restore = () => {
+        if (!document.body.classList.contains('donate-open')) {
+            delete modal.dataset.mode;   // thoát chế độ Zalo, QR donate được nạp lại bình thường
+            if (head) head.innerHTML = DONATE_HEAD;
+            if (thanks) thanks.textContent = DONATE_THANKS;
+            if (info) info.hidden = true;
+            if (empty && !empty.hidden) {
+                empty.innerHTML = '<i class="fa-solid fa-image"></i><span>Chưa có ảnh QR</span>' +
+                    '<small>Đặt ảnh vào repo và ghi tên file vào <code>config.js</code> → <code>donate.qrImage</code></small>';
+            }
+        }
+    };
+    const backdrop = document.getElementById('donate-backdrop');
+    const closeBtn = document.getElementById('donate-close');
+    if (backdrop) backdrop.addEventListener('click', restore);
+    if (closeBtn) closeBtn.addEventListener('click', restore);
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') setTimeout(restore, 0);
+    });
 }
 
 function openDonate(open) {
@@ -784,7 +872,8 @@ function initDonate() {
     // nên mở hộp thoại phải chờ vài trăm ms mới thấy mã). Đặt ở lúc trình duyệt rảnh
     // nên vẫn không tranh băng thông với lần vẽ đầu tiên.
     if (cfg.qrImage) {
-        const warmQr = () => loadDonateQr();
+        // Nạp NỀN ảnh QR: nếu modal đang hiện QR Zalo thì NHƯỜNG — không giựt giữa lúc khách quét
+        const warmQr = () => loadDonateQr({ allowSteal: false });
         if ('requestIdleCallback' in window) requestIdleCallback(warmQr, { timeout: 3000 });
         else setTimeout(warmQr, 1500);
     }
@@ -1281,13 +1370,27 @@ function initProfileUI() {
         });
     }
 
-    // Render 2 Discord Servers (Ảnh Avatar & Banner thật 100% từ Discord)
+    // Render danh sách NHÓM — server Discord và/hoặc nhóm Zalo, trộn tự do theo config:
+    //   { type: "discord" } (mặc định) -> realtime icon/banner/member từ Discord
+    //   { type: "zalo" }               -> nút "Tham gia" mở mã QR để quét bằng Zalo
     const serversGrid = document.getElementById('servers-grid');
     if (serversGrid && CONFIG.servers) {
+        // Tiêu đề section đổi theo nội dung: chỉ Discord / chỉ Zalo / hỗn hợp
+        const sectionTitle = serversGrid.closest('.servers-section')?.querySelector('.section-title span');
+        if (sectionTitle) {
+            const hasDiscord = CONFIG.servers.some(s => (s.type || 'discord') === 'discord');
+            const hasZalo = CONFIG.servers.some(s => s.type === 'zalo');
+            sectionTitle.textContent = hasDiscord && hasZalo ? 'CỘNG ĐỒNG KẾT NỐI'
+                : hasZalo ? 'NHÓM ZALO' : 'AFFILIATED DISCORD SERVERS';
+        }
         serversGrid.innerHTML = '';
         CONFIG.servers.forEach((srv, idx) => {
+            const isZalo = srv.type === 'zalo';
+            const statsDefault = isZalo
+                ? `<span style="display:inline-flex;align-items:center;gap:4px;"><i class="fa-solid fa-circle" style="color:var(--status-online);font-size:0.45rem;"></i> ${srv.online || 'Nhóm Zalo'}</span>${srv.members ? `<span>•</span><span>${srv.members}</span>` : ''}`
+                : `<span style="display:inline-flex;align-items:center;gap:4px;"><i class="fa-solid fa-circle" style="color:var(--status-online);font-size:0.45rem;"></i> ${srv.online || 'Active Hub'}</span>\n                            <span>•</span>\n                            <span>${srv.members || 'Community'}</span>`;
             const card = document.createElement('div');
-            card.className = 'server-card';
+            card.className = 'server-card' + (isZalo ? ' server-card-zalo' : '');
             card.id = `server-card-${idx}`;
             card.innerHTML = `
                 <img src="${srv.banner}" alt="${srv.name} Banner" class="server-banner-img" id="server-banner-${idx}">
@@ -1300,20 +1403,33 @@ function initProfileUI() {
                             <span class="server-name" id="server-name-${idx}">${srv.name}</span>
                             <span class="server-tag">${srv.tag}</span>
                         </div>
-                        <div class="server-stats" id="server-stats-${idx}" style="display:flex;align-items:center;gap:7px;font-size:0.7rem;color:var(--text-muted);font-family:var(--font-mono);margin-top:1px;">
-                            <span style="display:inline-flex;align-items:center;gap:4px;"><i class="fa-solid fa-circle" style="color:var(--status-online);font-size:0.45rem;"></i> ${srv.online || 'Active Hub'}</span>
-                            <span>•</span>
-                            <span>${srv.members || 'Community'}</span>
-                        </div>
+                        <div class="server-stats" id="server-stats-${idx}" style="display:flex;align-items:center;gap:7px;font-size:0.7rem;color:var(--text-muted);font-family:var(--font-mono);margin-top:1px;">${statsDefault}</div>
                         <span class="server-role">${srv.role}</span>
                         <p class="server-desc">${srv.description}</p>
                     </div>
+                    ${isZalo ? `
+                    <a href="${srv.inviteUrl || '#'}" class="server-join-btn server-join-zalo" data-zalo-qr="${srv.zaloQrImage || ''}" title="Mở mã QR để quét bằng Zalo">
+                        <i class="fa-solid fa-comments"></i> Tham gia
+                    </a>` : `
                     <a href="${srv.inviteUrl}" target="_blank" rel="noopener noreferrer" class="server-join-btn">
                         <i class="fa-brands fa-discord"></i> Join
-                    </a>
+                    </a>`}
                 </div>
             `;
             serversGrid.appendChild(card);
+
+            if (isZalo) {
+                // Nhóm Zalo: không có API công khai — bấm nút là mở ảnh QR để quét
+                const zaloBtn = card.querySelector('.server-join-zalo');
+                if (zaloBtn) {
+                    zaloBtn.addEventListener('click', (e) => {
+                        e.preventDefault();
+                        playBeepSound(620, 0.08);
+                        openZaloQr(zaloBtn.dataset.zaloQr, srv.name);
+                    });
+                }
+                return; // Zalo không gọi API Discord
+            }
 
             // Fallback bindings if local or CDN image has network issues
             const bannerEl = card.querySelector('.server-banner-img');
@@ -1333,10 +1449,12 @@ function initProfileUI() {
             fetchDiscordInviteData(srv.inviteUrl, idx);
         });
 
-        // Real-time: làm mới số liệu máy chủ mỗi 60 giây khi trang còn mở
+        // Real-time: làm mới số liệu máy chủ Discord mỗi 60 giây khi trang còn mở
         if (!window.__inviteRefreshTimer) {
             window.__inviteRefreshTimer = setInterval(() => {
-                CONFIG.servers.forEach((srv, idx) => fetchDiscordInviteData(srv.inviteUrl, idx));
+                CONFIG.servers.forEach((srv, idx) => {
+                    if ((srv.type || 'discord') === 'discord') fetchDiscordInviteData(srv.inviteUrl, idx);
+                });
             }, 60000);
         }
     }

@@ -90,18 +90,27 @@
 > mốc: `zbarimg --raw -q qr-bank.png | sha256sum > .github/qr-expected.sha256`
 > (QR sai một ký tự = tiền chuyển sai người — bộ kiểm tra sẽ chặn push).
 
-## PHẦN 5 — DISCORD SERVER → `servers` trong config.js
+## PHẦN 5 — NHÓM DISCORD / ZALO → `servers` trong config.js
+
+Mỗi mục có thêm tuỳ chọn `type`:
+
+| | Giá trị | Ý nghĩa |
+|---|---|---|
+| 🟡 5.0 | `type: "discord"` | **Discord** (mặc định, có thể bỏ qua dòng này) — realtime icon/banner/member từ Discord |
+| 🟡 5.0 | `type: "zalo"` | **Zalo** — nút "Tham gia" mở ảnh QR để quét bằng Zalo (Zalo không có API công khai) |
 
 > Nên dùng **invite vĩnh viễn** (Expire after: Never). Icon/banner/member/online
 > tự cập nhật realtime từ Discord — chỉ cần điền invite là đủ.
 
 | # | Nội dung | Giá trị của bạn | Tên biến |
 |---|----------|-----------------|----------|
-| 🟡 5.1 | Link invite server (vĩnh viễn) | `→ ...........` | `servers[].inviteUrl` |
+| 🟡 5.1 | Link invite server (vĩnh viễn) — nhóm Zalo điền link nhóm (tuỳ chọn) | `→ ...........` | `servers[].inviteUrl` |
+| 🟡 5.1b | **Ảnh QR nhóm Zalo** (vd `zalo-qr.png`) — chỉ cần khi `type: "zalo"` | `→ ...........` | `servers[].zaloQrImage` |
 | 🟡 5.2 | Tên server (chỉ hiện lúc chưa load xong) | `→ ...........` | `servers[].name` |
 | 🟡 5.3 | Vai trò/nhãn (vd `Cộng đồng ...`) | `→ ...........` | `servers[].role` |
 | 🟡 5.4 | Mô tả ngắn về server | `→ ...........` | `servers[].description` |
-| 🟡 5.5 | Nhãn góc card (vd `COMMUNITY`) | `→ ...........` | `servers[].tag` |
+| 🟡 5.5 | Nhãn góc card (vd `COMMUNITY` / `NHÓM ZALO`) | `→ ...........` | `servers[].tag` |
+| 🟡 5.6 | Số thành viên (chỉ nhóm Zalo — Discord tự lấy realtime) | `→ ...........` | `servers[].members` |
 
 ## PHẦN 6 — NHẠC NỀN → `music` trong config.js
 

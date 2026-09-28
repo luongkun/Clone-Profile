@@ -1733,6 +1733,22 @@ body.cursor-hidden .cyber-cursor {
     box-shadow: 0 8px 25px rgba(255, 255, 255, 0.45);
 }
 
+/* Biến thể nhóm Zalo: nút xanh thương hiệu Zalo, tag xanh nhẹ (card .server-card-zalo) */
+.server-join-zalo {
+    background: #0068ff;
+    color: #fff;
+    box-shadow: 0 4px 15px rgba(0, 104, 255, 0.35);
+}
+
+.server-join-zalo:hover {
+    box-shadow: 0 8px 25px rgba(0, 104, 255, 0.55);
+}
+
+.server-card-zalo .server-tag {
+    color: #7db8ff;
+    border-color: rgba(0, 104, 255, 0.45);
+}
+
 /* Social Links */
 .socials-section {
     display: flex;

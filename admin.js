@@ -82,7 +82,34 @@ function renumber(container) {
 
 const addBadge = () => makeRow($('badge-list'), '#', [['icon', 'Icon FontAwesome'], ['label', 'Nhãn hiển thị'], ['color', 'Màu chữ (tuỳ chọn)']]);
 const addSocial = () => makeRow($('social-list'), '#', [['name', 'Tên mạng'], ['icon', 'Icon FontAwesome'], ['url', 'Link'], ['copy', 'Nội dung copy (tuỳ chọn)']]);
-const addServer = () => makeRow($('server-list'), '#', [['name', 'Tên server'], ['inviteUrl', 'Link invite vĩnh viễn'], ['role', 'Vai trò'], ['description', 'Mô tả (textarea)', true], ['tag', 'Nhãn góc card']]);
+const addServer = () => {
+    const inputs = makeRow($('server-list'), '#', [['name', 'Tên nhóm/server'], ['inviteUrl', 'Link invite Discord (nếu dùng Discord)'], ['role', 'Vai trò'], ['description', 'Mô tả (textarea)', true], ['tag', 'Nhãn góc card']]);
+    // Ô chọn loại nhóm: Discord (realtime) hoặc Zalo (nút mở QR) + đường dẫn ảnh QR
+    const row = inputs.name.closest('.row');
+    const grid = row.querySelector('.grid2');
+    const typeWrap = document.createElement('label');
+    typeWrap.innerHTML = '<b>Loại nhóm</b>';
+    const typeSelect = document.createElement('select');
+    typeSelect.dataset.field = 'type';
+    typeSelect.innerHTML = '<option value="discord">Discord (icon + số member realtime)</option>' +
+        '<option value="zalo">Zalo (nút mở QR để quét)</option>';
+    typeWrap.appendChild(typeSelect);
+    grid.appendChild(typeWrap);
+    const qrWrap = document.createElement('label');
+    qrWrap.innerHTML = '<b>Ảnh QR Zalo (nếu chọn Zalo)</b> <small>vd: zalo-qr.png — bấm "Tham gia" sẽ mở ảnh này</small>';
+    const qrInput = document.createElement('input');
+    qrInput.type = 'text';
+    qrInput.dataset.field = 'zaloQrImage';
+    qrWrap.appendChild(qrInput);
+    grid.appendChild(qrWrap);
+    const syncQrField = () => { qrWrap.style.display = typeSelect.value === 'zalo' ? '' : 'none'; };
+    typeSelect.addEventListener('change', syncQrField);
+    syncQrField();
+    // Đưa 2 ô mới vào map để fillRows nạp được giá trị từ config khi mở form
+    inputs.type = typeSelect;
+    inputs.zaloQrImage = qrInput;
+    return inputs;
+};
 const addTrack = () => makeRow($('track-list'), '#', [['title', 'Tên bài'], ['artist', 'Ca sĩ'], ['url', 'File mp3']]);
 const addTech = () => makeRow($('tech-list'), '#', [['name', 'Tên sở thích'], ['domain', 'Chi tiết nhỏ'], ['icon', 'Icon FontAwesome']]);
 
@@ -130,7 +157,7 @@ function fillForm(cfg) {
     $('donate-accountNumber').value = donate.accountNumber || '';
     $('donate-note').value = donate.note || '';
 
-    fillRows('server-list', cfg.servers || [], addServer, ['name', 'inviteUrl', 'role', 'description', 'tag']);
+    fillRows('server-list', cfg.servers || [], addServer, ['name', 'inviteUrl', 'role', 'description', 'tag', 'type', 'zaloQrImage']);
 
     const music = cfg.music || {};
     $('music-enabled').checked = music.enabled !== false;
@@ -170,7 +197,13 @@ function fillRows(listId, items, addFn, fields) {
     $(listId).innerHTML = '';
     items.forEach(item => {
         const inputs = addFn();
-        fields.forEach(f => { if (inputs[f]) inputs[f].value = item[f] ?? ''; });
+        fields.forEach(f => {
+            if (inputs[f]) {
+                inputs[f].value = item[f] ?? '';
+                // select tự ẩn/hiện theo giá trị cần được đồng bộ sau khi nạp
+                inputs[f].dispatchEvent(new Event('change'));
+            }
+        });
     });
 }
 
@@ -238,11 +271,19 @@ function buildConfig() {
             quotes: lines('profile-quotes'),
             badges: collectRows('badge-list', null, d => d.icon ? { icon: d.icon, label: d.label, color: d.color || '#ffffff' } : null),
         },
-        servers: collectRows('server-list', null, d => d.inviteUrl ? {
-            name: d.name, role: d.role, description: d.description, inviteUrl: d.inviteUrl,
-            icon: '', banner: 'profile_banner_cyber.webp', cdnIcon: '', cdnBanner: 'profile_banner_cyber.webp',
-            members: '', online: '', tag: d.tag || 'COMMUNITY', featured: true,
-        } : null),
+        servers: collectRows('server-list', null, d => {
+            if (!d.name && !d.inviteUrl) return null;
+            const isZalo = d.type === 'zalo';
+            const out = {
+                type: isZalo ? 'zalo' : 'discord',
+                name: d.name, role: d.role, description: d.description,
+                inviteUrl: isZalo ? (d.inviteUrl || '') : d.inviteUrl,
+                icon: '', banner: 'profile_banner_cyber.webp', cdnIcon: '', cdnBanner: 'profile_banner_cyber.webp',
+                members: '', online: '', tag: d.tag || (isZalo ? 'NHÓM ZALO' : 'COMMUNITY'), featured: true,
+            };
+            if (isZalo) out.zaloQrImage = d.zaloQrImage || '';
+            return out;
+        }),
         socials,
         donate: {
             enabled: $('social-donate').checked,
