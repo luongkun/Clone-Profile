@@ -171,14 +171,17 @@ execFileSync('node', ['setup.mjs'], { cwd: distDir, stdio: 'inherit' });
 
 // ------------------------------------------------------------------ 4. icon + og-image
 step('Sinh lại icon + og-image theo tên khách');
-const pyIcons = spawnSync('python3', ['.github/scripts/make_icons.py', distDir], { cwd: ROOT, encoding: 'utf8' });
+// QUAN TRỌNG: chạy bản script NẰM TRONG dist (setup.mjs đã ghi monogram/tên khách
+// vào đó), không phải bản ở gốc repo — chạy nhầm bản gốc sẽ sinh lại icon/og-image
+// mang thương hiệu người bán mà vẫn báo ✓.
+const pyIcons = spawnSync('python3', ['.github/scripts/make_icons.py', distDir], { cwd: distDir, encoding: 'utf8' });
 if (pyIcons.error || pyIcons.status !== 0) {
     console.warn(`  ! make_icons.py bỏ qua: ${(pyIcons.stderr || pyIcons.error?.message || '').trim().slice(0, 300)}`);
     console.warn('    (cần Pillow + font Noto; không có thì giữ icon template — chấp nhận được)');
 } else {
     ok('icon-192/512/maskable + favicon: đã sinh theo monogram khách');
 }
-const pyOg = spawnSync('python3', ['.github/scripts/make_og_image.py', distDir], { cwd: ROOT, encoding: 'utf8' });
+const pyOg = spawnSync('python3', ['.github/scripts/make_og_image.py', distDir], { cwd: distDir, encoding: 'utf8' });
 if (pyOg.error || pyOg.status !== 0) {
     console.warn(`  ! make_og_image.py bỏ qua: ${(pyOg.stderr || pyOg.error?.message || '').trim().slice(0, 300)}`);
 } else {
