@@ -112,6 +112,20 @@ lượt xem / lượt thích sẽ tự ẩn — đó là hành vi đúng, không
 
 Toàn bộ là file tĩnh, không cần build. Có thể deploy thẳng lên GitHub Pages, Cloudflare Pages, Netlify hoặc Vercel (chọn thư mục gốc làm thư mục publish).
 
+## Deploy hộ khách (dành cho người bán)
+
+Bán kèm dịch vụ "deploy giúp" bằng **tài khoản Cloudflare service riêng của shop** — người mua
+không cần tạo tài khoản, bạn cũng không dùng tài khoản cá nhân. Xem `DEPLOY-HO.md` để thiết lập
+(1 lần), rồi mỗi khách chỉ cần:
+
+```bash
+node deploy-customer.mjs --customer ten-khach --dry-run   # dựng + kiểm tra, chưa deploy
+node deploy-customer.mjs --customer ten-khach             # deploy thật, trả về link live
+```
+
+Dữ liệu từng khách nằm trong `customers/` (không commit). `deploy-customer.mjs`, `admin.html`,
+`admin.js`, `THONG-TIN.md` là công cụ của người bán — script tự loại các file này khỏi bản deploy.
+
 ## Giấy phép
 
 Dùng cho mục đích cá nhân.

@@ -10,3 +10,9 @@ nimbus-landing.html
 
 # Bài nhạc không còn dùng trong playlist
 bai2.mp3
+
+# Dữ liệu khách hàng khi deploy hộ (ảnh, config riêng, log) — KHÔNG bao giờ lên Git
+customers/
+
+# Token Cloudflare của tài khoản service (deploy hộ khách)
+.env.local
