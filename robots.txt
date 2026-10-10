@@ -1,0 +1,8 @@
+User-agent: *
+Allow: /
+Disallow: /1.mp3
+Disallow: /2.mp3
+Disallow: /3.mp3
+Disallow: /qr-bank-v2.png
+
+Sitemap: https://vth.netlify.app/sitemap.xml

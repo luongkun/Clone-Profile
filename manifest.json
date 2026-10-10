@@ -1,0 +1,32 @@
+{
+    "name": "vth — @vth",
+    "short_name": "@vth",
+    "description": "Trang bio cá nhân: nhạc nền, sở thích và vài thứ dễ thương khác.",
+    "start_url": "/",
+    "scope": "/",
+    "display": "standalone",
+    "orientation": "portrait",
+    "background_color": "#e9f5ee",
+    "theme_color": "#35a06f",
+    "lang": "vi",
+    "icons": [
+        {
+            "src": "/icon-192.png",
+            "sizes": "192x192",
+            "type": "image/png",
+            "purpose": "any"
+        },
+        {
+            "src": "/icon-512.png",
+            "sizes": "512x512",
+            "type": "image/png",
+            "purpose": "any"
+        },
+        {
+            "src": "/icon-512-maskable.png",
+            "sizes": "512x512",
+            "type": "image/png",
+            "purpose": "maskable"
+        }
+    ]
+}

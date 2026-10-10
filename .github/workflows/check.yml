@@ -1,0 +1,29 @@
+name: Kiểm tra trang
+
+# Chạy mỗi lần push lên main và mỗi pull request: canh file thiếu, QR hỏng, CSS/JS vỡ.
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Lấy mã nguồn
+        uses: actions/checkout@v4
+
+      - name: Cài Node (để kiểm tra cú pháp JS)
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Cài công cụ đọc mã QR + Pillow
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq zbar-tools
+          python3 -m pip install --quiet --disable-pip-version-check pillow
+
+      - name: Kiểm tra website
+        run: python3 .github/scripts/check_site.py
